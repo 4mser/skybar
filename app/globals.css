@@ -25,3 +25,8 @@ body {
     text-wrap: balance;
   }
 }
+
+.backdrop-blur-lg {
+  backdrop-filter: blur(15px);
+}
+
