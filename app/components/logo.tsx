@@ -2,11 +2,9 @@
 import Link from 'next/link';
 import Image from 'next/image'
 
-import { usePathname } from "next/navigation"
 
 
 const Logo = () => {
-  const pathname = usePathname()
   return (
     <Link href={'/'}>
         <Image
