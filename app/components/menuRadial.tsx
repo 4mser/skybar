@@ -1,6 +1,6 @@
-'use client'
+'use client';
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, PanInfo } from 'framer-motion';
 import {
   FaHome,
   FaCocktail,
@@ -49,7 +49,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
     return { x, y };
   };
 
-  const handlePan = (event: any, info: any) => {
+  const handlePan = (event: MouseEvent | TouchEvent, info: PanInfo) => {
     setRotationX((prev) => prev + info.delta.x * 0.5);
     setRotationY((prev) => prev + info.delta.y * 0.5);
   };
