@@ -38,33 +38,8 @@ const Mapa: React.FC = () => {
       mapboxMap.setConfigProperty('basemap', 'lightPreset', 'dusk');
       mapboxMap.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
 
-      // Crear un elemento personalizado para el marcador
-      const markerElement = document.createElement('div');
-      markerElement.className = 'custom-marker';
-      markerElement.style.width = '55px';
-      markerElement.style.height = '55px';
-      markerElement.style.borderRadius = '50%';
-      markerElement.style.overflow = 'hidden';
-      markerElement.style.border = '3px solid rgb(234, 179, 8)';
-      markerElement.style.boxShadow = '0 0 5px rgba(0,0,0,0.5)';
-
-      // Imagen personalizada para el marcador
-      const img = document.createElement('img');
-      img.src = '/path-to-your-image.jpg'; // Cambia esta ruta a la de tu imagen
-      img.style.width = '100%';
-      img.style.height = '100%';
-      img.style.borderRadius = '50%';
-      img.style.padding = '3px';
-      img.style.objectFit = 'cover';
-
-      markerElement.appendChild(img);
-
-      // Crear el marcador y añadirlo al mapa
-      markerRef.current = new mapboxgl.Marker({
-        element: markerElement,
-      })
-        .setLngLat(centerCoordinates)
-        .addTo(mapboxMap);
+      
+      
 
       // Función para detectar interacción del usuario
       mapboxMap.on('mousedown', () => (isUserInteracting.current = true));
