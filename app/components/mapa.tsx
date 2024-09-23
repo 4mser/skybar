@@ -27,7 +27,7 @@ const Mapa: React.FC = () => {
       accessToken: MAPBOX_TOKEN,
       style: "mapbox://styles/mapbox/standard", // Usar el estilo estándar de Mapbox
       center: centerCoordinates, // Coordenadas del centro
-      pitch: 80, // Comienza en vista 3D inclinada
+      pitch: 76, // Comienza en vista 3D inclinada
       zoom: 16, // Zoom inicial
       bearing: rotationBearing.current, // Inicialmente sin rotación
     });
@@ -37,8 +37,19 @@ const Mapa: React.FC = () => {
       mapboxMap.setConfigProperty('basemap', 'lightPreset', 'dusk');
       mapboxMap.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
 
-      
-      
+      // Añadir un marcador azul en la ubicación central
+      const markerElement = document.createElement('div');
+      markerElement.style.width = '20px';
+      markerElement.style.height = '20px';
+      markerElement.style.backgroundColor = 'blue';
+      markerElement.style.borderRadius = '50%';
+      markerElement.style.border = '2px solid white'; // Para resaltar el marcador
+
+      new mapboxgl.Marker({
+        element: markerElement,
+      })
+        .setLngLat(centerCoordinates)
+        .addTo(mapboxMap);
 
       // Función para detectar interacción del usuario
       mapboxMap.on('mousedown', () => (isUserInteracting.current = true));
@@ -65,11 +76,11 @@ const Mapa: React.FC = () => {
   }, []);
 
   return (
-    <section className="px-4 overflow-hidden pb-1">
+    <section className=" overflow-hidden pb-1">
       <div className="w-full flex justify-between py-2 items-center">
-        <h2 className="py-2 font-semibold">Ubicación</h2>
+        {/* <h2 className="py-2 font-semibold">Ubicación</h2> */}
       </div>
-      <div className="z-4 absolute  p-2">
+      <div className="z-4 absolute  p-4">
         <div className="backdrop-blur-custom p-3 rounded-lg overflow-hidden border border-white/10">
            <p className="text-xs">Piso 12 del casino Dreams Valdivia</p>
            <p className="text-xs">Carampangue #190</p>
@@ -77,7 +88,7 @@ const Mapa: React.FC = () => {
       </div>
       <div
         ref={mapNode}
-        style={{ height: "400px", borderRadius: "10px", overflow: "hidden" }}
+        style={{ height: "400px", borderRadius: "", overflow: "hidden" }}
       >
       </div>
     </section>

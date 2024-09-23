@@ -10,10 +10,12 @@ export default function Home() {
       <Banner />
       <Anuncios />
       <Cartas />
+      <br />
+      <div>
+        Reservar
+      </div>
       <Mapa />
       {/* <Contacto /> */}
-      <br />
-      <br />
     </main>
   );
 }

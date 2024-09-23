@@ -36,7 +36,7 @@ export default function Anuncios() {
 
         <SwiperSlide>
           <Link href={'/carta'}>
-            <div className='h-32 overflow-hidden rounded-lg  shadow-md  bg-gradient-to-br flex items-center from-zinc-800 to-transparent '>
+            <div className='h-52 overflow-hidden rounded-lg  shadow-md  bg-gradient-to-br flex items-center from-zinc-800 to-transparent '>
                     <img src="/images/skybar.jpg" alt="" className='w-full h-full object-cover' />
             </div>
           </Link>
@@ -44,7 +44,7 @@ export default function Anuncios() {
 
         <SwiperSlide >
           <Link href={'/tragos'}>
-            <div className='h-32 overflow-hidden  rounded-lg shadow-md bg-gradient-to-br flex items-center  from-zinc-800 to-transparent '>
+            <div className='h-52 overflow-hidden  rounded-lg shadow-md bg-gradient-to-br flex items-center  from-zinc-800 to-transparent '>
             <img src="/images/skybar2.jpg" alt="" className='w-full h-full object-cover' />
             </div>
           </Link>
@@ -52,7 +52,7 @@ export default function Anuncios() {
 
         <SwiperSlide>
           <Link href={'/sushi'}>
-            <div className='h-32 overflow-hidden  rounded-lg shadow-md  bg-gradient-to-br flex items-center  from-zinc-800 to-transparent '>
+            <div className='h-52 overflow-hidden  rounded-lg shadow-md  bg-gradient-to-br flex items-center  from-zinc-800 to-transparent '>
             <img src="/images/skybar3.jpg" alt="" className='w-full h-full object-cover' />
             </div>
           </Link>

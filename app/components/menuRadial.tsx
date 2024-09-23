@@ -21,8 +21,8 @@ interface MenuRadialProps {
 }
 
 const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
-  const outerRadius = 225; // Aumentamos el radio externo
-  const innerRadius = 150; // Aumentamos el radio interno para mayor separación
+  const outerRadius = 225;
+  const innerRadius = 150;
   const [rotationX, setRotationX] = useState(0);
   const [rotationY, setRotationY] = useState(0);
 
@@ -46,7 +46,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
     const angle = (index / totalItems) * 360 + rotationX + rotationY;
     const x = Math.cos((angle * Math.PI) / 180) * ((outerRadius + innerRadius + 20) / 2);
     const y = Math.sin((angle * Math.PI) / 180) * ((outerRadius + innerRadius + 20) / 2);
-    return { x, y };
+    return { x, y, angle };
   };
 
   const handlePan = (event: MouseEvent | TouchEvent, info: PanInfo) => {
@@ -54,16 +54,20 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
     setRotationY((prev) => prev + info.delta.y * 0.5);
   };
 
-  // Animación para la rueda
+  const isInDisplayRange = (angle: number) => {
+    const normalizedAngle = (angle + 360) % 360;
+    return normalizedAngle >= 350 || normalizedAngle <= 20;
+  };
+
   const wheelVariants = {
     open: {
-      rotate: [20, 0], // Animación desde 20 grados hasta 0 grados
+      rotate: [20, 0],
       y: '20%',
       x: '-60%',
       transition: { duration: 0.5, ease: 'easeInOut' },
     },
     closed: {
-      rotate: [0, 20], // Animación de cierre
+      rotate: [0, 20],
       y: '20%',
       x: '-60%',
       transition: { duration: 0.5, ease: 'easeInOut' },
@@ -94,34 +98,28 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
       >
         <motion.div
           className="relative h-[480px] w-[480px] origin-center border-[1.5px] border-white/20 rounded-full shadow-2xl shadow-black/70"
-          // Hacemos que la rueda sea más grande
           onPan={handlePan}
           onClick={(e) => e.stopPropagation()}
           initial="closed"
           animate={open ? 'open' : 'closed'}
           variants={wheelVariants}
         >
-          {/* Orbe central con flecha de doble punta */}
           <motion.div
             className="absolute w-32 h-32 z-50 rounded-full bg-gradient-to-r from-transparent via-indigo-500 to-cyan-300 flex items-center justify-center"
             style={{
-              top: '37%', // Asegura que el orbe esté en el centro
+              top: '37%',
               left: '50%',
-              boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.5)', // Sombra inicial
+              boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.5)',
             }}
             drag
             dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
             dragElastic={0.2}
             whileDrag={{
               scale: 1.2,
-              boxShadow: '0px 0px 30px rgba(35, 177, 203, 0.6)', // Iluminación aumentada
+              boxShadow: '0px 0px 30px rgba(35, 177, 203, 0.6)',
             }}
-          >
-            {/* Flecha de doble punta (↔) */}
-            {/* <div className="text-white  text-xl font-normal rotate-90 translate-x-4">↔</div> */}
-          </motion.div>
+          ></motion.div>
 
-          {/* Borde interno */}
           <div
             className="absolute inset-0 border-[1.5px] border-white/15 rounded-full"
             style={{
@@ -135,7 +133,8 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
           {/* Menú radial */}
           <motion.div className="relative h-full w-full">
             {menuItems.map((item, index) => {
-              const { x, y } = calculatePosition(index);
+              const { x, y, angle } = calculatePosition(index);
+              const showLabel = isInDisplayRange(angle);
 
               return (
                 <motion.a
@@ -147,8 +146,14 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
                     top: `calc(50% + ${y}px)`,
                     transform: 'translate(-50%, -50%)',
                   }}
+                  animate={{
+                    filter: showLabel ? 'drop-shadow(0px 0px 10px #00FFFF)' : 'none',
+                    color: showLabel ? '#00FFFF' : '#FFFFFF', // Cyan cuando está en rango, blanco si no
+                  }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
                 >
                   <div className="text-2xl">{item.icon}</div>
+                  {showLabel && <motion.div className="text-xs mt-1">{item.label}</motion.div>}
                 </motion.a>
               );
             })}
