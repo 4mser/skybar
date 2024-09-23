@@ -62,8 +62,8 @@ const Mapa: React.FC = () => {
   return (
     <section className="px-4 overflow-hidden pb-1">
       <div className="w-full flex justify-between py-2 items-center">
-        <h2 className="font-medium text-lg text-black/70 xl:text-[2vw]">
-          Puntos de venta
+        <h2 className="py-2 font-semibold">
+          Ubicación
         </h2>
       </div>
       <div
