@@ -12,6 +12,8 @@ export default function Home() {
       <Cartas />
       <Mapa />
       {/* <Contacto /> */}
+      <br />
+      <br />
     </main>
   );
 }

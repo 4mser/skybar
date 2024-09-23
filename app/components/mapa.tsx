@@ -8,6 +8,8 @@ const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
 
 const Mapa: React.FC = () => {
   const mapNode = useRef<HTMLDivElement | null>(null);
+  const rotationBearing = useRef(0);
+  const isUserInteracting = useRef(false); // Para detectar si el usuario está manipulando el mapa
 
   useEffect(() => {
     const node = mapNode.current;
@@ -23,28 +25,33 @@ const Mapa: React.FC = () => {
     const mapboxMap = new mapboxgl.Map({
       container: node,
       accessToken: MAPBOX_TOKEN,
-      style: "mapbox://styles/mapbox/standard", // Estilo Mapbox Standard
+      style: "mapbox://styles/mapbox/standard", // Usar el estilo estándar de Mapbox
       center: centerCoordinates, // Coordenadas del centro
-      zoom: 10, // Nivel de zoom inicial
-      pitch: 0, // Empieza sin inclinación (vista superior)
-      bearing: 0, // Sin rotación inicial
+      pitch: 60, // Comienza en vista 3D inclinada
+      zoom: 16, // Zoom inicial
+      bearing: rotationBearing.current, // Inicialmente sin rotación
     });
 
-    // Espera a que el estilo del mapa se cargue
+    // Asegurarse de que se mantenga en el estilo 'dusk'
     mapboxMap.on('load', () => {
-      // Cambiar el preset al 'dusk'
       mapboxMap.setConfigProperty('basemap', 'lightPreset', 'dusk');
+      mapboxMap.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
 
-      // Después de 2 segundos, animamos la inclinación y el giro
-      setTimeout(() => {
-        mapboxMap.flyTo({
-          pitch: 60, // Inclinación del mapa (60 grados para vista 3D)
-          zoom: 16, // Zoom
-          speed: 0.8, // Velocidad de la animación
-          curve: 1, // Curvatura para suavizar la animación
-          easing: (t) => t, // Función de easing (linear)
-        });
-      }, 0); // La animación comienza después de 2 segundos
+      // Función para detectar interacción del usuario
+      mapboxMap.on('mousedown', () => (isUserInteracting.current = true));
+      mapboxMap.on('mouseup', () => (isUserInteracting.current = false));
+
+      // Función para hacer que el mapa gire continuamente sobre su eje
+      const rotateMap = () => {
+        if (!isUserInteracting.current) {
+          rotationBearing.current = (rotationBearing.current + 0.05) % 360; // Ajustar el incremento de bearing para suavidad
+          mapboxMap.setBearing(rotationBearing.current); // Cambiar el bearing directamente
+        }
+        requestAnimationFrame(rotateMap); // Llamar la animación de nuevo para continuidad
+      };
+
+      // Iniciar la rotación continua
+      requestAnimationFrame(rotateMap);
     });
 
     return () => {
