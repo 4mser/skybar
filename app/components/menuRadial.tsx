@@ -1,6 +1,7 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, PanInfo } from 'framer-motion';
+import { gsap } from 'gsap';
 import {
   FaHome,
   FaCocktail,
@@ -25,6 +26,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
   const innerRadius = 150;
   const [rotationX, setRotationX] = useState(0);
   const [rotationY, setRotationY] = useState(0);
+  const [activeLabel, setActiveLabel] = useState<string | null>(null);
 
   const menuItems = [
     { icon: <FaHome />, label: 'Inicio', link: '/' },
@@ -58,6 +60,28 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
     const normalizedAngle = (angle + 360) % 360;
     return normalizedAngle >= 350 || normalizedAngle <= 20;
   };
+
+  // Actualizamos el label activo cuando sea necesario, con useCallback para evitar renderizados innecesarios
+  const updateActiveLabel = useCallback(
+    (label: string | null) => {
+      if (activeLabel !== label) {
+        setActiveLabel(label);
+      }
+    },
+    [activeLabel]
+  );
+
+  useEffect(() => {
+    if (activeLabel) {
+      gsap.fromTo(
+        ".active-label",
+        { y: '100%', opacity: 0 },
+        { y: '0%', opacity: 1, duration: 0.5, ease: 'power3.out' }
+      );
+    } else {
+      gsap.to(".active-label", { y: '100%', opacity: 0, duration: 0.5, ease: 'power3.in' });
+    }
+  }, [activeLabel]);
 
   const wheelVariants = {
     open: {
@@ -136,6 +160,14 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
               const { x, y, angle } = calculatePosition(index);
               const showLabel = isInDisplayRange(angle);
 
+              useEffect(() => {
+                if (showLabel) {
+                  updateActiveLabel(item.label);
+                } else if (activeLabel === item.label) {
+                  updateActiveLabel(null);
+                }
+              }, [showLabel]);
+
               return (
                 <motion.a
                   key={index}
@@ -147,18 +179,25 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
                     transform: 'translate(-50%, -50%)',
                   }}
                   animate={{
-                    filter: showLabel ? 'drop-shadow(0px 0px 10px #00FFFF)' : 'none',
-                    color: showLabel ? '#00FFFF' : '#FFFFFF', // Cyan cuando está en rango, blanco si no
                   }}
                   transition={{ duration: 0.3, ease: 'easeInOut' }}
                 >
                   <div className="text-2xl">{item.icon}</div>
-                  {showLabel && <motion.div className="text-xs mt-1">{item.label}</motion.div>}
+                  {/* {showLabel && <motion.div className="text-xs mt-1">{item.label}</motion.div>} */}
                 </motion.a>
               );
             })}
           </motion.div>
         </motion.div>
+
+        {/* Texto animado al lado derecho */}
+        {activeLabel && (
+          <motion.div
+            className="fixed top-[40%] active-label text-3xl font-bold right-10  p-4 text-white "
+          >
+            {activeLabel}
+          </motion.div>
+        )}
       </motion.div>
     </>
   );
