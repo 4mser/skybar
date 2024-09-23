@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, PanInfo } from 'framer-motion';
 import { gsap } from 'gsap';
 import {
@@ -34,7 +34,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
     { icon: <FaMapMarkedAlt />, label: 'Mapa', link: '/mapa' },
     { icon: <FaRegChartBar />, label: 'Analíticas', link: '/analytics' },
     { icon: <FaUserFriends />, label: 'Personal', link: '/amigos' },
-    { icon: <FaComments />, label: 'Comentarios', link: '/comentarios' },
+    { icon: <FaComments />, label: 'Reseñas', link: '/comentarios' },
     { icon: <FaBookmark />, label: 'Favoritos', link: '/favoritos' },
     { icon: <FaRegClock />, label: 'Horario', link: '/horario' },
     { icon: <FaMusic />, label: 'Música', link: '/musica' },
@@ -44,41 +44,47 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
 
   const totalItems = menuItems.length;
 
-  const calculatePosition = (index: number) => {
+  const calculatePosition = useCallback((index: number) => {
     const angle = (index / totalItems) * 360 + rotationX + rotationY;
     const x = Math.cos((angle * Math.PI) / 180) * ((outerRadius + innerRadius + 20) / 2);
     const y = Math.sin((angle * Math.PI) / 180) * ((outerRadius + innerRadius + 20) / 2);
     return { x, y, angle };
-  };
+  }, [rotationX, rotationY]);
 
   const handlePan = (event: MouseEvent | TouchEvent, info: PanInfo) => {
     setRotationX((prev) => prev + info.delta.x * 0.5);
     setRotationY((prev) => prev + info.delta.y * 0.5);
   };
 
-  const isInDisplayRange = (angle: number) => {
+  const isInDisplayRange = useCallback((angle: number) => {
     const normalizedAngle = (angle + 360) % 360;
     return normalizedAngle >= 350 || normalizedAngle <= 20;
-  };
+  }, []);
 
-  // Actualizamos el label activo fuera del `map` para evitar ciclos infinitos
   useEffect(() => {
     if (activeLabel) {
       gsap.fromTo(
         ".active-label",
         { y: '100%', opacity: 0 },
-        { y: '0%', opacity: 1, duration: 0.5, ease: 'power3.out' }
+        { y: '0%', opacity: 1, duration: 0.4, ease: 'power3.out' }
       );
     } else {
-      gsap.to(".active-label", { y: '100%', opacity: 0, duration: 0.5, ease: 'power3.in' });
+      gsap.to(".active-label", { y: '100%', opacity: 0, duration: 0.4, ease: 'power3.in' });
     }
   }, [activeLabel]);
 
-  const handleLabelChange = (label: string | null) => {
-    if (activeLabel !== label) {
-      setActiveLabel(label);
+  useEffect(() => {
+    // Determinar qué label está activo según la rotación y la posición de los elementos
+    const activeItem = menuItems.find((_, index) => {
+      const { angle } = calculatePosition(index);
+      return isInDisplayRange(angle);
+    });
+    
+    // Actualizamos solo si es diferente al actual
+    if (activeItem?.label !== activeLabel) {
+      setActiveLabel(activeItem?.label || null);
     }
-  };
+  }, [rotationX, rotationY, menuItems, calculatePosition, isInDisplayRange, activeLabel]);
 
   return (
     <>
@@ -88,8 +94,8 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
         initial="closed"
         animate={open ? 'open' : 'closed'}
         variants={{
-          open: { opacity: 1, display: 'block', transition: { duration: 0.5, ease: 'easeInOut' }},
-          closed: { opacity: 0, transitionEnd: { display: 'none' }, transition: { duration: 0.5, ease: 'easeInOut' }},
+          open: { opacity: 1, display: 'block', transition: { duration: 0.4, ease: 'easeInOut' }},
+          closed: { opacity: 0, transitionEnd: { display: 'none' }, transition: { duration: 0.4, ease: 'easeInOut' }},
         }}
       >
         <motion.div
@@ -99,8 +105,8 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
           initial="closed"
           animate={open ? 'open' : 'closed'}
           variants={{
-            open: { rotate: [20, 0], y: '20%', x: '-60%', transition: { duration: 0.5, ease: 'easeInOut' }},
-            closed: { rotate: [0, 20], y: '20%', x: '-60%', transition: { duration: 0.5, ease: 'easeInOut' }},
+            open: { rotate: [20, 0], y: '20%', x: '-60%', transition: { duration: 0.4, ease: 'easeInOut' }},
+            closed: { rotate: [0, 20], y: '20%', x: '-60%', transition: { duration: 0.4, ease: 'easeInOut' }},
           }}
         >
           <motion.div
@@ -110,7 +116,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
             dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
             dragElastic={0.2}
             whileDrag={{ scale: 1.2, boxShadow: '0px 0px 30px rgba(35, 177, 203, 0.6)' }}
-          ></motion.div>
+          />
 
           <div
             className="absolute inset-0 border-[1.5px] border-white/15 rounded-full"
@@ -119,20 +125,13 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
 
           <motion.div className="relative h-full w-full">
             {menuItems.map((item, index) => {
-              const { x, y, angle } = calculatePosition(index);
-              const showLabel = isInDisplayRange(angle);
-
-              if (showLabel) {
-                handleLabelChange(item.label);
-              }
-
+              const { x, y } = calculatePosition(index);
               return (
                 <motion.a
                   key={index}
                   href={item.link}
                   className="absolute flex flex-col items-center justify-center text-white"
                   style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)`, transform: 'translate(-50%, -50%)' }}
-                  
                   transition={{ duration: 0.3, ease: 'easeInOut' }}
                 >
                   <div className="text-2xl">{item.icon}</div>
@@ -143,7 +142,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
         </motion.div>
 
         {activeLabel && (
-          <motion.div className="fixed top-[40%] active-label text-3xl font-bold right-10 p-4 text-white">
+          <motion.div className="fixed top-[36%] active-label text-[7vw] font-bold right-10 p-4 text-white">
             {activeLabel}
           </motion.div>
         )}
