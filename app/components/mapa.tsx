@@ -1,42 +1,16 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import mapboxgl, { Marker } from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
 
 // Asegúrate de tener tu token de Mapbox
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
 
 const Mapa: React.FC = () => {
   const mapNode = useRef<HTMLDivElement | null>(null);
-  const markerRef = useRef<Marker | null>(null);
-  const [map, setMap] = useState<mapboxgl.Map | null>(null);
-  const centerCoordinates: [number, number] = [-73.246955, -39.811583]; // Coordenadas de la ubicación
-  const isUserInteracting = useRef(false); // Para detectar si el usuario está manipulando el mapa
   const rotationBearing = useRef(0);
-
-  // Función para crear el marcador con una imagen
-  const createCustomMarker = () => {
-    const markerElement = document.createElement('div');
-    markerElement.className = 'custom-marker';
-    markerElement.style.width = '55px';
-    markerElement.style.height = '55px';
-    markerElement.style.borderRadius = '50%';
-    markerElement.style.overflow = 'hidden';
-    markerElement.style.transform = '-translateY(20px)'
-
-    // Imagen personalizada del marcador
-    const img = document.createElement('img');
-    img.src = '/images/neonarrow.png'; // Cambia esta ruta por la de tu imagen
-    img.style.width = '100%';
-    img.style.height = '100%';
-    img.style.borderRadius = '50%';
-    img.style.padding = '3px';
-    img.style.objectFit = 'cover';
-
-    markerElement.appendChild(img);
-    return markerElement;
-  };
+  const isUserInteracting = useRef(false); // Para detectar si el usuario está manipulando el mapa
+  const markerRef = useRef<Marker | null>(null); // Referencia para el marcador
 
   useEffect(() => {
     const node = mapNode.current;
@@ -46,44 +20,67 @@ const Mapa: React.FC = () => {
       node.removeChild(node.firstChild);
     }
 
+    // Coordenadas para centrar el mapa: 39°48'41.3"S 73°14'46.7"W
+    const centerCoordinates: [number, number] = [-73.246955, -39.811583];
+
     const mapboxMap = new mapboxgl.Map({
       container: node,
       accessToken: MAPBOX_TOKEN,
       style: "mapbox://styles/mapbox/standard", // Usar el estilo estándar de Mapbox
       center: centerCoordinates, // Coordenadas del centro
-      pitch: 60, // Vista inclinada
+      pitch: 60, // Comienza en vista 3D inclinada
       zoom: 16, // Zoom inicial
-      bearing: rotationBearing.current, // Sin rotación inicial
+      bearing: rotationBearing.current, // Inicialmente sin rotación
     });
 
-    setMap(mapboxMap); // Guardar la instancia del mapa
-
+    // Asegurarse de que se mantenga en el estilo 'dusk'
     mapboxMap.on('load', () => {
       mapboxMap.setConfigProperty('basemap', 'lightPreset', 'dusk');
       mapboxMap.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
 
-      // Crear y agregar el marcador
-      const markerElement = createCustomMarker();
+      // Crear un elemento personalizado para el marcador
+      const markerElement = document.createElement('div');
+      markerElement.className = 'custom-marker';
+      markerElement.style.width = '55px';
+      markerElement.style.height = '55px';
+      markerElement.style.borderRadius = '50%';
+      markerElement.style.overflow = 'hidden';
+      markerElement.style.border = '3px solid rgb(234, 179, 8)';
+      markerElement.style.boxShadow = '0 0 5px rgba(0,0,0,0.5)';
+
+      // Imagen personalizada para el marcador
+      const img = document.createElement('img');
+      img.src = '/path-to-your-image.jpg'; // Cambia esta ruta a la de tu imagen
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.borderRadius = '50%';
+      img.style.padding = '3px';
+      img.style.objectFit = 'cover';
+
+      markerElement.appendChild(img);
+
+      // Crear el marcador y añadirlo al mapa
       markerRef.current = new mapboxgl.Marker({
         element: markerElement,
       })
         .setLngLat(centerCoordinates)
         .addTo(mapboxMap);
 
-      // Manejar la rotación del mapa
-      const rotateMap = () => {
-        if (!isUserInteracting.current) {
-          rotationBearing.current = (rotationBearing.current + 0.05) % 360;
-          mapboxMap.setBearing(rotationBearing.current);
-        }
-        requestAnimationFrame(rotateMap);
-      };
-
-      // Detectar si el usuario está interactuando con el mapa
+      // Función para detectar interacción del usuario
       mapboxMap.on('mousedown', () => (isUserInteracting.current = true));
       mapboxMap.on('mouseup', () => (isUserInteracting.current = false));
 
-      requestAnimationFrame(rotateMap); // Iniciar la rotación continua
+      // Función para hacer que el mapa gire continuamente sobre su eje
+      const rotateMap = () => {
+        if (!isUserInteracting.current) {
+          rotationBearing.current = (rotationBearing.current + 0.05) % 360; // Ajustar el incremento de bearing para suavidad
+          mapboxMap.setBearing(rotationBearing.current); // Cambiar el bearing directamente
+        }
+        requestAnimationFrame(rotateMap); // Llamar la animación de nuevo para continuidad
+      };
+
+      // Iniciar la rotación continua
+      requestAnimationFrame(rotateMap);
     });
 
     return () => {
