@@ -11,9 +11,6 @@ export default function Home() {
       <Anuncios />
       <Cartas />
       <br />
-      <div>
-        Reservar
-      </div>
       <Mapa />
       {/* <Contacto /> */}
     </main>
