@@ -66,10 +66,10 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
       gsap.fromTo(
         ".active-label",
         { y: '100%', opacity: 0 },
-        { y: '0%', opacity: 1, duration: 0.4, ease: 'power3.out' }
+        { y: '', opacity: 1, duration: 0.4, ease: 'power3.out' }
       );
     } else {
-      gsap.to(".active-label", { y: '100%', opacity: 0, duration: 0.4, ease: 'power3.in' });
+      gsap.to(".active-label", { y: '', opacity: 0, duration: 0.4, ease: 'power3.in' });
     }
   }, [activeLabel]);
 
@@ -89,7 +89,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
   return (
     <>
       <motion.div
-        className="fixed z-50 flex items-center justify-center w-full h-full backdrop-blur-lg"
+        className="fixed z-50 flex items-center justify-center w-full h-full backdrop-blur-lg top-0 left-0"
         onClick={() => setOpen(false)}
         initial="closed"
         animate={open ? 'open' : 'closed'}
@@ -99,7 +99,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
         }}
       >
         <motion.div
-          className="relative h-[480px] w-[480px] origin-center border-[1.5px] border-white/20 rounded-full shadow-2xl shadow-black/70"
+          className="relative  h-[480px] w-[480px] origin-center border-[1.5px] border-white/20 rounded-full shadow-2xl shadow-black/70"
           onPan={handlePan}
           onClick={(e) => e.stopPropagation()}
           initial="closed"
@@ -142,7 +142,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
         </motion.div>
 
         {activeLabel && (
-          <motion.div className="fixed top-[36%] active-label text-[7vw] font-bold right-10 p-4 text-white">
+          <motion.div className="absolute top-[40%] active-label text-[7vw] font-bold right-10 p-4 text-white">
             {activeLabel}
           </motion.div>
         )}
