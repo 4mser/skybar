@@ -27,7 +27,7 @@ const Mapa: React.FC = () => {
       accessToken: MAPBOX_TOKEN,
       style: "mapbox://styles/mapbox/standard", // Usar el estilo estándar de Mapbox
       center: centerCoordinates, // Coordenadas del centro
-      pitch: 60, // Comienza en vista 3D inclinada
+      pitch: 80, // Comienza en vista 3D inclinada
       zoom: 16, // Zoom inicial
       bearing: rotationBearing.current, // Inicialmente sin rotación
     });
