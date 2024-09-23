@@ -12,7 +12,7 @@ const Logo = () => {
             alt='logo'
             width={160}
             height={40}
-            className=''
+            className='-translate-y-[2px]'
         />
     </Link>
   )
