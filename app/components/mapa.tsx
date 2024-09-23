@@ -95,10 +95,17 @@ const Mapa: React.FC = () => {
       <div className="w-full flex justify-between py-2 items-center">
         <h2 className="py-2 font-semibold">Ubicación</h2>
       </div>
+      <div className="z-4 absolute  p-2">
+        <div className="backdrop-blur-custom p-3 rounded-lg overflow-hidden border border-white/10">
+           <p className="text-xs">Piso 12 del casino Dreams Valdivia</p>
+           <p className="text-xs">Carampangue #190</p>
+        </div>
+      </div>
       <div
         ref={mapNode}
         style={{ height: "400px", borderRadius: "10px", overflow: "hidden" }}
-      />
+      >
+      </div>
     </section>
   );
 };
