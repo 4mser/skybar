@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import mapboxgl, { Marker } from "mapbox-gl";
+import mapboxgl from "mapbox-gl";
 
 // Asegúrate de tener tu token de Mapbox
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
@@ -10,7 +10,6 @@ const Mapa: React.FC = () => {
   const mapNode = useRef<HTMLDivElement | null>(null);
   const rotationBearing = useRef(0);
   const isUserInteracting = useRef(false); // Para detectar si el usuario está manipulando el mapa
-  const markerRef = useRef<Marker | null>(null); // Referencia para el marcador
 
   useEffect(() => {
     const node = mapNode.current;
