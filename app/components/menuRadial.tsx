@@ -99,10 +99,10 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
   useEffect(() => {
     if (showInstruction && !isDragging) {
       gsap.to('.breathing-orb', {
-        y: -20, // Movimiento hacia arriba
+        y: -30, // Movimiento hacia arriba
         repeat: -1,
         yoyo: true, // Volverá al centro y luego irá hacia abajo
-        duration: 1.5, // Controla la duración del movimiento
+        duration: 1, // Controla la duración del movimiento
         ease: 'power1.inOut',
       });
     }
@@ -114,13 +114,13 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
       gsap.to('.breathing-orb', {
         boxShadow: '0px 0px 30px rgba(35, 177, 203, 0.9)',
         duration: 0.3,
-        ease: 'power1.out',
+        ease: 'power1.inOut',
       });
     } else {
       gsap.to('.breathing-orb', {
-        boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.5)',
-        duration: 0.5,
-        ease: 'power1.in',
+        boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
+        duration: 0.3,
+        ease: 'power1.inOut',
       });
     }
   }, [isDragging, showInstruction]);
