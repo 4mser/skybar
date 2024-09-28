@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, PanInfo } from 'framer-motion';
 import { gsap } from 'gsap';
 import {
@@ -31,7 +31,8 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
   const [isDragging, setIsDragging] = useState(false); // Detecta si el orbe está siendo arrastrado
   const [tutorialComplete, setTutorialComplete] = useState(false); // Verifica si el tutorial ya fue completado
 
-  const menuItems = [
+  // Memorizar el array de menú para evitar recrearlo en cada render
+  const menuItems = useMemo(() => [
     { icon: <FaHome />, label: 'Inicio', link: '/' },
     { icon: <FaCocktail />, label: 'Tragos', link: '/cocktails' },
     { icon: <FaMapMarkedAlt />, label: 'Mapa', link: '/mapa' },
@@ -43,17 +44,17 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
     { icon: <FaMusic />, label: 'Música', link: '/musica' },
     { icon: <FaConciergeBell />, label: 'Ordenar', link: '/servicios' },
     { icon: <ImSpoonKnife />, label: 'Menú', link: '/tragos' },
-  ];
+  ], []);
 
   const totalItems = menuItems.length;
 
-  // Calcular la posición de cada ítem del menú
+  // Calcular la posición de cada ítem del menú, asegurando que totalItems esté en las dependencias
   const calculatePosition = useCallback((index: number) => {
     const angle = (index / totalItems) * 360 + rotationX + rotationY;
     const x = Math.cos((angle * Math.PI) / 180) * ((outerRadius + innerRadius + 20) / 2);
     const y = Math.sin((angle * Math.PI) / 180) * ((outerRadius + innerRadius + 20) / 2);
     return { x, y, angle };
-  }, [rotationX, rotationY]);
+  }, [rotationX, rotationY, totalItems]);
 
   // Manejar el movimiento del orbe
   const handlePan = (event: MouseEvent | TouchEvent, info: PanInfo) => {

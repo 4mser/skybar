@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 const Contacto = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,7 +34,7 @@ const Contacto = () => {
         variants={buttonVariants}
         animate={menuOpen ? "open" : "closed"}
       >
-        <img src="/icons/pushpin.svg" alt="" className='w-7' />
+        <Image width={800} height={800} src="/icons/pushpin.svg" alt="" className='w-7' />
       </motion.button>
 
       <motion.button
@@ -42,7 +43,7 @@ const Contacto = () => {
         animate={menuOpen ? "open" : "closed"}
         onClick={goToInstagram}
       >
-        <img src="/icons/instagram.svg" alt="" className='w-6 opacity-85' />
+        <Image width={800} height={800} src="/icons/instagram.svg" alt="" className='w-6 opacity-85' />
       </motion.button>
 
       <motion.button
@@ -50,7 +51,7 @@ const Contacto = () => {
         variants={menuVariants}
         animate={menuOpen ? "open" : "closed"}
       >
-        <img src="/icons/mail.svg" alt="" className='w-6 opacity-85' />
+        <Image width={800} height={800} src="/icons/mail.svg" alt="" className='w-6 opacity-85' />
       </motion.button>
 
       <motion.button
@@ -58,7 +59,7 @@ const Contacto = () => {
         variants={menuVariants}
         animate={menuOpen ? "open" : "closed"}
       >
-        <img src="/icons/wsp.svg" alt="" className='w-6 opacity-85' />
+        <Image width={800} height={800} src="/icons/wsp.svg" alt="" className='w-6 opacity-85' />
       </motion.button>
     </section>
   )
