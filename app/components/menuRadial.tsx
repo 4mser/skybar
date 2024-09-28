@@ -108,6 +108,23 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
     }
   }, [showInstruction, isDragging]);
 
+  // Aplicar el box-shadow suavemente al arrastrar o soltar el orbe
+  useEffect(() => {
+    if (isDragging || showInstruction) {
+      gsap.to('.breathing-orb', {
+        boxShadow: '0px 0px 30px rgba(35, 177, 203, 0.9)',
+        duration: 0.3,
+        ease: 'power1.out',
+      });
+    } else {
+      gsap.to('.breathing-orb', {
+        boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.5)',
+        duration: 0.5,
+        ease: 'power1.in',
+      });
+    }
+  }, [isDragging, showInstruction]);
+
   return (
     <>
       <motion.div
@@ -136,11 +153,11 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
             className={`absolute w-32 h-32 z-50 rounded-full bg-gradient-to-r from-transparent via-indigo-500 to-cyan-300 flex items-center justify-center breathing-orb`}
             style={{ 
               top: '37%', left: '50%', 
-              boxShadow: '0px 0px 30px rgba(35, 177, 203, 0.6)', 
             }}
             drag
             dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
             dragElastic={0.2}
+            whileDrag={{ scale: 1.2 }} // Aplicamos el scale solo durante el drag
             onDragStart={() => {
               gsap.killTweensOf('.breathing-orb'); // Detener la animación de movimiento al arrastrar
               setIsDragging(true);
