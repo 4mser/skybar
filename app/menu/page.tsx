@@ -214,10 +214,10 @@ const menuSections: MenuSection[] = [
             price: "$5.900"
           }
         ],
-        gradientFrom: "from-red-400",
-        gradientTo: "to-orange-400",
-        priceColor: "text-orange-300",
-        borderColor: "border-orange-300"
+        gradientFrom: "from-fuchsia-500 ",
+        gradientTo: "to-red-800",
+        priceColor: "text-fuchsia-200",
+        borderColor: "border-fuchsia-200"
         
       }
 ];
