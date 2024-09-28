@@ -34,7 +34,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
   // Memorizar el array de menú para evitar recrearlo en cada render
   const menuItems = useMemo(() => [
     { icon: <FaHome />, label: 'Inicio', link: '/' },
-    { icon: <FaCocktail />, label: 'Tragos', link: '/cocktails' },
+    { icon: <FaCocktail />, label: 'Tragos', link: '/tragos' },
     { icon: <FaMapMarkedAlt />, label: 'Mapa', link: '/mapa' },
     { icon: <FaChartArea />, label: 'Analíticas', link: '/analytics' },
     { icon: <FaUserFriends />, label: 'Personal', link: '/amigos' },
@@ -43,7 +43,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
     { icon: <FaCalendarAlt />, label: 'Reservar', link: '/reservar' },
     { icon: <FaMusic />, label: 'Música', link: '/musica' },
     { icon: <FaConciergeBell />, label: 'Ordenar', link: '/servicios' },
-    { icon: <ImSpoonKnife />, label: 'Menú', link: '/tragos' },
+    { icon: <ImSpoonKnife />, label: 'Menú', link: '/menu' },
   ], []);
 
   const totalItems = menuItems.length;
