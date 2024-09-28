@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';  // Cambiamos a next/navigation
 import { login, register } from '../services/api';  // Asegúrate que el path sea correcto
+import axios from 'axios';  // Importamos axios para manejar errores específicos de Axios
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -28,11 +29,17 @@ const AuthPage = () => {
         console.log('Registro exitoso');
         setIsLogin(true);  // Cambia a la vista de login después de registrarse
       }
-    } catch (error: any) {
-      setErrorMessage(error.message);
+    } catch (error) {
+      // Chequeo de si el error es de Axios
+      if (axios.isAxiosError(error)) {
+        setErrorMessage(error.response?.data?.message || 'Error en la autenticación');
+      } else if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('Error desconocido');
+      }
     }
   };
-  
 
   return (
     <div className="flex items-center justify-center min-h-[100dvh]  text-white">
