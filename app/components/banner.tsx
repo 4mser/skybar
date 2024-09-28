@@ -13,7 +13,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 export default function Banner() {
   return (
    
-    <main className='absolute top-12 left-0 w-full overflow-hidden'>
+    <main className='absolute top-[50px] left-0 w-full overflow-hidden'>
         <Swiper
         spaceBetween={0}
         centeredSlides={true}

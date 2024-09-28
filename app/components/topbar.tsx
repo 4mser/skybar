@@ -1,19 +1,35 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';  // Cambiamos a next/navigation
 import Logo from './logo';
 import MenuRadial from './menuRadial'; // Importa el menú radial
 
 const Topbar = () => {
   const [openMenu, setOpenMenu] = useState(false); // Estado para el menú radial
-  const [openHappy, setOpenHappy] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
+
+  // Chequear si el usuario está autenticado
+  useEffect(() => {
+    const token = localStorage.getItem('token'); // Verificamos si hay un token en localStorage
+    if (token) {
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+  }, []);
 
   const handleMenu = () => {
     setOpenMenu(!openMenu);
   };
 
-  const handleHappy = () => {
-    setOpenHappy(!openHappy);
+  const handleProfileClick = () => {
+    if (isAuthenticated) {
+      router.push('/profile'); // Si está autenticado, ir a la página de perfil
+    } else {
+      router.push('/auth'); // Si no está autenticado, ir a la página de autenticación
+    }
   };
 
   return (
@@ -32,11 +48,11 @@ const Topbar = () => {
         {/* El logo en el centro */}
         <Logo />
 
-        {/* Botón para abrir el Happy Hour */}
-        <button onClick={handleHappy}>
+        {/* Botón para perfil o autenticación */}
+        <button onClick={handleProfileClick}>
           <Image
-            src={'/icons/dizzy.svg'}
-            alt="dizzy"
+            src={'/icons/profile.svg'}
+            alt="profile"
             width={28}
             height={28}
           />
@@ -44,7 +60,7 @@ const Topbar = () => {
       </div>
 
       {/* Componente del menú radial */}
-      <MenuRadial open={openMenu} setOpen={setOpenMenu} /> {/* Pasamos el estado para abrir/cerrar el menú radial */}
+      <MenuRadial open={openMenu} setOpen={setOpenMenu} />
     </>
   );
 };

@@ -24,35 +24,20 @@ interface MenuSection {
 // Definir el tipo de las secciones del menú
 const menuSections: MenuSection[] = [
     {
-        title: "SUSHI ROLL SPECIAL (9 PIEZAS)",
-        filter: "SUSHI ROLL SPECIAL",
+        title: "Coctelería de Autor",
+        filter: "Coctelería de Autor",
         items: [
           {
-            name: "ROLLS ACEVICHADO (70)",
-            description: "Camarón Apanado, Queso Crema, Bañado en Salsa Acevichada y Coronado con Maní Crocante.",
-            price: "6.900"
+            name: "El Mariachi",
+            description: "Tequila Olmeca, jugo de naranja, pulpa de mango, ají merquén, jugo de limón, jarabe de goma.",
+            price: "7.900"
           },
           {
-            name: "PREMIUM YAGAN (72)",
-            description: "Salmón Apanado, Palta, Envuelto en Queso Crema Flameado Coronado En Salsa Teriyaki y Papas Hilo.",
-            price: "7.900"
-          },{
-            name: "ROLLS CEVICHE (76)",
-            description: "Salmón, Queso Crema, Cebollín envuelto en Palta Bañado en Ceviche de la Casa.",
-            price: "8.500"
-          },{
-            name: "RES ROLLS (78)",
-            description: "Filete de Res, Queso Mantecoso, apanado en panko bañado con salsa acevichada y tiritas de wantan.",
-            price: "7.800"
-          },{
-            name: "EBI ACEVICHADO (79)",
-            description: "Salmón Apanado, Queso Crema envuelto en Palta y Camarón Acevichado.",
-            price: "7.900"
-          },{
-            name: "MEXICAN ROLLS (80)",
-            description: "Pollo Apanado, ciboullete, queso crema envuelto en sesamo coronado con Guacamole.",
-            price: "7.900"
-          }
+            name: "",
+            description: "",
+            price: ""
+          },
+          
         ],
         gradientFrom: "from-red-700",
         gradientTo: "to-red-950",
@@ -60,39 +45,19 @@ const menuSections: MenuSection[] = [
         borderColor: "border-red-500"
       },
       {
-        title: "ENVUELTOS EN PALTA (9 PIEZAS)",
-        filter: "ENVUELTOS EN PALTA",
+        title: "Sugerencias del Barman",
+        filter: "Sugerencias del Barman",
         items: [
           {
-            name: "EBI TERIYAKI (1)",
-            description: "Camarón, Cebollín, Queso Crema envuelto en Palta Bañado en Pollo Teriyaky y Sésamo",
+            name: "Caipirinha",
+            description: "Cachaza, limón de pica y jarabe de goma.",
             price: "7.200"
           },
           {
-            name: "PREMIUM (3)",
-            description: "Salmón, Ciboullete, Queso Crema envuelto en Palta.",
-            price: "6.900"
+            name: "",
+            description: "",
+            price: ""
           },
-          {
-            name: "EBI CHEESE (4)",
-            description: "Camarón, Cebollín, Queso Crema envuelto en Palta.",
-            price: "6.900"
-          },
-          {
-            name: "CHICKEN LIGHT (5)",
-            description: "Pollo, Cebollín, Queso Crema envuelto en Palta.",
-            price: "6.800"
-          },
-          {
-            name: "EBI TEMPURA (6)",
-            description: "Camarón Tempura, Queso Crema envuelto en Palta.",
-            price: "6.900"
-          },
-          {
-            name: "OKAMA ROLLS (10)",
-            description: "Pollo, Queso Crema, Nuez envuelto en Palta Bañado en Salsa Acevichada.",
-            price: "6.900"
-          }
         ],
         gradientFrom: "from-green-700",
         gradientTo: "to-yellow-500",
@@ -100,48 +65,18 @@ const menuSections: MenuSection[] = [
         borderColor: "border-lime-300"
       },
       {
-        title: "ENVUELTOS EN PANKO (FRITOS) (9 PIEZAS)",
-        filter: "FRITOS EN PANKO",
+        title: "Cócteles sin Alcohol",
+        filter: "Cócteles sin Alcohol",
         items: [
           {
-            name: "PANKO ESPECIAL (13)", 
-            description: "Pollo, Queso Crema, Nuez Envuelto en Panko, Bañado en Salsa Teriyaki.", 
-            price: "6.800"
+            name: "Mojito", 
+            description: "", 
+            price: "5.900"
           },
           {
-            name: "SAKE PANKO (14)", 
-            description: "Salmón, Palta, Queso Crema Envuelto en Panko.", 
-            price: "6.900"
-          },
-          {
-            name: "EBI PANKO (15)", 
-            description: "Camarón, Ciboullete, Queso Crema envuelto en Panko.", 
-            price: "6.900"
-          },
-          {
-            name: "PANKO CHICKEN (16)", 
-            description: "Pollo, Palta, Queso Crema Envuelto en Panko.", 
-            price: "6.900"
-          },
-          {
-            name: "TEMPURA SHRIMPS (17)", 
-            description: "Camarón Apanado, Queso Mantecoso, Envuelto en Panko Bañado en Salsa Acevichada.", 
-            price: "6.900"
-          },
-          {
-            name: "CHICKEN MIX ROLLS", 
-            description: "Pollo Furay, Queso Crema, Cebollín envuelto en Panko Coronado con Guacamole y Salsa Acevichada.", 
-            price: "6.900"
-          },
-          {
-            name: "YAGÁN TEMPURA", 
-            description: "Camarón, Queso Crema, Cebollín Apanado en Panko, Bañado en Pollo Teriyaki y Sésamo.", 
-            price: "7.900"
-          },
-          {
-            name: "CHICKEN TEMPURA (23)", 
-            description: "Pollo Apanado, Queso Crema Envuelto en Panko Bañado en Salsa de acevichada.", 
-            price: "6.700"
+            name: "",
+            description: "",
+            price: ""
           },
         ],
         gradientFrom: "from-red-950",
@@ -150,29 +85,19 @@ const menuSections: MenuSection[] = [
         borderColor: "border-yellow-500"
       },
       {
-        title: "ENVUELTOS EN SALMÓN (9 PIEZAS)",
-        filter: "ENVUELTOS EN SALMÓN",
+        title: "Mocktails",
+        filter: "Mocktails",
         items: [
           {
-            name: "SAKEDU (24)",
-            description: "Camarón, Salmón, Queso Crema envuelto en Salmón Bañado en Salsa Acevichada.",
-            price: "7.900"
+            name: "Social cucumber (Nuevo)",
+            description: "Pepino, esencia de coco, pulpa de piña, jugo de limón, syrup simple.",
+            price: "5.900"
           },
           {
-            name: "TOKIO (26)",
-            description: "Camarón, Cebollin, Queso Crema envuelto en Salmón.",
-            price: "7.300"
+            name: "",
+            description: "",
+            price: ""
           },
-          {
-            name: "KINTARO (27)",
-            description: "Camarón Apanado, Queso Crema envuelto en Salmón. Bañado en Salsa Acevichada.",
-            price: "7.490"
-          },
-          {
-            name: "OKINAWA (30)",
-            description: "Pulpo, Palta, Queso Crema envuelto en Salmón",
-            price: "7.900"
-          }
         ],
         gradientFrom: "from-red-400",
         gradientTo: "to-orange-400",
@@ -180,44 +105,19 @@ const menuSections: MenuSection[] = [
         borderColor: "border-orange-300"
       },
       {
-        title: "CALIFORNIA ROLLS (9 PIEZAS)",
-        filter: "CALIFORNIA ROLLS",
+        title: "Selección de Sour",
+        filter: "Selección de Sour",
         items: [
           {
-            name: "KANI (36)",
-            description: "Kanikama, Palta, Queso Crema.",
-            price: "5.490"
+            name: "Pisco Sour",
+            description: "",
+            price: "5.900"
           },
           {
-            name: "EBI (37)",
-            description: "Camarón, Cebollin, Nuez, Queso Crema Bañado en Salsa Acida y Sésamo.",
-            price: "6.200"
+            name: "",
+            description: "",
+            price: ""
           },
-          {
-            name: "SAKE (38)",
-            description: "Salmón, Palta, Queso Crema.",
-            price: "6.900"
-          },
-          {
-            name: "EBI FURAY (39)",
-            description: "Camarón Apanado, Palta, Envuelto en Sésamo Bañado en Tibia Salsa de Parmesano.",
-            price: "6.100"
-          },
-          {
-            name: "CHICKEN PARMESANO (40)",
-            description: "Pollo, Queso Crema Envuelto en Sésamo Bañado en tibia Salsa de Parmesano.",
-            price: "6.100"
-          },
-          {
-            name: "TAKO (42)",
-            description: "Pulpo, Palta, Queso Crema.",
-            price: "8.600"
-          },
-          {
-            name: "NATURA (43)",
-            description: "Choclo, Palta, Queso Crema Bañado en Salsa Acevichada.",
-            price: "6.400"
-          }
         ],
         gradientFrom: "from-teal-500",
         gradientTo: "to-cyan-600",
@@ -225,28 +125,18 @@ const menuSections: MenuSection[] = [
         borderColor: "border-teal-300"
       },
       {
-        title: "ENVUELTOS EN QUESO CREMA (9 PIEZAS)",
-        filter: "ENVUELTOS EN QUESO CREMA",
+        title: "Cordiales",
+        filter: "Cordiales",
         items: [
           {
-            name: "SNOW EBI (44)",
-            description: "Camarón, Palta, Ciboullete envuelto en Queso Crema Bañado en Salsa de acida.",
-            price: "7.300"
-          },
-          {
-            name: "SNOW CHICKEN (45)",
-            description: "Pollo, Palta, Ciboullete envuelto en Queso Crema.",
+            name: "Ramazzotti Rosato Spritz",
+            description: "",
             price: "7.200"
           },
           {
-            name: "SNOW FUNGI (46)",
-            description: "Champiñon apanado, Palta, Choclo envuelto en Queso Crema.",
-            price: "6.900"
-          },
-          {
-            name: "SNOW APANADO (48)",
-            description: "Camarón Apanado, Palta, envuelto en Queso Crema Bañado en Salsa Teriyaki y Sesamo.",
-            price: "7.400"
+            name: "",
+            description: "",
+            price: ""
           },
         ],
         gradientFrom: "from-zinc-400",
@@ -255,33 +145,18 @@ const menuSections: MenuSection[] = [
         borderColor: "border-gray-300"
       },
       {
-        title: "ENVUELTOS MIX SALMÓN Y PALTA (9 PIEZAS)",
-        filter: "ENVUELTOS MIX SALMÓN Y PALTA",
+        title: "Especial",
+        filter: "Especial",
         items: [
           {
-            name: "EDU JAI (49)",
-            description: "Camarón Apanado, Queso Crema Envuelto en Salmón-Palta Bañado en Salsa Acevichada.",
-            price: "7.900"
+            name: "Branca Cola",
+            description: "",
+            price: "6.900"
           },
           {
-            name: "EBI MIX ROLLS (50)",
-            description: "Camarón, Palta, Queso Crema Envuelto en Salmón-Palta.",
-            price: "7.900"
-          },
-          {
-            name: "SAKE MIX (51)",
-            description: "Salmón, Palta, Queso Crema Envuelto en Salmón-Palta.",
-            price: "7.900"
-          },
-          {
-            name: "TAKO MIX (57)",
-            description: "Pulpo, Palta, Queso Crema Envuelto en Salmón-Palta.",
-            price: "7.900"
-          },
-          {
-            name: "OMURA (55)",
-            description: "Camarón Tempura, Queso Crema Envuelto en Salmón-Palta bañado en ceviche del día.",
-            price: "8.500"
+            name: "",
+            description: "",
+            price: ""
           },
         ],
         gradientFrom: "from-red-400",
@@ -290,28 +165,18 @@ const menuSections: MenuSection[] = [
         borderColor: "border-lime-300"
       },
       {
-        title: "ENVUELTOS EN NORI (9 PIEZAS)",
-        filter: "ENVUELTOS EN NORI",
+        title: "Vodka",
+        filter: "Vodka",
         items: [
           {
-            name: "SAE MAKI (57)",
-            description: "Salmón, Palta, Queso Crema.",
-            price: "5.000"
+            name: "Absolut Blue Original",
+            description: "",
+            price: "6.900"
           },
           {
-            name: "TERI MAKI (58)",
-            description: "Pollo, Queso Crema Envuelto en Nori Tempura Bañado en Salsa Thai",
-            price: "5.100"
-          },
-          {
-            name: "HOSO MAKI (59)",
-            description: "Camarón, Cebollín, Queso Crema",
-            price: "5.000"
-          },
-          {
-            name: "SAKE MAKI (60)",
-            description: "Salmon , Cebollin , Queso crema.",
-            price: "5.490"
+            name: "",
+            description: "",
+            price: ""
           },
         ],
         gradientFrom: "from-gray-700",
@@ -320,14 +185,19 @@ const menuSections: MenuSection[] = [
         borderColor: "border-gray-400"
       },
       {
-        title: "ROLLS SIN ARROZ",
-        filter: "ROLLS SIN ARROZ",
+        title: "Ron",
+        filter: "Ron",
         items: [
           {
-            name: "SAKE AVOCADO",
-            description: "Salmón, Camaron Apanado, Queso Crema, Cebollín Envuelto en Mixto de Palta y Salmon y salsa acevichada.",
-            price: "9.490"
-          }
+            name: "Havana Club Añejo Reserva",
+            description: "",
+            price: "7.200"
+          },
+          {
+            name: "",
+            description: "",
+            price: ""
+          },
         ],
         gradientFrom: "from-emerald-400",
         gradientTo: "to-lime-800",
@@ -335,39 +205,19 @@ const menuSections: MenuSection[] = [
         borderColor: "border-emerald-500"
       },
       {
-        title: "PROMOCIONES SUSHI",
-        filter: "PROMOS",
+        title: "Cognac",
+        filter: "Cognac",
         items: [
           {
-            name: "PRINCIPIANTE A",
-            description: "9 Pollo Frito- 9 Kanikama en Sésamo - 9 Camarón en Palta.",
-            price: "16.990"
-          },
-          {
-            name: "EXPERTO A",
-            description: "9 Camarón en Palta - 9 Pollo Frito - 9 Kanikama Frito - 9 Kanikama Sesamo",
-            price: "22.000"
-          },
-          {
-            name: "EXPERTO B",
-            description: "-",
-            price: "26.000"
-          },
-          {
-            name: "27 FRITOS",
-            description: "9 Pollo - 9 Camarón - 9 Kanikama",
-            price: "18.000"
-          },
-          {
-            name: "36 FRITOS",
-            description: "18 Pollo - 9 Camarón - 9 Kanikama",
-            price: "22.000"
-          },
-          {
-            name: "MENU SUSHI DEL DÍA",
+            name: "Charles Gabriel",
             description: "",
-            price: "7.500"
-          }
+            price: "7.200"
+          },
+          {
+            name: "",
+            description: "",
+            price: ""
+          },
         ],
         gradientFrom: "from-blue-400",
         gradientTo: "to-indigo-950",
@@ -375,39 +225,299 @@ const menuSections: MenuSection[] = [
         borderColor: "border-indigo-300"
       },
       {
-        title: "GOHAN",
-        filter: "GOHAN",
+        title: "Scotch",
+        filter: "Scotch",
         items: [
           {
-            name: "GOHAN SHIRASHI EBI",
-            description: "Arroz de sushi, cebollín, palta, queso crema, sésamo y camarón.",
-            price: "9.990"
+            name: "Ballantines Finest",
+            description: "",
+            price: "6.900"
           },
           {
-            name: "SHIRASHI EBI TERI",
-            description: "Arroz de sushi, palta, queso crema, cebollín, sésamo, pollo teriyaki y camarón.",
-            price: "10.990"
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "Bourbon",
+        filter: "Bourbon",
+        items: [
+          {
+            name: "Jack Daniel's",
+            description: "",
+            price: "7.900"
           },
           {
-            name: "SHIRASHI PULPO",
-            description: "Arroz de sushi, pulpo, queso crema, palmito, palta y cebollín.",
-            price: "12.990"
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "Irish Whiskey",
+        filter: "Irish Whiskey",
+        items: [
+          {
+            name: "Jameson",
+            description: "",
+            price: "8.900"
           },
           {
-            name: "SHIRASHI SAKE",
-            description: "Arroz de sushi, palta, queso crema, cebollín, sésamo y salmón.",
-            price: "9.990"
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "Malts",
+        filter: "Malts",
+        items: [
+          {
+            name: "The Glenlivet Founder's Reserve",
+            description: "",
+            price: "8.900"
           },
           {
-            name: "SHIRASHI SUPER EXPERTO",
-            description: "Arroz de sushi, Atún, masago, palta, salmón, camarón, wasabi y jengibre.",
-            price: "14.990"
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "Pisco",
+        filter: "Pisco",
+        items: [
+          {
+            name: "Mistral 35",
+            description: "",
+            price: "6.900"
           },
           {
-            name: "SHIRASHI TERI",
-            description: "Arroz de sushi, cebollín, palta, sésamo, queso crema y pollo teriyaki.",
-            price: "8.990"
-          }
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "Pisco Premium",
+        filter: "Pisco Premium",
+        items: [
+          {
+            name: "Pisco El Gobernador",
+            description: "",
+            price: "8.900"
+          },
+          {
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "Gin",
+        filter: "Gin",
+        items: [
+          {
+            name: "Beefeater",
+            description: "",
+            price: "6.900"
+          },
+          {
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "Tequila",
+        filter: "Tequila",
+        items: [
+          {
+            name: "Olmeca Blanco",
+            description: "",
+            price: "6.500"
+          },
+          {
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "Espumosos",
+        filter: "Espumosos",
+        items: [
+          {
+            name: "Copa Espumante",
+            description: "",
+            price: "4.900"
+          },
+          {
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "Vino",
+        filter: "Vino",
+        items: [
+          {
+            name: "Pionero Reserva CS",
+            description: "",
+            price: "12.900"
+          },
+          {
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "Gaseosas y Jugos",
+        filter: "Gaseosas y Jugos",
+        items: [
+          {
+            name: "Agua Mineral Vital",
+            description: "",
+            price: "2.900"
+          },
+          {
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "Gaseosas Premium",
+        filter: "Gaseosas Premium",
+        items: [
+          {
+            name: "Ginger Britvic",
+            description: "",
+            price: "3.500"
+          },
+          {
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "Bebidas Energéticas",
+        filter: "Bebidas Energéticas",
+        items: [
+          {
+            name: "Red Bull",
+            description: "",
+            price: "3.900"
+          },
+          {
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "Cervezas sin Alcohol",
+        filter: "Cervezas sin Alcohol",
+        items: [
+          {
+            name: "Royal 0.0",
+            description: "",
+            price: "4.500"
+          },
+          {
+            name: "",
+            description: "",
+            price: ""
+          },
+        ],
+        gradientFrom: "from-zinc-800",
+        gradientTo: "to-zinc-200",
+        priceColor: "text-zinc-300",
+        borderColor: "border-zinc-300"
+      },
+      {
+        title: "De Especialidad",
+        filter: "De Especialidad",
+        items: [
+          {
+            name: "Cerveza Austral (botella 330)",
+            description: "",
+            price: "4.200"
+          },
+          {
+            name: "",
+            description: "",
+            price: ""
+          },
         ],
         gradientFrom: "from-zinc-800",
         gradientTo: "to-zinc-200",
