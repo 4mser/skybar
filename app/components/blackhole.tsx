@@ -6,101 +6,104 @@ const BokehBackground: React.FC = () => {
   const sketchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const sketch = (p: p5) => {
-      class Bubble {
-        x: number;
-        y: number;
-        size: number;
-        baseSize: number;
-        color: [number, number, number];
-        speedX: number;
-        speedY: number;
-        opacity: number;
+    // Solo ejecutar en el lado del cliente
+    if (typeof window !== 'undefined') {
+      const sketch = (p: p5) => {
+        class Bubble {
+          x: number;
+          y: number;
+          size: number;
+          baseSize: number;
+          color: [number, number, number];
+          speedX: number;
+          speedY: number;
+          opacity: number;
 
-        constructor(size: number, color: [number, number, number], speedX: number, speedY: number) {
-          this.size = size;
-          this.baseSize = size;
-          this.x = p.random(p.width); 
-          this.y = p.random(p.height);
-          this.color = color;
-          this.speedX = speedX; 
-          this.speedY = speedY;
-          this.opacity = p.random(20, 50); // Opacidades más sutiles
-        }
-
-        move() {
-          this.x += this.speedX;
-          this.y += this.speedY;
-
-          // Rebote en los bordes
-          if (this.x - this.size / 2 < 0 || this.x + this.size / 2 > p.width) {
-            this.speedX *= -1; 
-          }
-          if (this.y - this.size / 2 < 0 || this.y + this.size / 2 > p.height) {
-            this.speedY *= -1; 
+          constructor(size: number, color: [number, number, number], speedX: number, speedY: number) {
+            this.size = size;
+            this.baseSize = size;
+            this.x = p.random(p.width); 
+            this.y = p.random(p.height);
+            this.color = color;
+            this.speedX = speedX; 
+            this.speedY = speedY;
+            this.opacity = p.random(20, 50); // Opacidades más sutiles
           }
 
-          // Cambio de tamaño suave
-          this.size = this.baseSize + p.sin(p.frameCount * 0.01) * 10;
+          move() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+
+            // Rebote en los bordes
+            if (this.x - this.size / 2 < 0 || this.x + this.size / 2 > p.width) {
+              this.speedX *= -1; 
+            }
+            if (this.y - this.size / 2 < 0 || this.y + this.size / 2 > p.height) {
+              this.speedY *= -1; 
+            }
+
+            // Cambio de tamaño suave
+            this.size = this.baseSize + p.sin(p.frameCount * 0.01) * 10;
+          }
+
+          show() {
+            p.noStroke();
+            const [r, g, b] = this.color;
+            p.fill(r, g, b, this.opacity);
+
+            // Aplicar blur fuerte en la propia burbuja
+            p.drawingContext.shadowBlur = 150; // Blur más alto para difuminar más
+            p.drawingContext.shadowColor = `rgba(${r}, ${g}, ${b}, 0.6)`; // Color de la sombra más cercano a la burbuja
+            p.ellipse(this.x, this.y, this.size); // Dibujar la burbuja
+          }
         }
 
-        show() {
-          p.noStroke();
-          const [r, g, b] = this.color; // Eliminar la variable 'a' ya que no se usa
-          p.fill(r, g, b, this.opacity);
+        const bubbles: Bubble[] = [];
 
-          // Aplicar blur fuerte en la propia burbuja
-          p.drawingContext.shadowBlur = 150; // Blur más alto para difuminar más
-          p.drawingContext.shadowColor = `rgba(${r}, ${g}, ${b}, 0.6)`; // Color de la sombra más cercano a la burbuja
-          p.ellipse(this.x, this.y, this.size); // Dibujar la burbuja
-        }
-      }
+        p.setup = () => {
+          const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+          canvas.parent(sketchRef.current as Element);
 
-      const bubbles: Bubble[] = []; // Cambiado de let a const
+          // Crear burbujas iniciales con menos cantidad y tonos más cian
+          for (let i = 0; i < 12; i++) { // Menos burbujas para mayor fluidez
+            const size = p.random(100, 220); // Tamaños más grandes
+            const speedX = p.random(-1, 1); 
+            const speedY = p.random(-1, 1); 
+            const color: [number, number, number] = [
+              p.random(80, 150), // Colores más suaves
+              p.random(180, 220),
+              p.random(220, 255),
+            ];
+            bubbles.push(new Bubble(size, color, speedX, speedY));
+          }
+        };
 
-      p.setup = () => {
-        const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
-        canvas.parent(sketchRef.current as Element);
+        p.draw = () => {
+          p.clear(); // Limpiar el canvas
 
-        // Crear burbujas iniciales con menos cantidad y tonos más cian
-        for (let i = 0; i < 12; i++) { // Menos burbujas para mayor fluidez
-          const size = p.random(100, 220); // Tamaños más grandes
-          const speedX = p.random(-1, 1); 
-          const speedY = p.random(-1, 1); 
-          const color: [number, number, number] = [
-            p.random(80, 150), // Colores más suaves
-            p.random(180, 220),
-            p.random(220, 255),
-          ];
-          bubbles.push(new Bubble(size, color, speedX, speedY));
-        }
+          // Dibujar las burbujas con movimiento y rebote
+          for (const bubble of bubbles) {
+            bubble.move();
+            bubble.show();
+          }
+        };
+
+        p.windowResized = () => {
+          p.resizeCanvas(p.windowWidth, p.windowHeight);
+        };
       };
 
-      p.draw = () => {
-        p.clear(); // Limpiar el canvas
+      const p5Instance = new p5(sketch);
 
-        // Dibujar las burbujas con movimiento y rebote
-        for (const bubble of bubbles) { // Cambiado de let a const
-          bubble.move();
-          bubble.show();
-        }
+      return () => {
+        p5Instance.remove();
       };
-
-      p.windowResized = () => {
-        p.resizeCanvas(p.windowWidth, p.windowHeight);
-      };
-    };
-
-    const p5Instance = new p5(sketch);
-
-    return () => {
-      p5Instance.remove();
-    };
+    }
   }, []);
 
-  return <main className='absolute -z-10 top-0 left-0'>
-    <div className='w-full h-[100dvh] absolute   backdrop-blur-xl top-0 left-0'></div>
-    <div ref={sketchRef} className=" inset-0 " />
+  return <main className='fixed -z-10 top-0 left-0'>
+    <div className='w-full h-[100dvh] absolute backdrop-blur-xl top-0 left-0'></div>
+    <div ref={sketchRef} className="inset-0" />
   </main>;
 };
 
