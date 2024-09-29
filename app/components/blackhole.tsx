@@ -14,12 +14,12 @@ const BokehBackground: React.FC = () => {
           y: number;
           size: number;
           baseSize: number;
-          color: [number, number, number, number];
+          color: [number, number, number];
           speedX: number;
           speedY: number;
           opacity: number;
 
-          constructor(size: number, color: [number, number, number, number], speedX: number, speedY: number) {
+          constructor(size: number, color: [number, number, number], speedX: number, speedY: number) {
             this.size = size;
             this.baseSize = size;
             this.x = p.random(p.width);
@@ -48,7 +48,7 @@ const BokehBackground: React.FC = () => {
 
           show() {
             p.noStroke();
-            const [r, g, b, a] = this.color;
+            const [r, g, b] = this.color;
             p.fill(r, g, b, this.opacity);
 
             // Aplicar blur fuerte en la propia burbuja
@@ -69,11 +69,10 @@ const BokehBackground: React.FC = () => {
             const size = p.random(100, 220); // Tamaños más grandes
             const speedX = p.random(-1, 1);
             const speedY = p.random(-1, 1);
-            const color: [number, number, number, number] = [
+            const color: [number, number, number] = [
               p.random(80, 150), // Colores más suaves
               p.random(180, 220),
               p.random(220, 255),
-              p.random(80, 100),
             ];
             bubbles.push(new Bubble(size, color, speedX, speedY));
           }
