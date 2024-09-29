@@ -1,15 +1,14 @@
 'use client';
 import React, { useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import p5 from 'p5';
 
-const BokehBackground = () => {
+const BokehBackground: React.FC = () => {
   const sketchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const p5 = require('p5');
-      
-      const sketch = (p: any) => {
+      const sketch = (p: p5) => {
         class Bubble {
           x: number;
           y: number;
@@ -59,7 +58,7 @@ const BokehBackground = () => {
           }
         }
 
-        let bubbles: Bubble[] = [];
+        const bubbles: Bubble[] = [];
 
         p.setup = () => {
           const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
