@@ -101,10 +101,15 @@ const BokehBackground: React.FC = () => {
     }
   }, []);
 
-  return <main className='fixed -z-10'> 
-    <div ref={sketchRef} className="" />
-    <div className='w-full h-[100dvh] left-0 top-0 backdrop-blur-md absolute' />
-  </main>
+  return (
+    <main className='fixed -z-10 top-0 left-0 w-full h-full'>
+      {/* Canvas donde se dibujan las burbujas */}
+      <div ref={sketchRef} className="absolute inset-0" />
+      
+      {/* Efecto de vidrio con backdrop-blur */}
+      <div className='w-full h-full backdrop-blur-lg absolute inset-0 pointer-events-none' />
+    </main>
+  );
 };
 
 export default BokehBackground;
