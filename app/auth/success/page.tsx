@@ -2,6 +2,9 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
+// Desactivar prerendering en esta página
+export const dynamic = 'force-dynamic';
+
 export default function AuthSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
