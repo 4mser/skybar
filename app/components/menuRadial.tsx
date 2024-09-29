@@ -129,7 +129,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
   return (
     <>
       <motion.div
-        className="fixed z-50 flex items-center justify-center w-full h-full backdrop-blur-lg top-0 left-0"
+        className="fixed select-none z-50 flex items-center justify-center w-full h-full backdrop-blur-lg top-0 left-0"
         onClick={() => setOpen(false)}
         initial="closed"
         animate={open ? 'open' : 'closed'}
