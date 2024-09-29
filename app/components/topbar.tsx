@@ -6,10 +6,12 @@ import Logo from './logo';
 import MenuRadial from './menuRadial'; 
 import ClientBackground from './background';
 import { useDarkMode } from '../context/DarkModeContext'; // Usamos el contexto
+import axios from 'axios';
 
 const Topbar = () => {
   const [openMenu, setOpenMenu] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userPhoto, setUserPhoto] = useState<string | null>(null); // Para almacenar la foto del usuario
   const router = useRouter();
 
   const { isDarkBackground, toggleBackground } = useDarkMode(); // Usamos el estado desde el contexto
@@ -17,7 +19,25 @@ const Topbar = () => {
   // Chequear si el usuario está autenticado
   useEffect(() => {
     const token = localStorage.getItem('token'); 
-    setIsAuthenticated(!!token);
+    if (token) {
+      setIsAuthenticated(true);
+
+      // Obtener la foto de perfil del usuario autenticado
+      const fetchUserData = async () => {
+        try {
+          const response = await axios.get('http://localhost:3000/users/me', {
+            headers: {
+              Authorization: `Bearer ${token}`, // Enviamos el token en el header
+            },
+          });
+          setUserPhoto(response.data.photo); // Guardamos la foto del usuario
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      };
+
+      fetchUserData();
+    }
   }, []);
 
   const handleMenu = () => {
@@ -45,12 +65,13 @@ const Topbar = () => {
         <Logo />
 
         {/* Botón para perfil o autenticación */}
-        <button onClick={handleProfileClick} className=' backdrop-blur-md p-1 rounded-full'>
+        <button onClick={handleProfileClick} className='backdrop-blur-md p-1 rounded-full'>
           <Image
-            src={'/icons/profile3.svg'}
+            src={userPhoto ? userPhoto : '/icons/profile3.svg'}  // Mostrar la foto del usuario o el icono por defecto
             alt="profile"
             width={28}
             height={28}
+            className="rounded-full"  // Asegurarnos que la imagen de perfil sea redonda
           />
         </button>
       </div>

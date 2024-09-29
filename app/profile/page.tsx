@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
@@ -8,10 +8,11 @@ interface User {
   username: string;
   email: string;
   role: string;
+  photo?: string;  // Añadimos la foto como opcional
 }
 
 const ProfilePage = () => {
-  const [user, setUser] = useState<User | null>(null);  // Tipamos el estado
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -23,7 +24,7 @@ const ProfilePage = () => {
       }
 
       try {
-        const response = await axios.get('http://localhost:3000/users/me', {
+        const response = await axios.get('https://aria-backend-production.up.railway.app/users/me', {  // Cambia localhost por la URL del backend en producción
           headers: {
             Authorization: `Bearer ${token}`, // Enviamos el token en el header
           },
@@ -39,24 +40,51 @@ const ProfilePage = () => {
   }, [router]);
 
   if (!user) {
-    return <p>Cargando perfil...</p>;
+    return <p className="text-center">Cargando perfil...</p>;
   }
 
   const handleLogout = () => {
     localStorage.removeItem('token');  // Eliminamos el token de localStorage
     router.push('/auth');  // Redirigimos a la página de autenticación
   };
-  
+
+  // Determinar el color del rol
+  const getRoleColor = () => {
+    switch (user.role) {
+      case 'superadmin':
+        return 'bg-green-600';
+      case 'admin':
+        return 'bg-cyan-600';
+      case 'worker':
+        return 'bg-yellow-500';
+      default:
+        return '';  // No mostrar si el rol es 'user'
+    }
+  };
+
   return (
-    <div className="min-h-[100dvh] text-white flex items-center justify-center">
-      <div className="p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-3xl mb-4">Perfil de Usuario</h1>
-        <p><strong>Nombre de usuario:</strong> {user.username}</p>
-        <p><strong>Email:</strong> {user.email}</p>
-        <p><strong>Rol:</strong> {user.role}</p>
+    <div className="pt-12 flex flex-col items-center justify-center text-white">
+      <div className="p-8 w-full max-w-md text-center">
+        {user.photo && (
+          <img
+            src={user.photo}
+            alt="Foto de perfil"
+            className="mx-auto rounded-full w-32 h-32 mb-6 object-cover"
+          />
+        )}
+        <h1 className="text-2xl font-bold mb-2">{user.username}</h1>
+        <p className="text-sm text-neutral-400 mb-4">{user.email}</p>
+        
+        {/* Mostrar el rol solo si no es 'user' */}
+        {user.role !== 'user' && (
+          <span className={`inline-block  text-xs uppercase font-semibold py-1 px-3 rounded-full ${getRoleColor()}`}>
+            {user.role}
+          </span>
+        )}
+
         <button
-          className="w-full bg-red-500 py-2 mt-4 rounded hover:bg-red-600 transition"
-          onClick={handleLogout}  // Llamamos a la función de logout
+          onClick={handleLogout}
+          className="mt-6 w-full bg-red-500 py-2 rounded-md text-sm font-semibold hover:bg-red-600 transition"
         >
           Cerrar Sesión
         </button>
