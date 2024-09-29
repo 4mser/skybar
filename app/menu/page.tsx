@@ -1,6 +1,7 @@
 'use client';
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useDarkMode } from '../context/DarkModeContext';
 
 // Definir el tipo de un ítem del menú
 interface MenuItem {
@@ -239,6 +240,7 @@ const navigateToSection = (title: string) => {
 };
 
 const Page: React.FC = () => {
+  const { isDarkBackground } = useDarkMode(); // Obtenemos el estado desde el contexto
   // Ref para el contenedor de la barra de navegación
   const navRef = useRef<HTMLDivElement | null>(null);
 
@@ -252,7 +254,9 @@ const Page: React.FC = () => {
       {/* Barra de navegación deslizable en la parte superior */}
       <div
         ref={navRef}
-        className='fixed top-12 border-b border-white/20 backdrop-blur-md left-0 w-full z-10 overflow-x-auto flex py-4 px-4 gap-3'
+        className={`fixed top-12 border-b border-white/20 backdrop-blur-md left-0 w-full z-10 overflow-x-auto flex py-4 px-4 gap-3 ${
+          isDarkBackground ? "bg-[#0a0a0a]" : "bg-transparent"
+        }`}
       >
         {menuSections.map((section, index) => (
           <button

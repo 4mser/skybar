@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Topbar from "./components/topbar";
+import Topbar from "./components/topbar"; 
 import dynamic from "next/dynamic";
+import { DarkModeProvider } from './context/DarkModeContext'; // Importamos el proveedor
 
-// Cargar dinámicamente BokehBackground con SSR desactivado
 const BokehBackground = dynamic(() => import("./components/blackhole"), {
   ssr: false,
 });
@@ -36,15 +36,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* BokehBackground en la capa más baja */}
-        <BokehBackground />
-
-        {/* Topbar y contenido encima del fondo */}
-        <div className="w-full h-[100dvh] fixed -z-10 backdrop-blur-md"></div>
-        {/* Aplicar backdrop-blur en todo el contenido visible */}
-        <Topbar />
-        
-        {children}
+        {/* Proveedor de DarkMode para toda la app */}
+        <DarkModeProvider>
+          <BokehBackground />
+          <Topbar />
+          {children}
+        </DarkModeProvider>
       </body>
     </html>
   );

@@ -1,23 +1,23 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';  // Cambiamos a next/navigation
+import { useRouter } from 'next/navigation';  
 import Logo from './logo';
-import MenuRadial from './menuRadial'; // Importa el menú radial
+import MenuRadial from './menuRadial'; 
+import ClientBackground from './background';
+import { useDarkMode } from '../context/DarkModeContext'; // Usamos el contexto
 
 const Topbar = () => {
-  const [openMenu, setOpenMenu] = useState(false); // Estado para el menú radial
+  const [openMenu, setOpenMenu] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
+  const { isDarkBackground, toggleBackground } = useDarkMode(); // Usamos el estado desde el contexto
+
   // Chequear si el usuario está autenticado
   useEffect(() => {
-    const token = localStorage.getItem('token'); // Verificamos si hay un token en localStorage
-    if (token) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
+    const token = localStorage.getItem('token'); 
+    setIsAuthenticated(!!token);
   }, []);
 
   const handleMenu = () => {
@@ -25,17 +25,12 @@ const Topbar = () => {
   };
 
   const handleProfileClick = () => {
-    if (isAuthenticated) {
-      router.push('/profile'); // Si está autenticado, ir a la página de perfil
-    } else {
-      router.push('/auth'); // Si no está autenticado, ir a la página de autenticación
-    }
+    router.push(isAuthenticated ? '/profile' : '/auth');
   };
 
   return (
     <>
-      {/* <div className="fixed z-30 bg-[#0a0a0a] w-full top-0 left-0 bg-dark-1 flex justify-between px-4 py-2 items-center border-b border-white/20"> */}
-      <div className="fixed z-30 backdrop-blur-md w-full top-0 left-0 bg-dark-1 flex justify-between px-4 py-2 items-center border-b border-white/20">
+      <div className={`fixed z-30 backdrop-blur-md w-full top-0 left-0 ${isDarkBackground ? "bg-[#0a0a0a]" : "bg-transparent"} flex justify-between px-4 py-2 items-center border-b border-white/20`}>
         {/* Botón para abrir el menú radial */}
         <button onClick={handleMenu}>
           <Image
@@ -62,6 +57,12 @@ const Topbar = () => {
 
       {/* Componente del menú radial */}
       <MenuRadial open={openMenu} setOpen={setOpenMenu} />
+
+      {/* Pasar props a ClientBackground */}
+      <ClientBackground
+        isDarkBackground={isDarkBackground}
+        toggleBackground={toggleBackground}
+      />
     </>
   );
 };
