@@ -2,7 +2,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
-// Desactivar prerendering en esta página
+// Desactivar prerendering
 export const dynamic = 'force-dynamic';
 
 export default function AuthSuccessPage() {
@@ -10,13 +10,11 @@ export default function AuthSuccessPage() {
   const searchParams = useSearchParams();
   
   useEffect(() => {
-    // Obtener el token de la URL
     const token = searchParams.get('token');
     
     if (token) {
       // Guardar el token en localStorage
       localStorage.setItem('token', token);
-      
       // Redirigir al perfil del usuario
       router.push('/profile');
     } else {
