@@ -25,7 +25,7 @@ const Topbar = () => {
       // Obtener la foto de perfil del usuario autenticado
       const fetchUserData = async () => {
         try {
-          const response = await axios.get('http://localhost:3000/users/me', {
+          const response = await axios.get('https://aria-backend-production.up.railway.app/users/me', {
             headers: {
               Authorization: `Bearer ${token}`, // Enviamos el token en el header
             },
