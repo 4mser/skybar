@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useEffect, useRef } from 'react';
 import p5 from 'p5';
 
@@ -12,12 +12,12 @@ const BokehBackground: React.FC = () => {
         y: number;
         size: number;
         baseSize: number;
-        color: [number, number, number, number];
+        color: [number, number, number];
         speedX: number;
         speedY: number;
         opacity: number;
 
-        constructor(size: number, color: [number, number, number, number], speedX: number, speedY: number) {
+        constructor(size: number, color: [number, number, number], speedX: number, speedY: number) {
           this.size = size;
           this.baseSize = size;
           this.x = p.random(p.width); 
@@ -46,7 +46,7 @@ const BokehBackground: React.FC = () => {
 
         show() {
           p.noStroke();
-          const [r, g, b, a] = this.color;
+          const [r, g, b] = this.color; // Eliminar la variable 'a' ya que no se usa
           p.fill(r, g, b, this.opacity);
 
           // Aplicar blur fuerte en la propia burbuja
@@ -56,7 +56,7 @@ const BokehBackground: React.FC = () => {
         }
       }
 
-      let bubbles: Bubble[] = [];
+      const bubbles: Bubble[] = []; // Cambiado de let a const
 
       p.setup = () => {
         const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
@@ -67,11 +67,10 @@ const BokehBackground: React.FC = () => {
           const size = p.random(100, 220); // Tamaños más grandes
           const speedX = p.random(-1, 1); 
           const speedY = p.random(-1, 1); 
-          const color: [number, number, number, number] = [
+          const color: [number, number, number] = [
             p.random(80, 150), // Colores más suaves
             p.random(180, 220),
             p.random(220, 255),
-            p.random(80, 100),
           ];
           bubbles.push(new Bubble(size, color, speedX, speedY));
         }
@@ -81,7 +80,7 @@ const BokehBackground: React.FC = () => {
         p.clear(); // Limpiar el canvas
 
         // Dibujar las burbujas con movimiento y rebote
-        for (let bubble of bubbles) {
+        for (const bubble of bubbles) { // Cambiado de let a const
           bubble.move();
           bubble.show();
         }
@@ -106,4 +105,3 @@ const BokehBackground: React.FC = () => {
 };
 
 export default BokehBackground;
-
