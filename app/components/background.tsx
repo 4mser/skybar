@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import React from "react";
-import { FaSun, FaMoon } from "react-icons/fa"; // Importar íconos
 
 interface ClientBackgroundProps {
   isDarkBackground: boolean;
