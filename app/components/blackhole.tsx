@@ -7,6 +7,7 @@ const BokehBackground: React.FC = () => {
   const sketchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Asegurarse de que se ejecuta solo en el cliente
     if (typeof window !== 'undefined') {
       const sketch = (p: p5) => {
         class Bubble {
@@ -111,5 +112,5 @@ const BokehBackground: React.FC = () => {
 
 // Uso de dynamic para evitar errores de window en la generación estática
 export default dynamic(() => Promise.resolve(BokehBackground), {
-  ssr: false,
+  ssr: false, // Esto desactiva el SSR para este componente
 });
