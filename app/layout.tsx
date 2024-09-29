@@ -2,13 +2,19 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Topbar from "./components/topbar";
-import BokehBackground from "./components/blackhole";
+import dynamic from "next/dynamic";
+
+// Cargar dinámicamente BokehBackground con SSR desactivado
+const BokehBackground = dynamic(() => import("./components/blackhole"), {
+  ssr: false,
+});
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
+
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
@@ -30,9 +36,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <BokehBackground /> {/* Aquí colocas el background */}
         <Topbar />
         {children}
-        <BokehBackground />
       </body>
     </html>
   );
