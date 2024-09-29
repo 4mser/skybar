@@ -36,10 +36,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* BokehBackground en la capa más baja */}
+        <BokehBackground />
+
+        {/* Topbar y contenido encima del fondo */}
         <Topbar />
+
+        {/* Aplicar backdrop-blur en todo el contenido visible */}
+        <div className="absolute inset-0 backdrop-blur-md pointer-events-none"></div>
         {children}
-        <div className="absolute -z-10 w-full h-[100dvh] left-0 top-0 backdrop-blur-md"></div>
-        <BokehBackground /> {/* Aquí colocas el background */}
       </body>
     </html>
   );
