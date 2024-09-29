@@ -1,18 +1,19 @@
 'use client';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-// Fuerza el renderizado dinámico y evita prerendering
+// Fuerza el renderizado dinámico para evitar prerendering
 export const dynamic = 'force-dynamic';
 
 export default function AuthSuccessPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     // Ejecutar solo en el cliente
     if (typeof window !== 'undefined') {
-      const token = searchParams.get('token');
+      // Obtener los parámetros de la URL
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
       
       if (token) {
         // Guardar el token en localStorage
@@ -24,7 +25,7 @@ export default function AuthSuccessPage() {
         router.push('/auth');
       }
     }
-  }, [router, searchParams]);
+  }, [router]);
 
   return <p>Redirigiendo...</p>;
 }
