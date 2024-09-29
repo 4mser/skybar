@@ -40,7 +40,7 @@ export default function RootLayout({
         <BokehBackground />
 
         {/* Topbar y contenido encima del fondo */}
-
+        <div className="w-full h-[100dvh] fixed -z-10 backdrop-blur-md"></div>
         {/* Aplicar backdrop-blur en todo el contenido visible */}
         <Topbar />
         
