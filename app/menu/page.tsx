@@ -252,7 +252,7 @@ const Page: React.FC = () => {
       {/* Barra de navegación deslizable en la parte superior */}
       <div
         ref={navRef}
-        className='fixed top-12 border-b border-white/20 backdrop-blur-md left-0 w-full z-10 overflow-x-auto flex py-4 px-4 gap-3'
+        className='fixed top-12 border-b border-white/20 bg-[#0a0a0a] left-0 w-full z-10 overflow-x-auto flex py-4 px-4 gap-3'
       >
         {menuSections.map((section, index) => (
           <button
