@@ -14,7 +14,7 @@ import Image from 'next/image';
 export default function Banner() {
   return (
    
-    <main className='absolute top-[50px] left-0 w-full overflow-hidden'>
+    <main className=' mt-[50px] left-0 w-full overflow-hidden'>
         <Swiper
         spaceBetween={0}
         centeredSlides={true}

@@ -30,8 +30,8 @@ export default function Cartas() {
   };
 
   return (
-    <main className='pt-3 left-0 w-full'>
-      <p className='px-4 py-2 font-semibold'>Menús principales</p>
+    <main className='w-full absolute'>
+      <p className='px-4 py-2  font-semibold'>Menús principales</p>
 
       {/* Contenedor con overflow-x y desplazamiento suave */}
       <div className="overflow-x-auto flex space-x-4 scrollbar-hide snap-x snap-mandatory scroll-smooth px-4">

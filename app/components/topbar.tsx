@@ -34,7 +34,8 @@ const Topbar = () => {
 
   return (
     <>
-      <div className="fixed z-30 bg-[#0a0a0a] w-full top-0 left-0 bg-dark-1 flex justify-between px-4 py-2 items-center border-b border-white/20">
+      {/* <div className="fixed z-30 bg-[#0a0a0a] w-full top-0 left-0 bg-dark-1 flex justify-between px-4 py-2 items-center border-b border-white/20"> */}
+      <div className="fixed z-30 backdrop-blur-md w-full top-0 left-0 bg-dark-1 flex justify-between px-4 py-2 items-center border-b border-white/20">
         {/* Botón para abrir el menú radial */}
         <button onClick={handleMenu}>
           <Image

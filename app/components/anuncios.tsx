@@ -36,7 +36,7 @@ export default function Anuncios() {
   }, []);
 
   return (
-    <main className='pt-[120px] left-0 w-full overflow-hidden px-4'>
+    <main className='w-full overflow-hidden p-4'>
       <Swiper
         spaceBetween={10}
         slidesPerView={1}
