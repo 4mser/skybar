@@ -1,5 +1,6 @@
 'use client';
 
+import Image from "next/image";
 import React from "react";
 import { FaSun, FaMoon } from "react-icons/fa"; // Importar íconos
 
@@ -14,13 +15,23 @@ const ClientBackground: React.FC<ClientBackgroundProps> = ({ isDarkBackground, t
       {/* Botón para alternar el fondo */}
       <button
         onClick={toggleBackground}
-        className="fixed top-[7px] right-14 z-40 text-white p-2 transition-all"
+        className="fixed top-[3px] right-14 z-40 text-white p-2 transition-all"
       >
         {/* Mostrar icono dependiendo del estado */}
         {isDarkBackground ? (
-          <FaSun className="text-xl" /> // Mostrar ícono de sol
+            <Image 
+                src={'/icons/blue-circle.svg'}
+                width={30}
+                height={30}
+                alt="light mode"
+            />
         ) : (
-          <FaMoon className="text-xl" /> // Mostrar ícono de luna
+            <Image 
+                src={'/icons/black-circle.svg'}
+                width={30}
+                height={30}
+                alt="dark mode"
+            />
         )}
       </button>
 

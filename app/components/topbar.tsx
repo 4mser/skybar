@@ -45,9 +45,9 @@ const Topbar = () => {
         <Logo />
 
         {/* Botón para perfil o autenticación */}
-        <button onClick={handleProfileClick}>
+        <button onClick={handleProfileClick} className=' backdrop-blur-md p-1 rounded-full'>
           <Image
-            src={'/icons/profile.svg'}
+            src={'/icons/profile3.svg'}
             alt="profile"
             width={28}
             height={28}
