@@ -101,7 +101,10 @@ const BokehBackground: React.FC = () => {
     }
   }, []);
 
-  return <div ref={sketchRef} className="absolute -z-20 inset-0" />
+  return <main className='fixed -z-10'> 
+    <div ref={sketchRef} className="" />
+    <div className='w-full h-[100dvh] left-0 top-0 backdrop-blur-md absolute' />
+  </main>
 };
 
 export default BokehBackground;
