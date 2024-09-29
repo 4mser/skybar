@@ -1,10 +1,8 @@
 'use client';
 import React from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';  // Importamos Image para usar el logo de Google
 
 const AuthPage = () => {
-  const router = useRouter();
 
   const handleGoogleLogin = () => {
     window.location.href = 'https://aria-backend-production.up.railway.app/auth/google'; // Cambia localhost por la URL del backend en producción
