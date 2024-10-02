@@ -24,7 +24,8 @@ const ProfilePage = () => {
       }
 
       try {
-        const response = await axios.get('https://aria-backend-production.up.railway.app/users/me', {  // Cambia localhost por la URL del backend en producción
+        const apiUrl = process.env.NEXT_PUBLIC_API;  // Usamos la variable de entorno para la URL
+        const response = await axios.get(`${apiUrl}/users/me`, {  // Usamos la URL base de la variable de entorno
           headers: {
             Authorization: `Bearer ${token}`, // Enviamos el token en el header
           },

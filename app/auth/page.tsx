@@ -5,7 +5,8 @@ import Image from 'next/image';  // Importamos Image para usar el logo de Google
 const AuthPage = () => {
 
   const handleGoogleLogin = () => {
-    window.location.href = 'https://aria-backend-production.up.railway.app/auth/google'; // Cambia localhost por la URL del backend en producción
+    const apiUrl = process.env.NEXT_PUBLIC_API;
+    window.location.href = `${apiUrl}/auth/google`; // Cambia localhost por la URL del backend en producción
   };
 
   return (

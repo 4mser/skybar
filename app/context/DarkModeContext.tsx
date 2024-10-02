@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface DarkModeContextType {
   isDarkBackground: boolean;
@@ -14,8 +14,21 @@ const DarkModeContext = createContext<DarkModeContextType | undefined>(undefined
 export const DarkModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isDarkBackground, setIsDarkBackground] = useState(true);
 
+  // Cargar la preferencia del tema desde localStorage al iniciar
+  useEffect(() => {
+    const savedThemePreference = localStorage.getItem('isDarkBackground');
+    if (savedThemePreference !== null) {
+      setIsDarkBackground(JSON.parse(savedThemePreference));
+    }
+  }, []);
+
   const toggleBackground = () => {
-    setIsDarkBackground((prev) => !prev);
+    setIsDarkBackground((prev) => {
+      const newValue = !prev;
+      // Guardar la nueva preferencia en localStorage
+      localStorage.setItem('isDarkBackground', JSON.stringify(newValue));
+      return newValue;
+    });
   };
 
   return (

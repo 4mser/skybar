@@ -1,23 +1,38 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
 import 'swiper/css';
+import 'swiper/css/effect-fade'; // Importar CSS para el efecto de desvanecimiento
 import { gsap } from 'gsap';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay } from 'swiper/modules';
+import { Autoplay, EffectCoverflow, EffectFade } from 'swiper/modules'; // Importar el módulo de desvanecimiento
 import Image from 'next/image';
 
 export default function Anuncios() {
   const slideRefs = useRef<HTMLDivElement[]>([]);
 
-  // Añadir elementos al array de referencias, memorizado con useCallback
+  // Añadir elementos al array de referencias de forma controlada
   const addToRefs = useCallback((el: HTMLDivElement) => {
     if (el && !slideRefs.current.includes(el)) {
       slideRefs.current.push(el);
     }
   }, []);
 
-  // Animación GSAP, uso de gsap.context para manejar el ciclo de vida de la animación
+  // Configuración de Swiper memorizada para evitar recreaciones innecesarias
+  const swiperConfig = {
+    effect: 'coverflow',
+    coverflowEffect: {
+      rotate: 50,
+      stretch: 0,
+      depth: 100,
+      modifier: 1,
+      slideShadows: true,
+    },
+    modules: [EffectCoverflow],
+    autoplay: { delay: 3000 },
+  };
+
+  // Animación GSAP optimizada, controlada por gsap.context
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -27,9 +42,9 @@ export default function Anuncios() {
           opacity: 1,
           scale: 1,
           y: 0,
-          duration: 1,
+          duration: 0.8,
           ease: 'power3.out',
-          stagger: 0.2,
+          stagger: 0.15,
         }
       );
     });
@@ -39,65 +54,31 @@ export default function Anuncios() {
 
   return (
     <main className="w-full overflow-hidden p-4">
-      <Swiper
-        spaceBetween={10}
-        slidesPerView={1}
-        modules={[Autoplay]}
-        className="mySwiper"
-      >
-        <SwiperSlide>
-          <Link href="/carta">
-            <div
-              ref={addToRefs}
-              className="h-52 overflow-hidden rounded-lg shadow-md bg-gradient-to-br from-zinc-800 to-transparent flex items-center"
-            >
-              <Image
-                width={1200}
-                height={800}
-                src="/images/skybar.jpg"
-                alt="Skybar"
-                className="w-full h-full object-cover"
-                priority
-              />
-            </div>
-          </Link>
-        </SwiperSlide>
-
-        <SwiperSlide>
-          <Link href="/tragos">
-            <div
-              ref={addToRefs}
-              className="h-52 overflow-hidden rounded-lg shadow-md bg-gradient-to-br from-zinc-800 to-transparent flex items-center"
-            >
-              <Image
-                width={1200}
-                height={800}
-                src="/images/skybar2.jpg"
-                alt="Tragos"
-                className="w-full h-full object-cover"
-                priority
-              />
-            </div>
-          </Link>
-        </SwiperSlide>
-
-        <SwiperSlide>
-          <Link href="/sushi">
-            <div
-              ref={addToRefs}
-              className="h-52 overflow-hidden rounded-lg shadow-md bg-gradient-to-br from-zinc-800 to-transparent flex items-center"
-            >
-              <Image
-                width={1200}
-                height={800}
-                src="/images/skybar3.jpg"
-                alt="Sushi"
-                className="w-full h-full object-cover"
-                priority
-              />
-            </div>
-          </Link>
-        </SwiperSlide>
+      <Swiper {...swiperConfig} className="mySwiper">
+        {[
+          { href: '/carta', src: '/images/skybar.jpg', alt: 'Skybar' },
+          { href: '/tragos', src: '/images/skybar2.jpg', alt: 'Tragos' },
+          { href: '/sushi', src: '/images/skybar3.jpg', alt: 'Sushi' },
+        ].map((slide, index) => (
+          <SwiperSlide key={index}>
+            <Link href={slide.href}>
+              <div
+                ref={addToRefs}
+                className="h-52 overflow-hidden rounded-lg shadow-md bg-gradient-to-br from-zinc-800 to-transparent flex items-center"
+              >
+                <Image
+                  width={1200}
+                  height={800}
+                  src={slide.src}
+                  alt={slide.alt}
+                  className="w-full h-full object-cover"
+                  priority={index === 0} // Solo la primera imagen tiene prioridad
+                  loading={index === 0 ? 'eager' : 'lazy'} // Cargar perezosamente las imágenes no prioritarias
+                />
+              </div>
+            </Link>
+          </SwiperSlide>
+        ))}
       </Swiper>
     </main>
   );

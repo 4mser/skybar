@@ -1,8 +1,11 @@
-'use client'
+'use client';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { gsap } from 'gsap';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useRef, useCallback } from 'react';
-import { gsap } from 'gsap';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay } from 'swiper/modules';
+import 'swiper/css';
 
 export default function Cartas() {
   const menuRefs = useRef<HTMLDivElement[]>([]);
@@ -14,7 +17,19 @@ export default function Cartas() {
     }
   }, []);
 
-  // Animación con GSAP, uso de gsap.context para manejo seguro de animaciones
+  // Configuración de Swiper memorizada
+  const swiperConfig = useMemo(
+    () => ({
+      spaceBetween: 10,
+      slidesPerView: 2.5, // Mostrar 3 cartas a la vez
+      modules: [Autoplay],
+      autoplay: { delay: 3000, disableOnInteraction: false },
+      loop: false,
+    }),
+    []
+  );
+
+  // Animación con GSAP
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -24,9 +39,9 @@ export default function Cartas() {
           opacity: 1,
           scale: 1,
           y: 0,
-          duration: 1,
+          duration: 0.8,
           ease: 'power3.out',
-          stagger: 0.2,
+          stagger: 0.15,
         }
       );
     });
@@ -35,61 +50,32 @@ export default function Cartas() {
   }, []);
 
   return (
-    <main className="w-full absolute">
+    <main className="w-full p-4">
       <p className="px-4 py-2 font-semibold">Menús principales</p>
 
-      <div className="overflow-x-auto flex space-x-4 scrollbar-hide snap-x snap-mandatory scroll-smooth px-4">
-        {/* Menú */}
-        <div className="w-[38%] snap-center shrink-0" ref={addToRefs}>
-          <Link href="/menu">
-            <div className="overflow-hidden rounded-lg shadow-lg">
-              <Image
-                width={700}
-                height={800}
-                src="/images/comida.jpg"
-                alt="Comida"
-                className="w-full h-48 object-cover rounded-md transition-transform duration-500 hover:scale-105"
-                priority // Optimización de carga
-              />
-            </div>
-            <p className="text-xs font-extralight py-1">Menú</p>
-          </Link>
-        </div>
-
-        {/* Tragos */}
-        <div className="w-[38%] snap-center shrink-0" ref={addToRefs}>
-          <Link href="/tragos">
-            <div className="overflow-hidden rounded-lg shadow-lg">
-              <Image
-                width={700}
-                height={800}
-                src="/images/tragos2.png"
-                alt="Tragos"
-                className="w-full h-48 object-cover rounded-md transition-transform duration-500 hover:scale-105"
-                priority
-              />
-            </div>
-            <p className="text-xs font-extralight py-1">Tragos</p>
-          </Link>
-        </div>
-
-        {/* Room Service */}
-        <div className="w-[38%] snap-center shrink-0" ref={addToRefs}>
-          <Link href="/room">
-            <div className="overflow-hidden rounded-lg shadow-lg">
-              <Image
-                width={700}
-                height={800}
-                src="/images/room.jpeg"
-                alt="Room Service"
-                className="w-full h-48 object-cover rounded-md transition-transform duration-500 hover:scale-105"
-                priority
-              />
-            </div>
-            <p className="text-xs font-extralight py-1">Room Service</p>
-          </Link>
-        </div>
-      </div>
+      <Swiper {...swiperConfig} className="mySwiper">
+        {[
+          { href: '/menu', src: '/images/comida.jpg', alt: 'Comida', text: 'Menú' },
+          { href: '/tragos', src: '/images/tragos2.png', alt: 'Tragos', text: 'Tragos' },
+          { href: '/room', src: '/images/room.jpeg', alt: 'Room Service', text: 'Room Service' },
+        ].map((item, index) => (
+          <SwiperSlide key={index}>
+            <Link href={item.href}>
+              <div ref={addToRefs} className="overflow-hidden rounded-lg shadow-lg">
+                <Image
+                  width={700}
+                  height={800}
+                  src={item.src}
+                  alt={item.alt}
+                  className="w-full h-48 object-cover rounded-md transition-transform duration-500 hover:scale-105"
+                  priority={index === 0} // Solo la primera imagen tiene prioridad
+                />
+              </div>
+              <p className="text-xs font-extralight py-1">{item.text}</p>
+            </Link>
+          </SwiperSlide>
+        ))}
+      </Swiper>
     </main>
   );
 }
