@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import 'swiper/css';
 import 'swiper/css/effect-fade'; // Importar CSS para el efecto de desvanecimiento
 import { gsap } from 'gsap';
