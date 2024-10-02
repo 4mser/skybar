@@ -5,7 +5,7 @@ import 'swiper/css';
 import 'swiper/css/effect-fade'; // Importar CSS para el efecto de desvanecimiento
 import { gsap } from 'gsap';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, EffectCoverflow, EffectFade } from 'swiper/modules'; // Importar el módulo de desvanecimiento
+import { Autoplay, EffectCoverflow } from 'swiper/modules'; // Importar el módulo de desvanecimiento
 import Image from 'next/image';
 
 export default function Anuncios() {
@@ -28,8 +28,8 @@ export default function Anuncios() {
       modifier: 1,
       slideShadows: true,
     },
-    modules: [EffectCoverflow],
-    autoplay: { delay: 3000 },
+    modules: [EffectCoverflow, Autoplay],
+    autoplay: { delay: 6000 },
   };
 
   // Animación GSAP optimizada, controlada por gsap.context
