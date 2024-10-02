@@ -50,8 +50,8 @@ export default function Cartas() {
   }, []);
 
   return (
-    <main className="w-full p-4">
-      <p className="px-4 py-2 font-semibold">Menús principales</p>
+    <main className="w-full px-4">
+      <p className="py-2 font-semibold">Menús principales</p>
 
       <Swiper {...swiperConfig} className="mySwiper">
         {[
