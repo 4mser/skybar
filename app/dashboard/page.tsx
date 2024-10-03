@@ -23,7 +23,6 @@ interface Bar {
     lng: number;
   };
   adminIds: string[];
-  workerIds: string[];
 }
 
 // Dashboard para Superadmin
@@ -38,6 +37,7 @@ const Dashboard = () => {
   const [barsSelection, setBarsSelection] = useState<{ [key: string]: string }>({});
   const [isBarModalOpen, setIsBarModalOpen] = useState<boolean>(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState<boolean>(false);
+  const [currentView, setCurrentView] = useState<string>('users'); // Estado para la vista actual
   const router = useRouter();
 
   useEffect(() => {
@@ -101,37 +101,24 @@ const Dashboard = () => {
     setIsUserModalOpen(false);
   };
 
-  const removeUserFromBar = async (userId: string, role: string) => {
+  const removeAdmin = async (adminId: string) => {
     if (selectedBar) {
       try {
         const token = localStorage.getItem('token');
         await axios.patch(
-          `${process.env.NEXT_PUBLIC_API}/bars/${selectedBar._id}/remove-user/${userId}`,
-          { role },
+          `${process.env.NEXT_PUBLIC_API}/bars/${selectedBar._id}/remove-admin/${adminId}`,
+          {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        if (role === 'admin') {
-          setBars(bars.map(bar => 
-            bar._id === selectedBar._id
-              ? { ...bar, adminIds: bar.adminIds.filter(id => id !== userId) }
-              : bar
-          ));
-        } else if (role === 'worker') {
-          setBars(bars.map(bar => 
-            bar._id === selectedBar._id
-              ? { ...bar, workerIds: bar.workerIds.filter(id => id !== userId) }
-              : bar
-          ));
-        }
-
-        setUsers(users.map(user =>
-            user._id === userId ? { ...user, barId: null } : user
-          ));
-          
+        setBars(bars.map(bar => 
+          bar._id === selectedBar._id
+            ? { ...bar, adminIds: bar.adminIds.filter(id => id !== adminId) }
+            : bar
+        ));
         closeBarModal();
       } catch (error) {
-        console.error('Error removing user from bar:', error);
+        console.error('Error removing admin:', error);
       }
     }
   };
@@ -172,26 +159,19 @@ const Dashboard = () => {
 
   // GSAP animation for the list items
   useEffect(() => {
-    const elements = document.querySelectorAll('.user-item');
+    const elements = document.querySelectorAll('.card-item');
     gsap.fromTo(
       elements,
       { opacity: 0, y: 50, visibility: 'hidden' },
       { opacity: 1, y: 0, visibility: 'visible', stagger: 0.2, duration: 0.8, ease: 'power3.out' }
     );
-  }, [users]);
+  }, [users, bars, currentView]); // Ejecutar animación cuando cambie users, bars o currentView
 
   const getAdminNames = (adminIds: string[]) => {
     const adminNames = users
       .filter(user => adminIds.includes(user._id))
       .map(user => user.username);
     return adminNames.length ? adminNames.join(', ') : 'Sin administradores';
-  };
-
-  const getWorkerNames = (workerIds: string[]) => {
-    const workerNames = users
-      .filter(user => workerIds.includes(user._id))
-      .map(user => user.username);
-    return workerNames.length ? workerNames.join(', ') : 'Sin trabajadores';
   };
 
   if (loading) {
@@ -206,12 +186,35 @@ const Dashboard = () => {
     <div className="p-6 pt-16">
       <h1 className="text-3xl font-bold text-white mb-6 text-center">Dashboard de Administración</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Navegación */}
+      <div className="flex justify-center space-x-4 mb-6">
+        <button 
+          className={`px-4 py-2 rounded-lg ${currentView === 'users' ? 'bg-blue-600' : 'bg-gray-500'} text-white`} 
+          onClick={() => setCurrentView('users')}
+        >
+          Usuarios
+        </button>
+        <button 
+          className={`px-4 py-2 rounded-lg ${currentView === 'bars' ? 'bg-blue-600' : 'bg-gray-500'} text-white`} 
+          onClick={() => setCurrentView('bars')}
+        >
+          Bares
+        </button>
+        <button 
+          className={`px-4 py-2 rounded-lg ${currentView === 'menu' ? 'bg-blue-600' : 'bg-gray-500'} text-white`} 
+          onClick={() => setCurrentView('menu')}
+        >
+          Menú
+        </button>
+      </div>
+
+      {/* Renderizar la vista seleccionada */}
+      {currentView === 'users' && (
         <div>
           <h2 className="text-xl font-semibold text-white mb-4">Usuarios</h2>
           <ul>
             {users.map(user => (
-              <li key={user._id} className="user-item p-4 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-lg rounded-2xl mb-4 shadow-md" style={{ visibility: 'hidden' }}>
+              <li key={user._id} className="card-item p-4 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-lg rounded-2xl mb-4 shadow-md" style={{ visibility: 'hidden' }}>
                 <div className='flex justify-between items-center'>
                   <div className='flex gap-3'>
                     {/* Foto del usuario */}
@@ -240,17 +243,18 @@ const Dashboard = () => {
             ))}
           </ul>
         </div>
+      )}
 
+      {currentView === 'bars' && (
         <div>
           <h2 className="text-xl font-semibold text-white mb-4">Bares</h2>
           <ul>
             {bars.map(bar => (
-              <li key={bar._id} className="p-4 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-lg rounded-2xl mb-4 shadow-md text-white">
+              <li key={bar._id} className="card-item p-4 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-lg rounded-2xl mb-4 shadow-md text-white" style={{ visibility: 'hidden' }}>
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="font-semibold text-lg">{bar.name}</p>
                     <p className="text-sm text-gray-400">Administradores: {getAdminNames(bar.adminIds)}</p>
-                    <p className="text-sm text-gray-400">Trabajadores: {getWorkerNames(bar.workerIds)}</p>
                   </div>
                   <button
                     onClick={() => openBarModal(bar)}
@@ -263,13 +267,20 @@ const Dashboard = () => {
             ))}
           </ul>
         </div>
-      </div>
+      )}
 
-      {/* Modal para editar administradores y trabajadores */}
+      {currentView === 'menu' && (
+        <div>
+          <h2 className="text-xl font-semibold text-white mb-4">Menú</h2>
+          <p className="text-gray-300">Nada de momento</p>
+        </div>
+      )}
+
+      {/* Modal para editar administradores */}
       {isBarModalOpen && selectedBar && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-gray-800 text-white p-6 rounded-lg max-w-lg w-full">
-            <h2 className="text-xl mb-4">Editar Usuarios de {selectedBar.name}</h2>
+            <h2 className="text-xl mb-4">Editar Administradores de {selectedBar.name}</h2>
             <ul className="mb-4">
               {selectedBar.adminIds.map(adminId => {
                 const admin = users.find(user => user._id === adminId);
@@ -277,24 +288,10 @@ const Dashboard = () => {
                   <li key={adminId} className="flex justify-between items-center mb-2">
                     <span>{admin?.username || 'Desconocido'}</span>
                     <button
-                      onClick={() => removeUserFromBar(adminId, 'admin')}
+                      onClick={() => removeAdmin(adminId)}
                       className="bg-red-500 text-white px-2 py-1 rounded-2xl hover:bg-red-600 transition"
                     >
-                      Eliminar Administrador
-                    </button>
-                  </li>
-                );
-              })}
-              {selectedBar.workerIds.map(workerId => {
-                const worker = users.find(user => user._id === workerId);
-                return (
-                  <li key={workerId} className="flex justify-between items-center mb-2">
-                    <span>{worker?.username || 'Desconocido'}</span>
-                    <button
-                      onClick={() => removeUserFromBar(workerId, 'worker')}
-                      className="bg-red-500 text-white px-2 py-1 rounded-2xl hover:bg-red-600 transition"
-                    >
-                      Eliminar Trabajador
+                      Eliminar
                     </button>
                   </li>
                 );
