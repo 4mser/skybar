@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useDarkMode } from '../../context/DarkModeContext';
@@ -20,6 +20,15 @@ interface Product {
 interface MenuSection {
   name: string;
   products: Product[];
+}
+
+interface SubMenu {
+  name: string;
+  sections: MenuSection[];
+}
+
+interface Menu {
+  subMenus: SubMenu[];
 }
 
 const Page: React.FC = () => {
@@ -39,7 +48,7 @@ const Page: React.FC = () => {
           return;
         }
 
-        const response = await axios.get(
+        const response: AxiosResponse<Menu[]> = await axios.get(
           `${process.env.NEXT_PUBLIC_API}/menus?barId=${barId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -56,14 +65,14 @@ const Page: React.FC = () => {
             : submenuName;
 
           const submenu = menu.subMenus.find(
-            (sub: any) =>
+            (sub: SubMenu) =>
               sub.name.toLowerCase() === decodeURIComponent(submenuNameParam).toLowerCase()
           );
 
           if (submenu) {
             // Filtrar productos disponibles y excluir secciones sin productos
             const sectionsWithAvailableProducts = submenu.sections
-              .map((section: any) => {
+              .map((section: MenuSection) => {
                 const availableProducts = section.products.filter(
                   (product: Product) => product.available
                 );
@@ -78,10 +87,7 @@ const Page: React.FC = () => {
                   return null;
                 }
               })
-              .filter(
-                (section: MenuSection | null): section is MenuSection =>
-                  section !== null
-              );
+              .filter((section): section is MenuSection => section !== null);
 
             setSections(sectionsWithAvailableProducts);
           } else {
@@ -90,8 +96,12 @@ const Page: React.FC = () => {
         } else {
           console.error('No se encontró un menú para el bar proporcionado');
         }
-      } catch (error) {
-        console.error('Error al obtener datos del submenú:', error);
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          console.error('Error al obtener datos del submenú:', error.message);
+        } else {
+          console.error('Error inesperado:', error);
+        }
       }
     };
 

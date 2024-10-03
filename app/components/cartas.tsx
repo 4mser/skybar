@@ -1,4 +1,4 @@
-// Cartas.tsx
+// app/components/Cartas.tsx
 
 'use client';
 import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
@@ -8,12 +8,21 @@ import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useRouter } from 'next/navigation';
+
+interface SubMenu {
+  name: string;
+  // Si hay otras propiedades, puedes agregarlas aquí
+}
+
+interface Menu {
+  subMenus: SubMenu[];
+}
 
 export default function Cartas() {
   const menuRefs = useRef<HTMLDivElement[]>([]);
-  const [submenus, setSubmenus] = useState<any[]>([]);
+  const [submenus, setSubmenus] = useState<SubMenu[]>([]);
 
   const barId = '66f067f56cc6f1ba2d5aee08';
   const router = useRouter();
@@ -70,7 +79,7 @@ export default function Cartas() {
           return;
         }
 
-        const response = await axios.get(
+        const response: AxiosResponse<Menu[]> = await axios.get(
           `${process.env.NEXT_PUBLIC_API}/menus?barId=${barId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -85,13 +94,17 @@ export default function Cartas() {
         } else {
           console.error('No se encontró un menú para el bar proporcionado');
         }
-      } catch (error: any) {
-        if (error.response && error.response.status === 401) {
-          console.error('No autorizado. Por favor, inicia sesión de nuevo.');
-          // Opcional: Redirigir al usuario a la página de inicio de sesión
-          // router.push('/auth');
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          if (error.response && error.response.status === 401) {
+            console.error('No autorizado. Por favor, inicia sesión de nuevo.');
+            // Opcional: Redirigir al usuario a la página de inicio de sesión
+            // router.push('/auth');
+          } else {
+            console.error('Error al obtener submenús:', error.message);
+          }
         } else {
-          console.error('Error al obtener submenús:', error);
+          console.error('Error inesperado:', error);
         }
       }
     };
