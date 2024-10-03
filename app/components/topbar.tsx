@@ -58,6 +58,7 @@ const Topbar = () => {
             alt="menu"
             width={28}
             height={28}
+            priority
           />
         </button>
 

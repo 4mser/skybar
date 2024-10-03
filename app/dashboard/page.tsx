@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
 
-// Interfaz para usuarios y bares
+// Interfaz para usuarios, bares, secciones de menú y productos
 interface User {
   _id: string;
   username: string;
@@ -25,19 +25,12 @@ interface Bar {
   adminIds: string[];
 }
 
-// Dashboard para Superadmin
 const Dashboard = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [bars, setBars] = useState<Bar[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isSuperadmin, setIsSuperadmin] = useState<boolean>(false);
-  const [selectedBar, setSelectedBar] = useState<Bar | null>(null);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [roles, setRoles] = useState<{ [key: string]: string }>({});
-  const [barsSelection, setBarsSelection] = useState<{ [key: string]: string }>({});
-  const [isBarModalOpen, setIsBarModalOpen] = useState<boolean>(false);
-  const [isUserModalOpen, setIsUserModalOpen] = useState<boolean>(false);
-  const [currentView, setCurrentView] = useState<string>('users'); // Estado para la vista actual
+  const [currentView, setCurrentView] = useState<string>('users');
   const router = useRouter();
 
   useEffect(() => {
@@ -50,24 +43,19 @@ const Dashboard = () => {
         }
 
         const profileResponse = await axios.get(`${process.env.NEXT_PUBLIC_API}/users/me`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const currentUser = profileResponse.data;
-        if (currentUser.role !== 'superadmin') {
-          router.push('/profile');
-          return;
-        }
-
-        setIsSuperadmin(true);
+        setIsSuperadmin(currentUser.role === 'superadmin');
 
         const usersResponse = await axios.get(`${process.env.NEXT_PUBLIC_API}/users`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
         setUsers(usersResponse.data);
 
         const barsResponse = await axios.get(`${process.env.NEXT_PUBLIC_API}/bars`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
         setBars(barsResponse.data);
 
@@ -81,98 +69,19 @@ const Dashboard = () => {
     fetchData();
   }, [router]);
 
-  const openBarModal = (bar: Bar) => {
-    setSelectedBar(bar);
-    setIsBarModalOpen(true);
+  const goToMenuPage = () => {
+    router.push('/dashboard/menu'); // Redirige a la página de menús
   };
 
-  const closeBarModal = () => {
-    setSelectedBar(null);
-    setIsBarModalOpen(false);
-  };
-
-  const openUserModal = (user: User) => {
-    setSelectedUser(user);
-    setIsUserModalOpen(true);
-  };
-
-  const closeUserModal = () => {
-    setSelectedUser(null);
-    setIsUserModalOpen(false);
-  };
-
-  const removeAdmin = async (adminId: string) => {
-    if (selectedBar) {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.patch(
-          `${process.env.NEXT_PUBLIC_API}/bars/${selectedBar._id}/remove-admin/${adminId}`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        setBars(bars.map(bar => 
-          bar._id === selectedBar._id
-            ? { ...bar, adminIds: bar.adminIds.filter(id => id !== adminId) }
-            : bar
-        ));
-        closeBarModal();
-      } catch (error) {
-        console.error('Error removing admin:', error);
-      }
-    }
-  };
-
-  const updateRole = async () => {
-    if (selectedUser) {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.patch(
-          `${process.env.NEXT_PUBLIC_API}/users/${selectedUser._id}/role`,
-          { role: roles[selectedUser._id] },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setUsers(users.map(user => user._id === selectedUser._id ? { ...user, role: roles[selectedUser._id] } : user));
-        closeUserModal();
-      } catch (error) {
-        console.error('Error updating role:', error);
-      }
-    }
-  };
-
-  const assignBar = async () => {
-    if (selectedUser) {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.patch(
-          `${process.env.NEXT_PUBLIC_API}/users/${selectedUser._id}/assign-bar`,
-          { barId: barsSelection[selectedUser._id] },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setUsers(users.map(user => user._id === selectedUser._id ? { ...user, barId: barsSelection[selectedUser._id] } : user));
-        closeUserModal();
-      } catch (error) {
-        console.error('Error assigning bar:', error);
-      }
-    }
-  };
-
-  // GSAP animation for the list items
+  // Animación con GSAP
   useEffect(() => {
     const elements = document.querySelectorAll('.card-item');
     gsap.fromTo(
       elements,
-      { opacity: 0, y: 50, visibility: 'hidden' },
-      { opacity: 1, y: 0, visibility: 'visible', stagger: 0.2, duration: 0.8, ease: 'power3.out' }
+      { opacity: 0, y: 50 },
+      { opacity: 1, y: 0, stagger: 0.2, duration: 0.8, ease: 'power3.out' }
     );
-  }, [users, bars, currentView]); // Ejecutar animación cuando cambie users, bars o currentView
-
-  const getAdminNames = (adminIds: string[]) => {
-    const adminNames = users
-      .filter(user => adminIds.includes(user._id))
-      .map(user => user.username);
-    return adminNames.length ? adminNames.join(', ') : 'Sin administradores';
-  };
+  }, [users, bars, currentView]);
 
   if (loading) {
     return <p>Cargando...</p>;
@@ -188,21 +97,21 @@ const Dashboard = () => {
 
       {/* Navegación */}
       <div className="flex justify-center space-x-4 mb-6">
-        <button 
-          className={`px-4 py-2 rounded-lg ${currentView === 'users' ? 'bg-blue-600' : 'bg-gray-500'} text-white`} 
+        <button
+          className={`px-4 py-2 rounded-lg ${currentView === 'users' ? 'bg-blue-600' : 'bg-gray-500'} text-white`}
           onClick={() => setCurrentView('users')}
         >
           Usuarios
         </button>
-        <button 
-          className={`px-4 py-2 rounded-lg ${currentView === 'bars' ? 'bg-blue-600' : 'bg-gray-500'} text-white`} 
+        <button
+          className={`px-4 py-2 rounded-lg ${currentView === 'bars' ? 'bg-blue-600' : 'bg-gray-500'} text-white`}
           onClick={() => setCurrentView('bars')}
         >
           Bares
         </button>
-        <button 
-          className={`px-4 py-2 rounded-lg ${currentView === 'menu' ? 'bg-blue-600' : 'bg-gray-500'} text-white`} 
-          onClick={() => setCurrentView('menu')}
+        <button
+          className={`px-4 py-2 rounded-lg ${currentView === 'menu' ? 'bg-blue-600' : 'bg-gray-500'} text-white`}
+          onClick={goToMenuPage}
         >
           Menú
         </button>
@@ -214,28 +123,27 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold text-white mb-4">Usuarios</h2>
           <ul>
             {users.map(user => (
-              <li key={user._id} className="card-item p-4 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-lg rounded-2xl mb-4 shadow-md" style={{ visibility: 'hidden' }}>
-                <div className='flex justify-between items-center'>
-                  <div className='flex gap-3'>
+              <li key={user._id} className="card-item p-4 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-lg rounded-2xl mb-4 shadow-md">
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-3">
                     {/* Foto del usuario */}
                     {user.photo && (
-                    <img
+                      <img
                         src={user.photo}
                         alt={`${user.username}'s photo`}
                         className="w-16 h-16 rounded-full mb-4 shadow-lg"
-                    />
+                      />
                     )}
 
                     <div>
-                      <p className="text-white font-semibold">{user.username} <span className="text-gray-400">({user.email})</span></p>
+                      <p className="text-white font-semibold">
+                        {user.username} <span className="text-gray-400">({user.email})</span>
+                      </p>
                       <p className="text-gray-300">Rol actual: {user.role}</p>
                       <p className="text-gray-300">Bar asignado: {bars.find(b => b._id === user.barId)?.name || 'Sin bar asignado'}</p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => openUserModal(user)}
-                    className="bg-blue-500 text-white px-3 py-1 rounded-2xl hover:bg-blue-600 transition"
-                  >
+                  <button className="bg-blue-500 text-white px-3 py-1 rounded-2xl hover:bg-blue-600 transition">
                     Editar
                   </button>
                 </div>
@@ -250,102 +158,19 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold text-white mb-4">Bares</h2>
           <ul>
             {bars.map(bar => (
-              <li key={bar._id} className="card-item p-4 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-lg rounded-2xl mb-4 shadow-md text-white" style={{ visibility: 'hidden' }}>
+              <li key={bar._id} className="card-item p-4 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-lg rounded-2xl mb-4 shadow-md text-white">
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="font-semibold text-lg">{bar.name}</p>
-                    <p className="text-sm text-gray-400">Administradores: {getAdminNames(bar.adminIds)}</p>
+                    <p className="text-sm text-gray-400">Administradores: {bar.adminIds.length > 0 ? bar.adminIds.join(', ') : 'Sin administradores'}</p>
                   </div>
-                  <button
-                    onClick={() => openBarModal(bar)}
-                    className="bg-blue-500 text-white px-3 py-1 rounded-2xl hover:bg-blue-600 transition"
-                  >
+                  <button className="bg-blue-500 text-white px-3 py-1 rounded-2xl hover:bg-blue-600 transition">
                     Editar
                   </button>
                 </div>
               </li>
             ))}
           </ul>
-        </div>
-      )}
-
-      {currentView === 'menu' && (
-        <div>
-          <h2 className="text-xl font-semibold text-white mb-4">Menú</h2>
-          <p className="text-gray-300">Nada de momento</p>
-        </div>
-      )}
-
-      {/* Modal para editar administradores */}
-      {isBarModalOpen && selectedBar && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-gray-800 text-white p-6 rounded-lg max-w-lg w-full">
-            <h2 className="text-xl mb-4">Editar Administradores de {selectedBar.name}</h2>
-            <ul className="mb-4">
-              {selectedBar.adminIds.map(adminId => {
-                const admin = users.find(user => user._id === adminId);
-                return (
-                  <li key={adminId} className="flex justify-between items-center mb-2">
-                    <span>{admin?.username || 'Desconocido'}</span>
-                    <button
-                      onClick={() => removeAdmin(adminId)}
-                      className="bg-red-500 text-white px-2 py-1 rounded-2xl hover:bg-red-600 transition"
-                    >
-                      Eliminar
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-            <button onClick={closeBarModal} className="bg-gray-500 text-white px-3 py-1 rounded-2xl hover:bg-gray-600 transition">
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Modal para editar usuarios */}
-      {isUserModalOpen && selectedUser && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-gray-800 text-white p-6 rounded-lg max-w-lg w-full">
-            <h2 className="text-xl mb-4">Editar Usuario: {selectedUser.username}</h2>
-            <div className="mb-4">
-              <label className="block mb-2">Rol:</label>
-              <select
-                value={roles[selectedUser._id] || selectedUser.role}
-                onChange={e => setRoles({ ...roles, [selectedUser._id]: e.target.value })}
-                className="bg-gray-500 text-white py-1 px-2 rounded-2xl w-full"
-              >
-                <option value="superadmin">Superadmin</option>
-                <option value="admin">Admin</option>
-                <option value="worker">Worker</option>
-              </select>
-            </div>
-            <div className="mb-4">
-              <label className="block mb-2">Asignar Bar:</label>
-              <select
-                value={barsSelection[selectedUser._id] || selectedUser.barId || ''}
-                onChange={e => setBarsSelection({ ...barsSelection, [selectedUser._id]: e.target.value })}
-                className="bg-gray-500 text-white py-1 px-2 rounded-2xl w-full"
-              >
-                <option value="">Sin bar asignado</option>
-                {bars.map(bar => (
-                  <option key={bar._id} value={bar._id}>{bar.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="flex justify-end gap-3">
-              <button onClick={updateRole} className="bg-blue-500 text-white px-3 py-1 rounded-2xl hover:bg-blue-600 transition">
-                Actualizar Rol
-              </button>
-              <button onClick={assignBar} className="bg-green-500 text-white px-3 py-1 rounded-2xl hover:bg-green-600 transition">
-                Asignar Bar
-              </button>
-              <button onClick={closeUserModal} className="bg-gray-500 text-white px-3 py-1 rounded-2xl hover:bg-gray-600 transition">
-                Cerrar
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>
