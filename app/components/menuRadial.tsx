@@ -13,8 +13,10 @@ import {
   FaHeart,
   FaMapMarkedAlt,
   FaUserFriends,
+  FaLayerGroup, // Icono de Dashboard
 } from 'react-icons/fa';
 import { ImSpoonKnife } from 'react-icons/im';
+import axios from 'axios';
 
 interface MenuRadialProps {
   open: boolean;
@@ -30,21 +32,50 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
   const [showInstruction, setShowInstruction] = useState(true); // Controla si mostrar el tutorial
   const [isDragging, setIsDragging] = useState(false); // Detecta si el orbe está siendo arrastrado
   const [tutorialComplete, setTutorialComplete] = useState(false); // Verifica si el tutorial ya fue completado
+  const [userRole, setUserRole] = useState<string>(''); // Estado para almacenar el rol del usuario
+
+  // Obtener el rol del usuario cuando el componente se monta
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API}/users/me`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setUserRole(response.data.role); // Guardamos el rol del usuario
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+
+    fetchUserRole();
+  }, []);
 
   // Memorizar el array de menú para evitar recrearlo en cada render
-  const menuItems = useMemo(() => [
-    { icon: <FaHome />, label: 'Inicio', link: '/' },
-    { icon: <FaCocktail />, label: 'Tragos', link: '/tragos' },
-    { icon: <FaMapMarkedAlt />, label: 'Mapa', link: '/mapa' },
-    { icon: <FaChartArea />, label: 'Analíticas', link: '/analytics' },
-    { icon: <FaUserFriends />, label: 'Personal', link: '/amigos' },
-    { icon: <FaComments />, label: 'Reseñas', link: '/comentarios' },
-    { icon: <FaHeart />, label: 'Favoritos', link: '/favoritos' },
-    { icon: <FaCalendarAlt />, label: 'Reservar', link: '/reservar' },
-    { icon: <FaMusic />, label: 'Música', link: '/musica' },
-    { icon: <FaConciergeBell />, label: 'Ordenar', link: '/servicios' },
-    { icon: <ImSpoonKnife />, label: 'Menú', link: '/menu' },
-  ], []);
+  const menuItems = useMemo(() => {
+    const baseMenuItems = [
+      { icon: <FaHome />, label: 'Inicio', link: '/' },
+      { icon: <FaCocktail />, label: 'Tragos', link: '/tragos' },
+      { icon: <FaMapMarkedAlt />, label: 'Mapa', link: '/mapa' },
+      { icon: <FaChartArea />, label: 'Analíticas', link: '/analytics' },
+      { icon: <FaUserFriends />, label: 'Personal', link: '/amigos' },
+      { icon: <FaComments />, label: 'Reseñas', link: '/comentarios' },
+      { icon: <FaHeart />, label: 'Favoritos', link: '/favoritos' },
+      { icon: <FaCalendarAlt />, label: 'Reservar', link: '/reservar' },
+      { icon: <FaMusic />, label: 'Música', link: '/musica' },
+      { icon: <FaConciergeBell />, label: 'Ordenar', link: '/servicios' },
+      { icon: <ImSpoonKnife />, label: 'Menú', link: '/menu' },
+    ];
+
+    // Condicionalmente agregar el ícono de Dashboard solo para superadmin o admin
+    if (userRole === 'superadmin' || userRole === 'admin') {
+      baseMenuItems.push({ icon: <FaLayerGroup />, label: 'Dashboard', link: '/dashboard' });
+    }
+
+    return baseMenuItems;
+  }, [userRole]);
 
   const totalItems = menuItems.length;
 
