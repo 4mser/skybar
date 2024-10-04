@@ -40,18 +40,9 @@ const Page: React.FC = () => {
   useEffect(() => {
     const fetchSubmenuData = async () => {
       try {
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-          console.error('No se encontró un token de autenticación');
-          return;
-        }
 
         const response: AxiosResponse<Menu[]> = await axios.get(
           `${process.env.NEXT_PUBLIC_API}/menus?barId=${barId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
         );
 
         const menus = response.data;

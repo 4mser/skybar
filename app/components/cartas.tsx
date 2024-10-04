@@ -66,24 +66,13 @@ export default function Cartas() {
     return () => ctx.revert();
   }, [submenus]);
 
-  // Fetch submenus desde la API
+  // Fetch submenus desde la API sin necesidad de token
   useEffect(() => {
     const fetchSubmenus = async () => {
       try {
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-          console.error('No se encontró un token de autenticación');
-          // Opcional: Redirigir al usuario a la página de inicio de sesión
-          // router.push('/auth');
-          return;
-        }
-
+       
         const response: AxiosResponse<Menu[]> = await axios.get(
-          `${process.env.NEXT_PUBLIC_API}/menus?barId=${barId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          `${process.env.NEXT_PUBLIC_API}/menus?barId=${barId}`
         );
         const menus = response.data;
 
@@ -96,11 +85,11 @@ export default function Cartas() {
         }
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
-          if (error.response && error.response.status === 401) {
-            console.error('No autorizado. Por favor, inicia sesión de nuevo.');
-            // Opcional: Redirigir al usuario a la página de inicio de sesión
-            // router.push('/auth');
+          if (error.response) {
+            // **Manejamos errores específicos de la respuesta**
+            console.error(`Error ${error.response.status}: ${error.response.data}`);
           } else {
+            // **Errores relacionados con la solicitud pero sin respuesta**
             console.error('Error al obtener submenús:', error.message);
           }
         } else {
@@ -110,7 +99,9 @@ export default function Cartas() {
     };
 
     fetchSubmenus();
-  }, [barId, router]);
+  }, [barId]);
+
+  
 
   // Arreglo de imágenes para usar
   const images = ['/images/comida.jpg', '/images/tragos2.png', '/images/room.jpeg'];

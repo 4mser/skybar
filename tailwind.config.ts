@@ -55,7 +55,11 @@ const config: Config = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+		  boxShadow: {
+			'assistant': '0 0 10px  rgba(136, 72, 255, 0.3), 0 0 20px rgba(136, 72, 255, 0.2)',
+			'user': '0 0 10px rgba(0, 123, 255, 0.3), 0 0 20px rgba(0, 123, 255, 0.2)',
+		  },
   	}
   },
   plugins: [require("tailwindcss-animate")],

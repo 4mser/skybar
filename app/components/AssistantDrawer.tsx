@@ -79,7 +79,7 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
   // Mensaje inicial del asistente
   const initialAssistantMessage = useCallback((): Message => createMessage(
     'assistant',
-    `¡Hola! Soy tu asistente virtual. Cuéntame tus gustos o lo que te apetece, y te recomendaré opciones disponibles en ${submenuName}.`
+    `¡Hola! Soy tu asistente de IA. Cuéntame tus gustos o lo que te apetece, y te recomendaré opciones disponibles en ${submenuName}.`
   ), [submenuName, createMessage]);
 
   // Cargar mensajes desde localStorage al montar el componente
@@ -180,10 +180,12 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
       {/* Botón para abrir el Drawer */}
       <DrawerTrigger asChild>
         <button
-          className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white p-4 rounded-full shadow-neon z-50 flex items-center justify-center transition-transform transform hover:scale-105 animate-neon"
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white  rounded-full shadow-neon z-50 flex items-center justify-center transition-transform transform hover:scale-105 animate-neon p-[2px]"
         >
           {/* Puedes reemplazar con un ícono */}
-          Asistente
+          <div className='p-3 bg-black/50 rounded-full font-bold'>
+          Asistente IA
+          </div>
         </button>
       </DrawerTrigger>
 
@@ -260,7 +262,7 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
           />
           <button
             type="submit"
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-full shadow-send transition-transform transform hover:scale-105"
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-full shadow-send transition-transform transform hover:scale-105 shadow-assistant"
             disabled={loading}
           >
             Enviar

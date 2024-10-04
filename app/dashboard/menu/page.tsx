@@ -54,7 +54,7 @@ const Modal = ({
       <div
         className="relative p-6 rounded-[10px] max-w-md w-full
             bg-gradient-to-br from-white/10 to-transparent
-            backdrop-blur-lg border border-white/20 text-white"
+            backdrop-blur-md border border-white/20 text-white"
       >
         <button
           className="absolute top-3 right-3 text-white text-2xl"
@@ -614,7 +614,7 @@ const MenuPage = () => {
             key={menu._id}
             className="mb-6 p-6 rounded-[10px]
                   bg-gradient-to-br from-white/10 to-transparent
-                  backdrop-blur-lg border border-white/20"
+                  backdrop-blur-md border border-white/20"
           >
             <h2 className="text-2xl font-semibold mb-4 text-center">
               Menú del Bar:{' '}
@@ -637,7 +637,7 @@ const MenuPage = () => {
                 <div
                   className="flex justify-between items-center p-4 rounded
                         bg-gradient-to-br from-white/10 to-transparent
-                        backdrop-blur-lg border border-white/20 flex-wrap"
+                        backdrop-blur-md border border-white/20 flex-wrap"
                 >
                   <h3 className="font-semibold text-xl">{submenu.name}</h3>
                   <div className="flex mt-2 md:mt-0">
@@ -677,7 +677,7 @@ const MenuPage = () => {
                     <div
                       className="flex justify-between items-center p-3 rounded
                             bg-gradient-to-br from-white/10 to-transparent
-                            backdrop-blur-lg border border-white/20 flex-wrap"
+                            backdrop-blur-md border border-white/20 flex-wrap"
                     >
                       <h4 className="font-semibold text-lg">
                         {section.name}
@@ -721,7 +721,7 @@ const MenuPage = () => {
                         key={`${product.name}-${i}`}
                         className="ml-4 mt-3 p-3 rounded flex justify-between items-center
                               bg-gradient-to-br from-white/10 to-transparent
-                              backdrop-blur-lg border border-white/20 flex-wrap"
+                              backdrop-blur-md border border-white/20 flex-wrap"
                       >
                         <div>
                           <p className="font-semibold">{product.name}</p>
