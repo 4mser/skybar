@@ -42,12 +42,13 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
   }), []);
 
   // Función para validar si un objeto es del tipo Message
-  const isValidMessage = useCallback((msg: any): msg is Message => {
+  const isValidMessage = useCallback((msg: unknown): msg is Message => {
     return (
-      (msg.sender === 'assistant' || msg.sender === 'user') &&
-      typeof msg.text === 'string'
+      (msg as Message).sender === 'assistant' || (msg as Message).sender === 'user' &&
+      typeof (msg as Message).text === 'string'
     );
   }, []);
+  
 
   // Función para simular la escritura del asistente por secciones
   const typeAssistantMessages = useCallback(async (text: string) => {
@@ -87,7 +88,7 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
     const storedMessages = localStorage.getItem('assistantDrawerMessages');
     if (storedMessages) {
       try {
-        const parsedMessages: any[] = JSON.parse(storedMessages);
+        const parsedMessages: unknown[] = JSON.parse(storedMessages) as Message[];
         if (Array.isArray(parsedMessages)) {
           const validMessages: Message[] = parsedMessages.filter(isValidMessage);
           setMessages(validMessages);

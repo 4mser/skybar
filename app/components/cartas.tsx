@@ -9,7 +9,6 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import axios, { AxiosResponse } from 'axios';
-import { useRouter } from 'next/navigation';
 
 interface SubMenu {
   name: string;
@@ -25,7 +24,6 @@ export default function Cartas() {
   const [submenus, setSubmenus] = useState<SubMenu[]>([]);
 
   const barId = '66f067f56cc6f1ba2d5aee08';
-  const router = useRouter();
 
   // Añadir elemento a las referencias
   const addToRefs = useCallback((el: HTMLDivElement) => {
