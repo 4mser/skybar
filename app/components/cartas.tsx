@@ -9,6 +9,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import axios, { AxiosResponse } from 'axios';
+import { useDarkMode } from '../context/DarkModeContext';
 
 interface SubMenu {
   name: string;
@@ -99,13 +100,13 @@ export default function Cartas() {
     fetchSubmenus();
   }, [barId]);
 
-  
+  const { backgroundMode } = useDarkMode(); // Obtener el modo del tema
 
   // Arreglo de imágenes para usar
   const images = ['/images/comida.jpg', '/images/tragos2.png', '/images/room.jpeg'];
 
   return (
-    <main className="w-full px-4">
+    <main className={`w-full px-4 ${backgroundMode === 'neon' && 'text-black/80'}`}>
       <p className="py-2 font-semibold">Menús principales</p>
 
       <Swiper {...swiperConfig} className="mySwiper">

@@ -14,7 +14,7 @@ const Topbar = () => {
   const [userPhoto, setUserPhoto] = useState<string | null>(null); // Para almacenar la foto del usuario
   const router = useRouter();
 
-  const { isDarkBackground, toggleBackground } = useDarkMode(); // Usamos el estado desde el contexto
+  const { backgroundMode, toggleBackground } = useDarkMode(); // Usamos el nuevo estado desde el contexto
 
   // Chequear si el usuario está autenticado
   useEffect(() => {
@@ -48,9 +48,16 @@ const Topbar = () => {
     router.push(isAuthenticated ? '/profile' : '/auth');
   };
 
+  // Determinar la clase de fondo basada en el estado del fondo
+  const backgroundClass = backgroundMode === 'dark'
+    ? 'bg-[#0a0a0a]'
+    : backgroundMode === 'light'
+    ? ''
+    : 'bg-slate-100 border-b border-black/20';
+
   return (
     <>
-      <div className={`fixed z-30 backdrop-blur-md w-full top-0 left-0 ${isDarkBackground ? "bg-[#0a0a0a]" : "bg-transparent"} flex justify-between px-4 py-2 items-center border-b border-white/20`}>
+      <div className={`fixed z-30 backdrop-blur-md w-full top-0 left-0 ${backgroundClass} flex justify-between px-4 py-2 items-center border-b border-white/20`}>
         {/* Botón para abrir el menú radial */}
         <button onClick={handleMenu}>
           <Image
@@ -59,6 +66,7 @@ const Topbar = () => {
             width={28}
             height={28}
             priority
+            className={`${backgroundMode === 'neon' ? 'filter invert opacity-80' : ''}`}
           />
         </button>
 
@@ -72,7 +80,7 @@ const Topbar = () => {
             alt="profile"
             width={28}
             height={28}
-            className="rounded-full"  // Asegurarnos que la imagen de perfil sea redonda
+            className={`rounded-full ${backgroundMode === 'neon' ? '' : ''}`}  // Asegurarnos que la imagen de perfil sea redonda
           />
         </button>
       </div>
@@ -82,7 +90,7 @@ const Topbar = () => {
 
       {/* Pasar props a ClientBackground */}
       <ClientBackground
-        isDarkBackground={isDarkBackground}
+        backgroundMode={backgroundMode}  // Pasamos el nuevo estado en lugar de isDarkBackground
         toggleBackground={toggleBackground}
       />
     </>

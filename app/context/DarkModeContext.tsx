@@ -2,8 +2,10 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+type BackgroundMode = 'light' | 'dark' | 'neon';
+
 interface DarkModeContextType {
-  isDarkBackground: boolean;
+  backgroundMode: BackgroundMode;
   toggleBackground: () => void;
 }
 
@@ -12,27 +14,29 @@ const DarkModeContext = createContext<DarkModeContextType | undefined>(undefined
 
 // Proveedor del contexto
 export const DarkModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isDarkBackground, setIsDarkBackground] = useState(true);
+  const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>('dark');
 
   // Cargar la preferencia del tema desde localStorage al iniciar
   useEffect(() => {
-    const savedThemePreference = localStorage.getItem('isDarkBackground');
-    if (savedThemePreference !== null) {
-      setIsDarkBackground(JSON.parse(savedThemePreference));
+    const savedThemePreference = localStorage.getItem('backgroundMode');
+    if (savedThemePreference) {
+      setBackgroundMode(savedThemePreference as BackgroundMode);
     }
   }, []);
 
   const toggleBackground = () => {
-    setIsDarkBackground((prev) => {
-      const newValue = !prev;
+    setBackgroundMode((prevMode) => {
+      const newMode: BackgroundMode = prevMode === 'dark' ? 'light' : prevMode === 'light' ? 'neon' : 'dark';
+
       // Guardar la nueva preferencia en localStorage
-      localStorage.setItem('isDarkBackground', JSON.stringify(newValue));
-      return newValue;
+      localStorage.setItem('backgroundMode', newMode);
+
+      return newMode;
     });
   };
 
   return (
-    <DarkModeContext.Provider value={{ isDarkBackground, toggleBackground }}>
+    <DarkModeContext.Provider value={{ backgroundMode, toggleBackground }}>
       {children}
     </DarkModeContext.Provider>
   );
