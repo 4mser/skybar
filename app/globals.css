@@ -64,4 +64,26 @@ body {
   }
 }
 
+/* globals.css */
 
+/* Animación para el botón "Asistente" */
+@keyframes neonPulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(123, 0, 255, 0.7), 0 0 20px rgba(123, 0, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(123, 0, 255, 0.9), 0 0 30px rgba(123, 0, 255, 0.7);
+  }
+}
+
+.animate-neon {
+  animation: neonPulse 2s infinite;
+}
+
+/* Opcional: Si deseas ajustar la velocidad o intensidad de la animación, puedes modificar los valores */
+
+/* Eliminación de box-shadow en el input cuando no está activo */
+input:focus {
+  /* Añade una sombra suave al enfocar */
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.7);
+}

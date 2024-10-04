@@ -64,7 +64,7 @@ export default function Anuncios() {
             <Link href={slide.href}>
               <div
                 ref={addToRefs}
-                className="h-52 overflow-hidden rounded-lg shadow-md bg-gradient-to-br from-zinc-800 to-transparent flex items-center"
+                className="h-52 overflow-hidden rounded-[10px] shadow-md bg-gradient-to-br from-zinc-800 to-transparent flex items-center"
               >
                 <Image
                   width={1200}

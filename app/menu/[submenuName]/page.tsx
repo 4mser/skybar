@@ -7,7 +7,7 @@ import axios, { AxiosResponse } from 'axios';
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useDarkMode } from '../../context/DarkModeContext';
-import AssistantModal from '../../components/AssistantModal'; // Asegúrate de que la ruta es correcta
+import AssistantDrawer from '../../components/AssistantDrawer'; // Asegúrate de que la ruta es correcta
 
 interface Product {
   _id?: string;
@@ -35,7 +35,6 @@ const Page: React.FC = () => {
   const { submenuName } = useParams();
   const [sections, setSections] = useState<MenuSection[]>([]);
   const { isDarkBackground } = useDarkMode();
-  const [showAssistant, setShowAssistant] = useState(false);
   const barId = '66f067f56cc6f1ba2d5aee08'; // ID del bar
 
   useEffect(() => {
@@ -140,7 +139,7 @@ const Page: React.FC = () => {
         {sections.map((section, index) => (
           <button
             key={index}
-            className="text-[12px] py-3 px-4 border whitespace-nowrap border-white/20 rounded-lg"
+            className="text-[12px] py-3 px-4 border whitespace-nowrap border-white/20 rounded-[10px]"
             onClick={() => navigateToSection(section.name)}
           >
             {section.name}
@@ -150,7 +149,7 @@ const Page: React.FC = () => {
 
       {/* Mostrar mensaje si no hay secciones disponibles */}
       {sections.length === 0 && (
-        <div className="pt-16 text-center">
+        <div className="pt-56 text-center">
           <p>No hay productos disponibles en este momento.</p>
         </div>
       )}
@@ -168,7 +167,7 @@ const Page: React.FC = () => {
             variants={variants}
           >
             <h2
-              className={`text-lg font-semibold flex items-center px-4 py-3 bg-gradient-to-br from-teal-500 to-cyan-500`}
+              className={`text-lg font-semibold flex items-center px-4 py-3 bg-gradient-to-br from-cyan-500/80 to-teal-500/10`}
             >
               {section.name}
             </h2>
@@ -182,9 +181,9 @@ const Page: React.FC = () => {
                     <h1 className="font-semibold">{item.name}</h1>
                     <p className="font-normal opacity-70">{item.description}</p>
                   </div>
-                  <div className={`min-w-20 border px-2 rounded-lg`}>
+                  <div className={`min-w-20 border px-2 rounded-[8px]`}>
                     <p className="w-full text-sm text-center font-medium">
-                      ${item.price.toFixed(2)}
+                      ${item.price}
                     </p>
                   </div>
                 </li>
@@ -194,24 +193,13 @@ const Page: React.FC = () => {
         ))}
       </div>
 
-      {/* Assistant Modal */}
-      {showAssistant && (
-        <AssistantModal
-          onClose={() => setShowAssistant(false)}
-          barId={barId}
-          submenuName={decodeURIComponent(
-            Array.isArray(submenuName) ? submenuName[0] : submenuName
-          )}
-        />
-      )}
-
-      {/* Assistant Button */}
-      <button
-        onClick={() => setShowAssistant(true)}
-        className="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg z-50"
-      >
-        Asistente
-      </button>
+      {/* Assistant Drawer */}
+      <AssistantDrawer
+        barId={barId}
+        submenuName={decodeURIComponent(
+          Array.isArray(submenuName) ? submenuName[0] : submenuName
+        )}
+      />
     </>
   );
 };

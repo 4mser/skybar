@@ -231,7 +231,7 @@ const Page: React.FC = () => {
         {menuSections.map((section, index) => (
           <button
             key={index}
-            className='text-[12px] py-3 px-4 border whitespace-nowrap border-white/20 rounded-lg'
+            className='text-[12px] py-3 px-4 border whitespace-nowrap border-white/20 rounded-[10px]'
             onClick={() => navigateToSection(section.title)}
           >
             {section.filter}
@@ -267,7 +267,7 @@ const Page: React.FC = () => {
                     <p className='font-normal opacity-70 '>{item.description}</p>
                   </div>
                   <div
-                    className={`min-w-20 border  px-2 rounded-lg`}
+                    className={`min-w-20 border  px-2 rounded-[10px]`}
                   >
                     <p className='w-full text-sm text-center font-medium'>
                       {item.price}

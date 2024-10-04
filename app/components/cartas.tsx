@@ -123,7 +123,7 @@ export default function Cartas() {
         {submenus.map((submenu, index) => (
           <SwiperSlide key={index}>
             <Link href={`/menu/${encodeURIComponent(submenu.name)}`}>
-              <div ref={addToRefs} className="overflow-hidden rounded-lg shadow-lg">
+              <div ref={addToRefs} className="overflow-hidden rounded-[10px] shadow-lg">
                 <Image
                   width={700}
                   height={800}

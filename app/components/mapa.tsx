@@ -81,7 +81,7 @@ const Mapa: React.FC = () => {
         {/* <h2 className="py-2 font-semibold">Ubicación</h2> */}
       </div>
       <div className="z-4 absolute  p-4">
-        <div className="backdrop-blur-custom p-3 rounded-lg overflow-hidden border border-white/10">
+        <div className="backdrop-blur-custom p-3 rounded-[10px] overflow-hidden border border-white/10">
            <p className="text-xs">Piso 12 del casino Dreams Valdivia</p>
            <p className="text-xs">Carampangue #190</p>
         </div>

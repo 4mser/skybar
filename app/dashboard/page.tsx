@@ -98,19 +98,19 @@ const Dashboard = () => {
       {/* Navegación */}
       <div className="flex justify-center space-x-4 mb-6">
         <button
-          className={`px-4 py-2 rounded-lg ${currentView === 'users' ? 'bg-blue-600' : 'bg-gray-500'} text-white`}
+          className={`px-4 py-2 rounded-[10px] ${currentView === 'users' ? 'bg-blue-600' : 'bg-gray-500'} text-white`}
           onClick={() => setCurrentView('users')}
         >
           Usuarios
         </button>
         <button
-          className={`px-4 py-2 rounded-lg ${currentView === 'bars' ? 'bg-blue-600' : 'bg-gray-500'} text-white`}
+          className={`px-4 py-2 rounded-[10px] ${currentView === 'bars' ? 'bg-blue-600' : 'bg-gray-500'} text-white`}
           onClick={() => setCurrentView('bars')}
         >
           Bares
         </button>
         <button
-          className={`px-4 py-2 rounded-lg ${currentView === 'menu' ? 'bg-blue-600' : 'bg-gray-500'} text-white`}
+          className={`px-4 py-2 rounded-[10px] ${currentView === 'menu' ? 'bg-blue-600' : 'bg-gray-500'} text-white`}
           onClick={goToMenuPage}
         >
           Menú
