@@ -50,14 +50,14 @@ const Topbar = () => {
 
   // Determinar la clase de fondo basada en el estado del fondo
   const backgroundClass = backgroundMode === 'dark'
-    ? 'bg-[#0a0a0a]'
+    ? 'bg-[#0a0a0a] border-b border-white/20'
     : backgroundMode === 'light'
-    ? ''
+    ? 'border-b border-white/20'
     : 'bg-slate-100 border-b border-black/20';
 
   return (
     <>
-      <div className={`fixed z-30 backdrop-blur-md w-full top-0 left-0 ${backgroundClass} flex justify-between px-4 py-2 items-center border-b border-white/20`}>
+      <div className={`fixed z-30 backdrop-blur-md w-full top-0 left-0 ${backgroundClass} flex justify-between px-4 py-2 items-center `}>
         {/* Botón para abrir el menú radial */}
         <button onClick={handleMenu}>
           <Image
@@ -80,7 +80,7 @@ const Topbar = () => {
             alt="profile"
             width={28}
             height={28}
-            className={`rounded-full ${backgroundMode === 'neon' ? '' : ''}`}  // Asegurarnos que la imagen de perfil sea redonda
+            className={`rounded-full ${backgroundMode === 'neon' && !userPhoto ? 'invert opacity-80' : ''}`}  // Asegurarnos que la imagen de perfil sea redonda
           />
         </button>
       </div>
