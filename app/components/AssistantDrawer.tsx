@@ -210,7 +210,7 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
               transition={{ duration: 0.5 }}
               className={`flex ${message.sender === 'assistant' ? 'justify-start' : 'justify-end'}`}
             >
-              <div className={`px-6 py-3 mt-3 rounded-3xl max-w-xs ${message.sender === 'assistant' ? 'bg-gradient-to-r from-purple-500/30 to-indigo-500/30 text-white backdrop-blur-md shadow-assistant' : 'bg-gradient-to-r from-blue-500/30 to-teal-500/30 text-white backdrop-blur-md shadow-user'}`}>
+              <div className={`px-6 py-3 mt-3 rounded-3xl max-w-xs ${message.sender === 'assistant' ? 'bg-gradient-to-r from-purple-500/30 to-indigo-500/30 text-white  shadow-assistant' : 'bg-gradient-to-r from-blue-500/30 to-teal-500/30 text-white shadow-user'}`}>
                 <p>{message.text}</p>
               </div>
             </motion.div>
