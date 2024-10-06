@@ -18,8 +18,24 @@ gsap.registerPlugin(ScrollToPlugin);
 
 interface Product {
   name: string;
+  available: boolean;
   imageUrl: string | null;
 }
+
+interface Section {
+  name: string;
+  products: Product[];
+}
+
+interface SubMenu {
+  name: string;
+  sections: Section[];
+}
+
+interface Menu {
+  subMenus: SubMenu[];
+}
+
 
 interface Message {
   sender: 'user' | 'assistant';
@@ -58,30 +74,32 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
     const fetchAvailableProducts = async () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API}/menus?barId=${barId}`);
-        const menu = response.data[0]; // Asumiendo que solo tienes un menú
+        const menu: Menu = response.data[0]; // Especificamos el tipo correcto
         const products: Product[] = [];
-
-        menu.subMenus.forEach((submenu: any) => {
-          submenu.sections.forEach((section: any) => {
-            section.products.forEach((product: any) => {
+  
+        menu.subMenus.forEach((submenu: SubMenu) => {
+          submenu.sections.forEach((section: Section) => {
+            section.products.forEach((product: Product) => {
               if (product.available) {
                 products.push({
                   name: product.name,
                   imageUrl: product.imageUrl ? `${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}` : null,
+                  available: product.available
                 });
               }
             });
           });
         });
-
+  
         setAvailableProducts(products);
       } catch (error) {
         console.error('Error al obtener productos disponibles:', error);
       }
     };
-
+  
     fetchAvailableProducts();
   }, [barId]);
+  
 
   // 2. Hacer el match de los productos
   const typeAssistantMessages = useCallback(async (response: { recommendations: string }) => {
