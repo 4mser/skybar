@@ -177,6 +177,7 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
               loop={true}
               className="w-12 h-12 " // Ajusta el tamaño de la animación
             />
+            <p className='mr-3 font-medium text-sm'>Asistente IA</p>
           </div>
         </button>
       </DrawerTrigger>

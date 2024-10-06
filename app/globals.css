@@ -87,3 +87,16 @@ input:focus {
   /* Añade una sombra suave al enfocar */
   box-shadow: 0 0 10px rgba(0, 123, 255, 0.7);
 }
+
+.assistant-text {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  display: none;
+}
+
+button:hover .assistant-text {
+  opacity: 1;
+  display: block;
+}
+
+
