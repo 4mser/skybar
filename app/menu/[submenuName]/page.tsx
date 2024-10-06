@@ -149,11 +149,12 @@ const Page: React.FC = () => {
       </div>
 
       {/* Mostrar mensaje si no hay secciones disponibles */}
-      {sections.length === 0 && (
+      {/* {sections.length === 0 && (
         <div className="pt-56 text-center">
-          <p className={`${textAndBorderClass}`}>No hay productos disponibles en este momento.</p>
+          <p className={`${textAndBorderClass}`}>
+          </p>
         </div>
-      )}
+      )} */}
 
       {/* Contenido principal del menú */}
       <div className="pt-[109px]">
