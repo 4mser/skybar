@@ -11,7 +11,7 @@ import {
 import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-import Lottie from "lottie-react"
+import Lottie from 'lottie-react';
 import aiAnimation from '@/public/animate-icons/AI.json'; // Ubicación correcta de la animación JSON
 
 gsap.registerPlugin(ScrollToPlugin);
@@ -19,6 +19,7 @@ gsap.registerPlugin(ScrollToPlugin);
 interface Message {
   sender: 'user' | 'assistant';
   text: string;
+  imageUrl?: string; // Campo para la imagen opcional
 }
 
 interface AssistantDrawerProps {
@@ -33,9 +34,10 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
   const [open, setOpen] = useState(false); // Estado para controlar el Drawer
   const messagesEndRef = useRef<HTMLDivElement>(null); // Referencia para el scroll automático
 
-  const createMessage = useCallback((sender: 'assistant' | 'user', text: string): Message => ({
+  const createMessage = useCallback((sender: 'assistant' | 'user', text: string, imageUrl?: string): Message => ({
     sender,
     text,
+    imageUrl,
   }), []);
 
   const isValidMessage = useCallback((msg: unknown): msg is Message => {
@@ -45,18 +47,32 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
     );
   }, []);
 
-  const typeAssistantMessages = useCallback(async (text: string) => {
+  const typeAssistantMessages = useCallback(async (response: { recommendations: string; products: { name: string, imageUrl: string | null }[] }) => {
+    const { recommendations, products } = response;
+
     return new Promise<void>((resolve) => {
-      const recommendations = text.split('\n').filter((rec) => rec.trim() !== '');
+      const recommendationLines = recommendations.split('\n').filter((rec) => rec.trim() !== '');
       let index = 0;
       const sectionDelay = 500;
 
       const typeNext = () => {
-        if (index < recommendations.length) {
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            createMessage('assistant', recommendations[index]),
-          ]);
+        if (index < recommendationLines.length) {
+          // Asegurarse de que 'products' esté definido y sea un array
+          if (products && Array.isArray(products)) {
+            const product = products.find((p) => recommendationLines[index].includes(p.name));
+
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              createMessage('assistant', recommendationLines[index], product?.imageUrl || undefined),
+            ]);
+          } else {
+            // Si 'products' no está definido, mostrar solo el mensaje de texto
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              createMessage('assistant', recommendationLines[index]),
+            ]);
+          }
+
           index++;
           setTimeout(typeNext, sectionDelay);
         } else {
@@ -163,7 +179,7 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
         }
       );
 
-      const assistantResponse: string = response.data.recommendations;
+      const assistantResponse = response.data; // Incluye tanto texto como imágenes
       await typeAssistantMessages(assistantResponse);
     } catch (error) {
       console.error('Error al obtener recomendaciones:', error);
@@ -184,11 +200,10 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
           className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full shadow-neon z-0 flex items-center justify-center transition-transform transform hover:scale-105 animate-neon p-[2px]"
         >
           <div className=" bg-black/50 rounded-full font-bold flex items-center">
-            {/* Añadimos la animación Lottie al botón */}
             <Lottie
-              animationData={aiAnimation} // Asegúrate de usar la propiedad correcta
+              animationData={aiAnimation}
               loop={true}
-              className="w-12 h-12 " // Ajusta el tamaño de la animación
+              className="w-12 h-12"
             />
             <p className='mr-3 font-medium text-sm'>Asistente IA</p>
           </div>
@@ -201,14 +216,14 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
 
         <DrawerHeader>
           <p className='text-white font-bold'>Asistente AI</p>
-        <div className="absolute right-0 top-10 px-4 py-2 text-right">
-          <button
-            onClick={clearMessages}
-            className=" text-white/80 px-4 text-xs py-2 rounded-full shadow-delete "
-          >
-            Eliminar conversación
-          </button>
-        </div>
+          <div className="absolute right-0 top-10 px-4 py-2 text-right">
+            <button
+              onClick={clearMessages}
+              className=" text-white/80 px-4 text-xs py-2 rounded-full shadow-delete "
+            >
+              Eliminar conversación
+            </button>
+          </div>
         </DrawerHeader>
 
         {/* Mensajes */}
@@ -222,7 +237,14 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
               className={`flex ${message.sender === 'assistant' ? 'justify-start' : 'justify-end'}`}
             >
               <div className={`px-6 py-3 mt-3 rounded-3xl max-w-xs ${message.sender === 'assistant' ? 'bg-gradient-to-r from-purple-500/30 to-indigo-500/30 text-white  shadow-assistant' : 'bg-gradient-to-r from-blue-500/30 to-teal-500/30 text-white shadow-user'}`}>
-                <p>{formatMessageText(message.text)}</p> {/* Formateamos el texto */}
+                {message.imageUrl && (
+                  <img
+                  src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${message.imageUrl}`}
+                    alt="Producto recomendado"
+                    className="w-full h-32 object-cover rounded-[10px] mb-2"
+                  />
+                )}
+                <p>{formatMessageText(message.text)}</p>
               </div>
             </motion.div>
           ))}
