@@ -12,14 +12,19 @@ import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import Lottie from 'lottie-react';
-import aiAnimation from '@/public/animate-icons/AI.json'; // Ubicación correcta de la animación JSON
+import aiAnimation from '@/public/animate-icons/AI.json';
 
 gsap.registerPlugin(ScrollToPlugin);
+
+interface Product {
+  name: string;
+  imageUrl: string | null;
+}
 
 interface Message {
   sender: 'user' | 'assistant';
   text: string;
-  imageUrl?: string; // Campo para la imagen opcional
+  imageUrl?: string;
 }
 
 interface AssistantDrawerProps {
@@ -31,8 +36,9 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false); // Estado para controlar el Drawer
-  const messagesEndRef = useRef<HTMLDivElement>(null); // Referencia para el scroll automático
+  const [open, setOpen] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [availableProducts, setAvailableProducts] = useState<Product[]>([]); // Guardar productos disponibles
 
   const createMessage = useCallback((sender: 'assistant' | 'user', text: string, imageUrl?: string): Message => ({
     sender,
@@ -47,8 +53,39 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
     );
   }, []);
 
-  const typeAssistantMessages = useCallback(async (response: { recommendations: string; products: { name: string, imageUrl: string | null }[] }) => {
-    const { recommendations, products } = response;
+  // 1. Obtener productos disponibles desde el menú
+  useEffect(() => {
+    const fetchAvailableProducts = async () => {
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API}/menus?barId=${barId}`);
+        const menu = response.data[0]; // Asumiendo que solo tienes un menú
+        const products: Product[] = [];
+
+        menu.subMenus.forEach((submenu: any) => {
+          submenu.sections.forEach((section: any) => {
+            section.products.forEach((product: any) => {
+              if (product.available) {
+                products.push({
+                  name: product.name,
+                  imageUrl: product.imageUrl ? `${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}` : null,
+                });
+              }
+            });
+          });
+        });
+
+        setAvailableProducts(products);
+      } catch (error) {
+        console.error('Error al obtener productos disponibles:', error);
+      }
+    };
+
+    fetchAvailableProducts();
+  }, [barId]);
+
+  // 2. Hacer el match de los productos
+  const typeAssistantMessages = useCallback(async (response: { recommendations: string }) => {
+    const { recommendations } = response;
 
     return new Promise<void>((resolve) => {
       const recommendationLines = recommendations.split('\n').filter((rec) => rec.trim() !== '');
@@ -57,21 +94,15 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
 
       const typeNext = () => {
         if (index < recommendationLines.length) {
-          // Asegurarse de que 'products' esté definido y sea un array
-          if (products && Array.isArray(products)) {
-            const product = products.find((p) => recommendationLines[index].includes(p.name));
+          const recommendationText = recommendationLines[index];
 
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              createMessage('assistant', recommendationLines[index], product?.imageUrl || undefined),
-            ]);
-          } else {
-            // Si 'products' no está definido, mostrar solo el mensaje de texto
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              createMessage('assistant', recommendationLines[index]),
-            ]);
-          }
+          // Buscar el producto por nombre
+          const productMatch = availableProducts.find((product) => recommendationText.includes(product.name));
+
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            createMessage('assistant', recommendationText, productMatch?.imageUrl || undefined),
+          ]);
 
           index++;
           setTimeout(typeNext, sectionDelay);
@@ -82,20 +113,18 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
 
       typeNext();
     });
-  }, [createMessage]);
+  }, [availableProducts, createMessage]);
 
   const initialAssistantMessage = useCallback((): Message => createMessage(
     'assistant',
     `¡Hola! Soy tu asistente de IA. Cuéntame tus gustos o lo que te apetece, y te recomendaré opciones disponibles en ${submenuName}.`
   ), [submenuName, createMessage]);
 
-  // Función para borrar la conversación
   const clearMessages = useCallback(() => {
     setMessages([]);
-    localStorage.removeItem('assistantDrawerMessages'); // Limpiar almacenamiento local
+    localStorage.removeItem('assistantDrawerMessages');
   }, []);
 
-  // Cargar mensajes desde el localStorage o mostrar el mensaje inicial
   useEffect(() => {
     const storedMessages = localStorage.getItem('assistantDrawerMessages');
     if (storedMessages) {
@@ -136,13 +165,12 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
     }
   }, [messages]);
 
-  // Formatear el texto para que lo que está entre ** ** sea negrita
   const formatMessageText = (text: string) => {
-    const regex = /\*\*(.*?)\*\*/g; // Expresión regular para encontrar texto entre ** **
-    const parts = text.split(regex); // Dividir el texto en partes usando el regex
+    const regex = /\*\*(.*?)\*\*/g;
+    const parts = text.split(regex);
 
     return parts.map((part, index) => (
-      index % 2 === 1 ? <strong key={index}>{part}</strong> : part // Poner en <strong> las partes que están entre ** **
+      index % 2 === 1 ? <strong key={index}>{part}</strong> : part
     ));
   };
 
@@ -161,25 +189,13 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
 
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        console.error('No se encontró un token de autenticación');
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          createMessage('assistant', 'Necesitas iniciar sesión para utilizar el asistente.'),
-        ]);
-        setLoading(false);
-        return;
-      }
-
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API}/gpt/recommendations`,
         { preferences, barId, submenuName },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const assistantResponse = response.data; // Incluye tanto texto como imágenes
+      const assistantResponse = response.data;
       await typeAssistantMessages(assistantResponse);
     } catch (error) {
       console.error('Error al obtener recomendaciones:', error);
@@ -194,7 +210,6 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      {/* Botón para abrir el Drawer */}
       <DrawerTrigger asChild>
         <button
           className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full shadow-neon z-0 flex items-center justify-center transition-transform transform hover:scale-105 animate-neon p-[2px]"
@@ -211,7 +226,6 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
       </DrawerTrigger>
 
       <DrawerContent className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md text-white rounded-t-2xl max-h-screen h-[80vh] overflow-hidden flex flex-col border-t border-white/10">
-        {/* Barra superior del Drawer */}
         <div className="mx-auto mt-2 h-1 w-12 rounded-full bg-white/30"></div>
 
         <DrawerHeader>
@@ -221,12 +235,11 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
               onClick={clearMessages}
               className="opacity-70 hover:opacity-100  px-4 text-xs py-2 rounded-full shadow-delete "
             >
-              <img src="/icons/delete.svg" alt=""  />
+              <img src="/icons/delete.svg" alt="" />
             </button>
           </div>
         </DrawerHeader>
 
-        {/* Mensajes */}
         <div className="flex-1 px-4 pb-4 overflow-y-auto space-y-4" ref={messagesEndRef}>
           {messages.map((message, index) => (
             <motion.div
@@ -239,7 +252,7 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
               <div className={`px-6 py-3 mt-3 rounded-3xl max-w-xs ${message.sender === 'assistant' ? 'bg-gradient-to-r from-purple-500/30 to-indigo-500/30 text-white  shadow-assistant' : 'bg-gradient-to-r from-blue-500/30 to-teal-500/30 text-white shadow-user'}`}>
                 {message.imageUrl && (
                   <img
-                  src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${message.imageUrl}`}
+                    src={message.imageUrl}
                     alt="Producto recomendado"
                     className="w-full h-32 object-cover rounded-[10px] mb-2"
                   />
@@ -262,7 +275,6 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
           )}
         </div>
 
-        {/* Input */}
         <form onSubmit={handleSubmit} className="p-4 border-t border-white/10 flex items-center">
           <input
             type="text"
