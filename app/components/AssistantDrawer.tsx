@@ -188,10 +188,7 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
 
         <DrawerHeader>
           <p className='text-white font-bold'>Asistente AI</p>
-        </DrawerHeader>
-
-        {/* Botón para eliminar la conversación */}
-        <div className="px-4 py-2 text-right">
+        <div className="absolute right-0 bottom-20 px-4 py-2 text-right">
           <button
             onClick={clearMessages}
             className=" text-white/80 px-4 text-xs py-2 rounded-full shadow-delete "
@@ -199,6 +196,9 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
             Eliminar conversación
           </button>
         </div>
+        </DrawerHeader>
+
+        {/* Botón para eliminar la conversación */}
 
         {/* Mensajes */}
         <div className="flex-1 px-4 pb-4 overflow-y-auto space-y-4" ref={messagesEndRef}>
