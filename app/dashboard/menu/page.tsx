@@ -738,18 +738,18 @@ const MenuPage = () => {
                             <label className="flex items-center cursor-pointer">
                               <div className="relative">
                               <input
-  type="checkbox"
-  checked={product.available}
-  className="sr-only"
-  onChange={() =>
-    handleToggleAvailability(
-      menu._id,
-      submenu.name,
-      section.name,
-      product
-    )
-  }
-/>
+                                type="checkbox"
+                                checked={product.available}
+                                className="sr-only"
+                                onChange={() =>
+                                    handleToggleAvailability(
+                                    menu._id,
+                                    submenu.name,
+                                    section.name,
+                                    product
+                                    )
+                                }
+                                />
 
                                 <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
                                 <div

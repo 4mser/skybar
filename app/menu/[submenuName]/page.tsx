@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useDarkMode } from '../../context/DarkModeContext';
 import AssistantDrawer from '../../components/AssistantDrawer'; // Asegúrate de que la ruta es correcta
+import Modal from '../../components/modal'; // Importa el componente Modal
 
 interface Product {
   _id?: string;
@@ -34,6 +35,20 @@ const Page: React.FC = () => {
   const [sections, setSections] = useState<MenuSection[]>([]);
   const { backgroundMode } = useDarkMode(); // Cambiamos a backgroundMode para reflejar los tres estados
   const barId = '66f067f56cc6f1ba2d5aee08'; // ID del bar
+
+  // Estado para controlar el modal y el producto seleccionado
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  const openModal = (product: Product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedProduct(null);
+    setIsModalOpen(false);
+  };
 
   useEffect(() => {
     const fetchSubmenuData = async () => {
@@ -101,8 +116,8 @@ const Page: React.FC = () => {
   };
 
   const variants = {
-    hidden: { opacity: 0, x: -100 },
-    visible: { opacity: 1, x: 0 },
+    hidden: { opacity: 0, y: 100 },
+    visible: { opacity: 1, y: 0 },
   };
 
   // Establecer la clase del fondo según el modo actual
@@ -160,7 +175,8 @@ const Page: React.FC = () => {
               {section.products.map((item, itemIndex) => (
                 <li
                   key={itemIndex}
-                  className={`flex justify-between items-center px-4 py-1 mt-3 gap-8 ${textAndBorderClass}`}
+                  className={`flex justify-between items-center px-4 py-1 mt-3 gap-8 modal-item cursor-pointer ${textAndBorderClass}`}
+                  onClick={() => openModal(item)} // Abrir el modal con la info del producto
                 >
                   <div>
                     <h1 className={`font-semibold ${textAndBorderClass}`}>{item.name}</h1>
@@ -177,6 +193,17 @@ const Page: React.FC = () => {
           </motion.div>
         ))}
       </div>
+
+      {/* Modal para mostrar el producto seleccionado */}
+      {isModalOpen && selectedProduct && (
+        <Modal onClose={closeModal}>
+          <div className="p-4">
+            <h2 className="text-xl font-bold mb-2">{selectedProduct.name}</h2>
+            <p className="mb-4">{selectedProduct.description}</p>
+            <p className="font-semibold">Precio: ${selectedProduct.price}</p>
+          </div>
+        </Modal>
+      )}
 
       {/* Assistant Drawer */}
       <AssistantDrawer
