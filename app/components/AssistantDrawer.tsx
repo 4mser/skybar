@@ -219,9 +219,9 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
           <div className="absolute right-0 top-10 px-4 py-2 text-right">
             <button
               onClick={clearMessages}
-              className=" text-white/80 px-4 text-xs py-2 rounded-full shadow-delete "
+              className="opacity-70 hover:opacity-100  px-4 text-xs py-2 rounded-full shadow-delete "
             >
-              Eliminar conversación
+              <img src="/icons/delete.svg" alt=""  />
             </button>
           </div>
         </DrawerHeader>
