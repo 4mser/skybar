@@ -6,8 +6,6 @@ import {
   Drawer,
   DrawerContent,
   DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
   DrawerTrigger,
 } from '@/components/ui/drawer';
 import { motion } from 'framer-motion';
