@@ -14,6 +14,7 @@ interface Product {
   description: string;
   price: number;
   available: boolean;
+  imageUrl?: string; // Añadir el campo de la imagen
 }
 
 interface MenuSection {
@@ -178,9 +179,18 @@ const Page: React.FC = () => {
                   className={`flex justify-between items-center px-4 py-1 mt-3 gap-8 modal-item cursor-pointer ${textAndBorderClass}`}
                   onClick={() => openModal(item)} // Abrir el modal con la info del producto
                 >
-                  <div>
-                    <h1 className={`font-semibold ${textAndBorderClass}`}>{item.name}</h1>
-                    <p className={`font-normal opacity-70 ${textAndBorderClass}`}>{item.description}</p>
+                  <div className="flex items-center">
+                    {item.imageUrl && (
+                      <img
+                      src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${item.imageUrl}`}
+                        alt={item.name}
+                        className="w-16 h-16 object-cover rounded-[10px] mr-4"
+                      />
+                    )}
+                    <div>
+                      <h1 className={`font-semibold ${textAndBorderClass}`}>{item.name}</h1>
+                      <p className={`font-normal opacity-70 ${textAndBorderClass}`}>{item.description}</p>
+                    </div>
                   </div>
                   <div className={`min-w-20 border px-2 rounded-[8px] ${textAndBorderClass}`}>
                     <p className={`w-full text-sm text-center font-medium ${textAndBorderClass}`}>
@@ -198,6 +208,13 @@ const Page: React.FC = () => {
       {isModalOpen && selectedProduct && (
         <Modal onClose={closeModal}>
           <div className="p-4">
+            {selectedProduct.imageUrl && (
+              <img
+                src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${selectedProduct.imageUrl}`}
+                alt={selectedProduct.name}
+                className="w-full h-64 object-cover rounded-[10px] mb-4"
+              />
+            )}
             <h2 className="text-xl font-bold mb-2">{selectedProduct.name}</h2>
             <p className="mb-4">{selectedProduct.description}</p>
             <p className="font-semibold">Precio: ${selectedProduct.price}</p>

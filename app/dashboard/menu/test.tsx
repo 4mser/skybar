@@ -1,5 +1,3 @@
-
-
 // page.tsx
 
 'use client';
@@ -15,7 +13,6 @@ interface Product {
   description: string;
   price: number;
   available: boolean;
-  imageUrl?: string;
 }
 
 interface MenuSection {
@@ -236,33 +233,33 @@ const MenuPage = () => {
   };
 
   // Función para agregar un producto a una sección de un submenú
-  const handleAddProductToSection = async (
+  const handleAddProductToSection = (
     menuId: string,
     submenuName: string,
     sectionName: string,
-    data: Product | FormData  // Puede aceptar tanto FormData como Product
+    product: Product
   ) => {
-    try {
-      const token = localStorage.getItem('token');
-      const encodedSubmenuName = encodeURIComponent(submenuName);
-      const encodedSectionName = encodeURIComponent(sectionName);
-  
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedSubmenuName}/section/${encodedSectionName}/product`,
-        data,  // Aquí pasamos `FormData` o `Product`
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            ...(data instanceof FormData && { 'Content-Type': 'multipart/form-data' })  // Solo si es FormData, establecemos el tipo correcto
-          },
-        }
-      );
-      fetchMenus();
-    } catch (error) {
-      console.error('Error al agregar producto:', error);
-    }
+    const addProduct = async () => {
+      try {
+        const token = localStorage.getItem('token');
+
+        const encodedSubmenuName = encodeURIComponent(submenuName);
+        const encodedSectionName = encodeURIComponent(sectionName);
+
+        await axios.patch(
+          `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedSubmenuName}/section/${encodedSectionName}/product`,
+          product,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        fetchMenus();
+      } catch (error) {
+        console.error('Error al agregar producto:', error);
+      }
+    };
+    addProduct();
   };
-  
 
   // Función para actualizar un submenú
   const handleUpdateSubmenu = (
@@ -321,34 +318,34 @@ const MenuPage = () => {
   };
 
   // Función para actualizar un producto
-  const handleUpdateProduct = async (
+  const handleUpdateProduct = (
     menuId: string,
     submenuName: string,
     sectionName: string,
     productId: string,
-    updatedData: Product | FormData  // Puede aceptar tanto FormData como Product
+    updatedProduct: Product
   ) => {
-    try {
-      const token = localStorage.getItem('token');
-      const encodedSubmenuName = encodeURIComponent(submenuName);
-      const encodedSectionName = encodeURIComponent(sectionName);
-  
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedSubmenuName}/section/${encodedSectionName}/product/${productId}`,
-        updatedData,  // Aquí pasamos `FormData` o `Product`
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            ...(updatedData instanceof FormData && { 'Content-Type': 'multipart/form-data' })  // Solo si es FormData, establecemos el tipo correcto
-          },
-        }
-      );
-      fetchMenus();
-    } catch (error) {
-      console.error('Error al actualizar producto:', error);
-    }
+    const updateProduct = async () => {
+      try {
+        const token = localStorage.getItem('token');
+
+        const encodedSubmenuName = encodeURIComponent(submenuName);
+        const encodedSectionName = encodeURIComponent(sectionName);
+
+        await axios.patch(
+          `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedSubmenuName}/section/${encodedSectionName}/product/${productId}`,
+          updatedProduct,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        fetchMenus();
+      } catch (error) {
+        console.error('Error al actualizar producto:', error);
+      }
+    };
+    updateProduct();
   };
-  
 
   // Función para togglear la disponibilidad de un producto
   const handleToggleAvailability = (
@@ -489,95 +486,48 @@ const MenuPage = () => {
     sectionName: string;
     initialProduct?: Product;
   }) => {
-    console.log('Producto recibido para editar:', initialProduct); // Verificar si los datos llegan bien
-  
     const [product, setProduct] = useState<Product>(
       initialProduct || {
         name: '',
         description: '',
         price: 0,
-        available: true,
+        available: true, // Agregamos 'available' al objeto por defecto
       }
     );
   
-  
     const isEditing = !!initialProduct;
-
-    const [selectedFile, setSelectedFile] = useState<File | null>(null); // Estado para almacenar el archivo de imagen
   
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files ? e.target.files[0] : null;
-      setSelectedFile(file);
-    };
-
-    const handleSubmit = async () => {
-      // Verifica si los campos obligatorios están completos
-      if (!product.name || !product.description || product.price <= 0) {
-        alert('Todos los campos son obligatorios y el precio debe ser mayor que 0.');
-        return;
-      }
-    
-      try {
-        // Si hay un archivo seleccionado, usamos FormData
-        if (selectedFile) {
-          const formData = new FormData();
-          formData.append('name', product.name);
-          formData.append('description', product.description);
-          formData.append('price', product.price.toString());
-          formData.append('available', product.available.toString());
-          formData.append('file', selectedFile); // Solo si hay archivo
-    
-          if (isEditing && product._id) {
-            // Si estamos editando y hay un archivo, usamos FormData
-            await handleUpdateProduct(menuId, submenuName, sectionName, product._id, formData);
-          } else {
-            // Si es un nuevo producto y hay un archivo, usamos FormData
-            await handleAddProductToSection(menuId, submenuName, sectionName, formData);
-          }
-        } else {
-          // Si no hay archivo, usamos el objeto Product
-          if (isEditing && product._id) {
-            // Editar producto sin archivo
-            await handleUpdateProduct(menuId, submenuName, sectionName, product._id, product);
-          } else {
-            // Agregar nuevo producto sin archivo
-            await handleAddProductToSection(menuId, submenuName, sectionName, product);
-          }
-        }
-    
-        closeModal();
-      } catch (error) {
-        console.error('Error al agregar o actualizar producto:', error);
-      }
-    };
-    
-    
     return (
       <div>
-      <h2 className="text-xl mb-4">{isEditing ? 'Editar Producto' : 'Agregar Nuevo Producto'}</h2>
-      <input
-        type="text"
-        value={product.name}
-        onChange={(e) => setProduct({ ...product, name: e.target.value })}
-        placeholder="Nombre del Producto"
-        className="p-2 border border-white/20 rounded mb-2 w-full bg-white/10 text-white placeholder-gray-300"
-      />
-      <input
-        type="text"
-        value={product.description}
-        onChange={(e) => setProduct({ ...product, description: e.target.value })}
-        placeholder="Descripción del Producto"
-        className="p-2 border border-white/20 rounded mb-2 w-full bg-white/10 text-white placeholder-gray-300"
-      />
-      <input
-        type="number"
-        value={product.price}
-        onChange={(e) => setProduct({ ...product, price: parseFloat(e.target.value) })}
-        placeholder="Precio del Producto"
-        className="p-2 border border-white/20 rounded mb-4 w-full bg-white/10 text-white placeholder-gray-300"
-      />
-      <input type="file" accept="image/*" onChange={handleFileChange} className="mb-4" />
-      <button
+        <h2 className="text-xl mb-4">
+          {isEditing ? 'Editar Producto' : 'Agregar Nuevo Producto'}
+        </h2>
+        <input
+          type="text"
+          value={product.name}
+          onChange={(e) => setProduct({ ...product, name: e.target.value })}
+          placeholder="Nombre del Producto"
+          className="p-2 border border-white/20 rounded mb-2 w-full bg-white/10 text-white placeholder-gray-300"
+        />
+        <input
+          type="text"
+          value={product.description}
+          onChange={(e) =>
+            setProduct({ ...product, description: e.target.value })
+          }
+          placeholder="Descripción del Producto"
+          className="p-2 border border-white/20 rounded mb-2 w-full bg-white/10 text-white placeholder-gray-300"
+        />
+        <input
+          type="number"
+          value={product.price}
+          onChange={(e) =>
+            setProduct({ ...product, price: parseFloat(e.target.value) })
+          }
+          placeholder="Precio del Producto"
+          className="p-2 border border-white/20 rounded mb-4 w-full bg-white/10 text-white placeholder-gray-300"
+        />
+        <button
           onClick={() => {
             if (isEditing && product._id) {
               handleUpdateProduct(
@@ -588,7 +538,12 @@ const MenuPage = () => {
                 product
               );
             } else {
-              handleSubmit()
+              handleAddProductToSection(
+                menuId,
+                submenuName,
+                sectionName,
+                product
+              );
             }
             closeModal();
           }}
@@ -596,7 +551,7 @@ const MenuPage = () => {
         >
           {isEditing ? 'Guardar Cambios' : 'Agregar Producto'}
         </button>
-    </div>
+      </div>
     );
   };
   
@@ -762,68 +717,69 @@ const MenuPage = () => {
 
                     {/* Muestra los Productos dentro de la sección */}
                     {section.products.map((product, i) => (
-  <div
-    key={`${product.name}-${i}`}
-    className="ml-4 mt-3 p-3 rounded flex justify-between items-center
-          bg-gradient-to-br from-white/10 to-transparent
-          backdrop-blur-md border border-white/20 flex-wrap"
-  >
-    <div className="flex items-center">
-      {/* Mostrar la imagen del producto si existe */}
-      {product.imageUrl && (
-        <img
-          src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}`}
-          alt={product.name}
-          className="w-20 h-20 object-cover rounded mr-4"
-        />
-      )}
-      <div>
-        <p className="font-semibold">{product.name}</p>
-        <p className="text-sm text-gray-300">{product.description}</p>
-      </div>
-    </div>
-    <div className="flex items-center space-x-4 mt-2 md:mt-0">
-      <div className="text-right">
-        <p>${product.price.toFixed(2)}</p>
-      </div>
-      {/* Switch de disponibilidad */}
-      <div>
-        <label className="flex items-center cursor-pointer">
-          <div className="relative">
-            <input
-              type="checkbox"
-              checked={product.available}
-              className="sr-only"
-              onChange={() => handleToggleAvailability(menu._id, submenu.name, section.name, product)}
-            />
-            <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
-            <div
-              className={`dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition ${
-                product.available ? 'transform translate-x-full bg-green-500' : ''
-              }`}
-            ></div>
-          </div>
-        </label>
-      </div>
-      <button
-        onClick={() =>
-          openModal(
-            <ProductForm
-              menuId={menu._id}
-              submenuName={submenu.name}
-              sectionName={section.name}
-              initialProduct={product}
-            />
-          )
-        }
-        className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded mt-2 flex items-center justify-end"
-      >
-        <FaEdit />
-      </button>
-    </div>
-  </div>
-))}
+                      <div
+                        key={`${product.name}-${i}`}
+                        className="ml-4 mt-3 p-3 rounded flex justify-between items-center
+                              bg-gradient-to-br from-white/10 to-transparent
+                              backdrop-blur-md border border-white/20 flex-wrap"
+                      >
+                        <div>
+                          <p className="font-semibold">{product.name}</p>
+                          <p className="text-sm text-gray-300">
+                            {product.description}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-4 mt-2 md:mt-0">
+                          <div className="text-right">
+                            <p>${product.price.toFixed(2)}</p>
+                          </div>
+                          {/* Switch de disponibilidad */}
+                          <div>
+                            <label className="flex items-center cursor-pointer">
+                              <div className="relative">
+                              <input
+                                type="checkbox"
+                                checked={product.available}
+                                className="sr-only"
+                                onChange={() =>
+                                    handleToggleAvailability(
+                                    menu._id,
+                                    submenu.name,
+                                    section.name,
+                                    product
+                                    )
+                                }
+                                />
 
+                                <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
+                                <div
+                                  className={`dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition ${
+                                    product.available
+                                      ? 'transform translate-x-full bg-green-500'
+                                      : ''
+                                  }`}
+                                ></div>
+                              </div>
+                            </label>
+                          </div>
+                          <button
+                            onClick={() =>
+                              openModal(
+                                <ProductForm
+                                  menuId={menu._id}
+                                  submenuName={submenu.name}
+                                  sectionName={section.name}
+                                  initialProduct={product}
+                                />
+                              )
+                            }
+                            className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded mt-2 flex items-center justify-end"
+                          >
+                            <FaEdit />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>

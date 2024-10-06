@@ -31,16 +31,10 @@ const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
       onClick={onClose} // Cerrar modal al hacer clic en el fondo
     >
       <motion.div
-        className="bg-gradient-to-br from-cyan-400 to- rounded-lg p-6 w-11/12 md:w-1/2 lg:w-1/3 shadow-lg relative"
+        className=" bg-white/10 rounded-[20px] p-6 w-11/12 md:w-1/2 lg:w-1/3  relative"
         variants={modalVariants}
         onClick={(e) => e.stopPropagation()} // Evitar cerrar el modal al hacer clic dentro del modal
       >
-        <button
-          className="absolute top-2 right-2 text-gray-700"
-          onClick={onClose}
-        >
-          &times; {/* Cerrar modal */}
-        </button>
         {children} {/* Contenido del modal */}
       </motion.div>
     </motion.div>
