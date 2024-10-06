@@ -264,7 +264,7 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
 
           {loading && (
             <div className="flex justify-start">
-              <div className="px-6 py-3 rounded-3xl  text-white backdrop-blur-md flex items-center space-x-2 shadow-assistant bg-gradient-to-r from-purple-500/30 to-indigo-500/30">
+              <div className="px-6 py-3 rounded-3xl  text-white flex items-center space-x-2 shadow-assistant bg-gradient-to-r from-purple-500/30 to-indigo-500/30">
                 <motion.div className="flex space-x-2" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 0.6, repeat: Infinity }}>
                   <div className="h-2 w-2 bg-white rounded-full"></div>
                   <div className="h-2 w-2 bg-white rounded-full"></div>
