@@ -79,31 +79,34 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
     localStorage.removeItem('assistantDrawerMessages'); // Limpiar almacenamiento local
   }, []);
 
+  // Cargar mensajes desde el localStorage o mostrar el mensaje inicial
   useEffect(() => {
     const storedMessages = localStorage.getItem('assistantDrawerMessages');
     if (storedMessages) {
       try {
         const parsedMessages: unknown[] = JSON.parse(storedMessages) as Message[];
-        if (Array.isArray(parsedMessages)) {
+        if (Array.isArray(parsedMessages) && parsedMessages.length > 0) {
           const validMessages: Message[] = parsedMessages.filter(isValidMessage);
           setMessages(validMessages);
+        } else {
+          setMessages([initialAssistantMessage()]);
         }
       } catch (error) {
         console.error('Error al parsear los mensajes almacenados:', error);
-        setMessages([]);
+        setMessages([initialAssistantMessage()]);
       }
+    } else {
+      setMessages([initialAssistantMessage()]);
     }
-  }, [isValidMessage]);
+  }, [isValidMessage, initialAssistantMessage]);
 
   useEffect(() => {
     localStorage.setItem('assistantDrawerMessages', JSON.stringify(messages));
   }, [messages]);
 
   useEffect(() => {
-    if (open) {
-      if (messages.length === 0 || messages[0].text !== initialAssistantMessage().text) {
-        setMessages((prevMessages) => [initialAssistantMessage(), ...prevMessages]);
-      }
+    if (open && messages.length === 0) {
+      setMessages([initialAssistantMessage()]);
     }
   }, [open, initialAssistantMessage, messages]);
 
@@ -116,6 +119,16 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
       });
     }
   }, [messages]);
+
+  // Formatear el texto para que lo que está entre ** ** sea negrita
+  const formatMessageText = (text: string) => {
+    const regex = /\*\*(.*?)\*\*/g; // Expresión regular para encontrar texto entre ** **
+    const parts = text.split(regex); // Dividir el texto en partes usando el regex
+
+    return parts.map((part, index) => (
+      index % 2 === 1 ? <strong key={index}>{part}</strong> : part // Poner en <strong> las partes que están entre ** **
+    ));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,8 +211,6 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
         </div>
         </DrawerHeader>
 
-        {/* Botón para eliminar la conversación */}
-
         {/* Mensajes */}
         <div className="flex-1 px-4 pb-4 overflow-y-auto space-y-4" ref={messagesEndRef}>
           {messages.map((message, index) => (
@@ -211,14 +222,14 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
               className={`flex ${message.sender === 'assistant' ? 'justify-start' : 'justify-end'}`}
             >
               <div className={`px-6 py-3 mt-3 rounded-3xl max-w-xs ${message.sender === 'assistant' ? 'bg-gradient-to-r from-purple-500/30 to-indigo-500/30 text-white  shadow-assistant' : 'bg-gradient-to-r from-blue-500/30 to-teal-500/30 text-white shadow-user'}`}>
-                <p>{message.text}</p>
+                <p>{formatMessageText(message.text)}</p> {/* Formateamos el texto */}
               </div>
             </motion.div>
           ))}
 
           {loading && (
             <div className="flex justify-start">
-              <div className="px-6 py-3 rounded-3xl  text-white backdrop-blur-md flex items-center space-x-2 shadow-assistant">
+              <div className="px-6 py-3 rounded-3xl  text-white backdrop-blur-md flex items-center space-x-2 shadow-assistant bg-gradient-to-r from-purple-500/30 to-indigo-500/30">
                 <motion.div className="flex space-x-2" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 0.6, repeat: Infinity }}>
                   <div className="h-2 w-2 bg-white rounded-full"></div>
                   <div className="h-2 w-2 bg-white rounded-full"></div>
