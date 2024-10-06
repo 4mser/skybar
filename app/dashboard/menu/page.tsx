@@ -7,39 +7,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { FaPlus, FaEdit } from 'react-icons/fa';
+import { Bar, Menu, Product } from '@/types/types';
 
-// Interfaces
-interface Product {
-  _id?: string;
-  name: string;
-  description: string;
-  price: number;
-  available: boolean;
-  imageUrl?: string;
-}
 
-interface MenuSection {
-  _id?: string;
-  name: string;
-  products: Product[];
-}
-
-interface SubMenu {
-  _id?: string;
-  name: string;
-  sections: MenuSection[];
-}
-
-interface Menu {
-  _id: string;
-  barId: string | { _id: string; name: string };
-  subMenus: SubMenu[];
-}
-
-interface Bar {
-  _id: string;
-  name: string;
-}
 
 // Componente Modal personalizado con Glassmorphism
 const Modal = ({
@@ -55,7 +25,7 @@ const Modal = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
       <div
-        className="relative p-6 rounded-[10px] max-w-md w-full
+        className="relative p-6 rounded-[10px] backdrop-blur-md max-w-md w-full
             bg-gradient-to-br from-white/10 to-transparent
              border border-white/20 text-white"
       >
@@ -578,20 +548,7 @@ const MenuPage = () => {
       />
       <input type="file" accept="image/*" onChange={handleFileChange} className="mb-4" />
       <button
-          onClick={() => {
-            if (isEditing && product._id) {
-              handleUpdateProduct(
-                menuId,
-                submenuName,
-                sectionName,
-                product._id,
-                product
-              );
-            } else {
-              handleSubmit()
-            }
-            closeModal();
-          }}
+          onClick={handleSubmit}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full"
         >
           {isEditing ? 'Guardar Cambios' : 'Agregar Producto'}
