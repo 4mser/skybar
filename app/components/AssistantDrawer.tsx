@@ -187,7 +187,9 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
         {/* Barra superior del Drawer */}
         <div className="mx-auto mt-2 h-1 w-12 rounded-full bg-white/30"></div>
 
-        
+        <DrawerHeader>
+          <p className='text-white font-bold'>Asistente AI</p>
+        </DrawerHeader>
 
         {/* Botón para eliminar la conversación */}
         <div className="px-4 py-2 text-right">
