@@ -13,7 +13,7 @@ import {
   FaHeart,
   FaMapMarkedAlt,
   FaUserFriends,
-  FaLayerGroup, // Icono de Dashboard
+  FaLayerGroup, 
 } from 'react-icons/fa';
 import { ImSpoonKnife } from 'react-icons/im';
 import axios from 'axios';
@@ -35,7 +35,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
   const [tutorialComplete, setTutorialComplete] = useState(false);
   const [userRole, setUserRole] = useState<string>(''); 
 
-  const { backgroundMode } = useDarkMode(); // Obtener el modo del tema
+  const { backgroundMode } = useDarkMode(); 
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -70,7 +70,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
       { icon: <ImSpoonKnife />, label: 'Menú', link: '/menu/Menú' },
     ];
 
-    if (userRole === 'superadmin' || 'admin') {
+    if (userRole === 'superadmin' || userRole === 'admin') {
       baseMenuItems.push({ icon: <FaLayerGroup />, label: 'Dashboard', link: '/dashboard' });
     }
 
@@ -150,7 +150,24 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
     }
   }, [isDragging, showInstruction]);
 
-  // Aplicar la clase filter invert solo a los íconos y activeLabel cuando el tema sea neon
+  // Prevenir el desplazamiento en móviles cuando se toca la pantalla
+  useEffect(() => {
+    const handleTouchMove = (event: TouchEvent) => {
+      event.preventDefault();
+    };
+    if (open) {
+      document.body.style.overflow = 'hidden';
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    } else {
+      document.body.style.overflow = 'auto';
+      document.removeEventListener('touchmove', handleTouchMove);
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+      document.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [open]);
+
   const filterClass = backgroundMode === 'neon' ? '' : '';
 
   return (
@@ -158,8 +175,8 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
       <motion.div
         className={`fixed  select-none z-50 flex items-center justify-center w-full h-full backdrop-blur-lg  top-0 left-0 ${backgroundMode === 'neon' && 'bg-black/40'}`}
         onClick={() => setOpen(false)}
+        onPan={handlePan} // Mover la rueda con el gesto
         initial="closed"
-        onPan={handlePan}
         animate={open ? 'open' : 'closed'}
         variants={{
           open: { opacity: 1, display: 'block', transition: { duration: 0.4, ease: 'easeInOut' }},
@@ -177,7 +194,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
             closed: { rotate: [0, 20], y: '20%', x: '-60%', transition: { duration: 0.4, ease: 'easeInOut' }},
           }}
         >
-          {/* Orbe central destacado con animación de movimiento constante */}
+          {/* Orbe central destacado con animación */}
           <motion.div
             className="absolute w-32 h-32 z-50 rounded-full bg-gradient-to-r from-transparent via-indigo-500 to-cyan-300 flex items-center justify-center breathing-orb"
             style={{ 
