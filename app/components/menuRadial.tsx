@@ -159,6 +159,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
         className={`fixed  select-none z-50 flex items-center justify-center w-full h-full backdrop-blur-lg  top-0 left-0 ${backgroundMode === 'neon' && 'bg-black/40'}`}
         onClick={() => setOpen(false)}
         initial="closed"
+        onPan={handlePan}
         animate={open ? 'open' : 'closed'}
         variants={{
           open: { opacity: 1, display: 'block', transition: { duration: 0.4, ease: 'easeInOut' }},

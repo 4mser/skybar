@@ -1,11 +1,10 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useRef, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
 import 'swiper/css';
-import 'swiper/css/effect-fade'; // Importar CSS para el efecto de desvanecimiento
-import { gsap } from 'gsap';
+import 'swiper/css/effect-coverflow'; // Importar CSS para el efecto de coverflow
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, EffectCoverflow } from 'swiper/modules'; // Importar el módulo de desvanecimiento
+import { Autoplay, EffectCoverflow } from 'swiper/modules'; // Importar el módulo de coverflow
 import Image from 'next/image';
 
 export default function Anuncios() {
@@ -31,26 +30,6 @@ export default function Anuncios() {
     modules: [EffectCoverflow, Autoplay],
     autoplay: { delay: 6000 },
   };
-
-  // Animación GSAP optimizada, controlada por gsap.context
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        slideRefs.current,
-        { opacity: 0, scale: 0.8, y: 30 },
-        {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          stagger: 0.15,
-        }
-      );
-    });
-
-    return () => ctx.revert(); // Limpiar animación al desmontar el componente
-  }, []);
 
   return (
     <main className="w-full overflow-hidden p-4">

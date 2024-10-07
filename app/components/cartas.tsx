@@ -1,19 +1,14 @@
-// app/components/Cartas.tsx
-
 'use client';
 import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
-import { gsap } from 'gsap';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import axios, { AxiosResponse } from 'axios';
 import { useDarkMode } from '../context/DarkModeContext';
 
 interface SubMenu {
   name: string;
-  // Si hay otras propiedades, puedes agregarlas aquí
 }
 
 interface Menu {
@@ -21,60 +16,28 @@ interface Menu {
 }
 
 export default function Cartas() {
-  const menuRefs = useRef<HTMLDivElement[]>([]);
   const [submenus, setSubmenus] = useState<SubMenu[]>([]);
 
   const barId = '66f067f56cc6f1ba2d5aee08';
 
-  // Añadir elemento a las referencias
-  const addToRefs = useCallback((el: HTMLDivElement) => {
-    if (el && !menuRefs.current.includes(el)) {
-      menuRefs.current.push(el);
-    }
-  }, []);
-
   // Configuración de Swiper memorizada
   const swiperConfig = useMemo(
     () => ({
-      spaceBetween: 10,
+      spaceBetween: 0,
       slidesPerView: 2.5,
-      modules: [Autoplay],
-      autoplay: { delay: 3000, disableOnInteraction: false },
       loop: false,
     }),
     []
   );
 
-  // Animación con GSAP
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        menuRefs.current,
-        { opacity: 0, scale: 0.8, y: 30 },
-        {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          stagger: 0.15,
-        }
-      );
-    });
-
-    return () => ctx.revert();
-  }, [submenus]);
-
   // Fetch submenus desde la API sin necesidad de token
   useEffect(() => {
     const fetchSubmenus = async () => {
       try {
-       
         const response: AxiosResponse<Menu[]> = await axios.get(
           `${process.env.NEXT_PUBLIC_API}/menus?barId=${barId}`
         );
         const menus = response.data;
-
         const menu = menus[0];
 
         if (menu) {
@@ -85,10 +48,8 @@ export default function Cartas() {
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
           if (error.response) {
-            // **Manejamos errores específicos de la respuesta**
             console.error(`Error ${error.response.status}: ${error.response.data}`);
           } else {
-            // **Errores relacionados con la solicitud pero sin respuesta**
             console.error('Error al obtener submenús:', error.message);
           }
         } else {
@@ -103,23 +64,23 @@ export default function Cartas() {
   const { backgroundMode } = useDarkMode(); // Obtener el modo del tema
 
   // Arreglo de imágenes para usar
-  const images = ['/images/comida.jpg', '/images/tragos2.png', '/images/room.jpeg'];
+  const images = ['/images/tragos2.png', '/images/comida.jpg', '/images/room.jpeg'];
 
   return (
-    <main className={`w-full px-4 ${backgroundMode === 'neon' && 'text-black/80'}`}>
-      <p className="py-2 font-semibold">Menús principales</p>
+    <main className={`w-full px-2 ${backgroundMode === 'neon' && 'text-black/80'}`}>
+      <p className="py-2 px-2 font-semibold">Menús principales</p>
 
       <Swiper {...swiperConfig} className="mySwiper">
         {submenus.map((submenu, index) => (
-          <SwiperSlide key={index}>
+          <SwiperSlide key={index} className='p-2'>
             <Link href={`/menu/${encodeURIComponent(submenu.name)}`}>
-              <div ref={addToRefs} className="overflow-hidden rounded-[10px] shadow-lg">
+              <div className="overflow-hidden rounded-[10px] shadow-lg transform transition-transform duration-300 hover:scale-105">
                 <Image
                   width={700}
                   height={800}
                   src={images[index % images.length]}
                   alt={submenu.name}
-                  className="w-full h-48 object-cover rounded-md transition-transform duration-500 hover:scale-105"
+                  className="w-full h-48 object-cover rounded-md"
                   priority={index === 0}
                 />
               </div>
