@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
+import { useEffect,  useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
