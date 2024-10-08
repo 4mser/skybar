@@ -45,9 +45,14 @@ const ProfilePage = () => {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token');  // Eliminamos el token de localStorage
-    router.push('/auth');  // Redirigimos a la página de autenticación
+    // Eliminar el token del localStorage
+    localStorage.removeItem('token');
+  
+    // Redirigir al backend para cerrar sesión en Google
+    const apiUrl = process.env.NEXT_PUBLIC_API;
+    window.location.href = `${apiUrl}/auth/logout`; // Ruta del backend que maneja el cierre de sesión de Google
   };
+  
 
   // Determinar el color del rol
   const getRoleColor = () => {
