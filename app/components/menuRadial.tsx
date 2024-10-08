@@ -80,7 +80,8 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
   const totalItems = menuItems.length;
 
   const calculatePosition = useCallback((index: number) => {
-    const angle = (index / totalItems) * 360 + rotationX + rotationY;
+    let angle = (index / totalItems) * 360 + rotationX + rotationY;
+    angle = (angle + 360) % 360; // Normalizar ángulo
     const x = Math.cos((angle * Math.PI) / 180) * ((outerRadius + innerRadius + 20) / 2);
     const y = Math.sin((angle * Math.PI) / 180) * ((outerRadius + innerRadius + 20) / 2);
     return { x, y, angle };

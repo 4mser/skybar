@@ -13,52 +13,42 @@ const Topbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userPhoto, setUserPhoto] = useState<string | null>(null); // Para almacenar la foto del usuario
   const router = useRouter();
+
   const { backgroundMode, toggleBackground } = useDarkMode(); // Usamos el nuevo estado desde el contexto
 
-  // Función para obtener la foto de perfil
-  const fetchUserData = async (token: string) => {
-    try {
-      const response = await axios.get('https://aria-backend-production.up.railway.app/users/me', {
-        headers: {
-          Authorization: `Bearer ${token}`, // Enviamos el token en el header
-        },
-      });
-      setUserPhoto(response.data.photo); // Guardamos la foto del usuario
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-  };
-
-  // Chequear si el usuario está autenticado al cargar la página o cuando el token cambie
+  // Chequear si el usuario está autenticado
   useEffect(() => {
     const token = localStorage.getItem('token'); 
     if (token) {
       setIsAuthenticated(true);
-      fetchUserData(token);  // Obtener la foto si ya hay un token
+
+      // Obtener la foto de perfil del usuario autenticado
+      const fetchUserData = async () => {
+        try {
+          const response = await axios.get('https://aria-backend-production.up.railway.app/users/me', {
+            headers: {
+              Authorization: `Bearer ${token}`, // Enviamos el token en el header
+            },
+          });
+          setUserPhoto(response.data.photo); // Guardamos la foto del usuario
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      };
+
+      fetchUserData();
+    } else {
+      setIsAuthenticated(false);
+      setUserPhoto(null);
     }
   }, []);
 
-  // Observamos los cambios en localStorage para actualizar la foto de perfil si el usuario inicia sesión
+  // Redirigir para actualizar la página cuando el usuario inicia sesión
   useEffect(() => {
-    const handleStorageChange = () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        setIsAuthenticated(true);
-        fetchUserData(token);  // Volvemos a obtener la foto si hay un token nuevo
-      } else {
-        setIsAuthenticated(false);
-        setUserPhoto(null);  // Reiniciamos la imagen si el usuario se desloguea
-      }
-    };
-
-    // Añadir un listener para detectar cambios en localStorage
-    window.addEventListener('storage', handleStorageChange);
-
-    // Limpiamos el listener cuando el componente se desmonta
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
+    if (isAuthenticated) {
+      router.refresh();  // Forzar actualización de la página
+    }
+  }, [isAuthenticated, router]);
 
   const handleMenu = () => {
     setOpenMenu(!openMenu);
