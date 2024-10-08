@@ -17,10 +17,8 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`; // Añadir el token a los encabezados
     }
     return config;
-  },
-  (error) => {
-    return Promise.reject(error);
   }
+  // No es necesario el segundo parámetro si no estás usando 'error', así que lo eliminamos
 );
 
 // Registro de usuario
@@ -85,7 +83,7 @@ export const getFavoriteProducts = async () => {
     });
 
     return response.data; // Retorna los productos favoritos completos
-  } catch (error) {
+  } catch {
     throw new Error('Error al obtener productos favoritos');
   }
 };
@@ -105,7 +103,7 @@ export const removeFavorite = async (productId: string) => {
         Authorization: `Bearer ${token}`,
       },
     });
-  } catch (error) {
+  } catch {
     throw new Error('Error al eliminar producto de favoritos');
   }
 };
