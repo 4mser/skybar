@@ -51,26 +51,29 @@ const BokehBackground: React.FC = () => {
             const [r, g, b] = this.color;
             p.fill(r, g, b, this.opacity);
 
-            // Aplicar blur fuerte en la propia burbuja
-            p.drawingContext.shadowBlur = 150; // Blur más alto para difuminar más
-            p.drawingContext.shadowColor = `rgba(${r}, ${g}, ${b}, 0.6)`; // Color de la sombra más cercano a la burbuja
-            p.ellipse(this.x, this.y, this.size); // Dibujar la burbuja
+            // Aplicar blur fuerte en la propia burbuja, pero reducir en dispositivos pequeños
+            const blurAmount = p.windowWidth < 768 ? 50 : 150; // Ajustar blur según el tamaño de pantalla
+            p.drawingContext.shadowBlur = blurAmount;
+            p.drawingContext.shadowColor = `rgba(${r}, ${g}, ${b}, 0.6)`;
+            p.ellipse(this.x, this.y, this.size);
           }
         }
 
         const bubbles: Bubble[] = [];
 
+        // Ajustar el número de burbujas según el tamaño de pantalla
+        const numBubbles = p.windowWidth < 768 ? 6 : 12; // Menos burbujas en pantallas pequeñas
+
         p.setup = () => {
           const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
           canvas.parent(sketchRef.current as Element);
 
-          // Crear burbujas iniciales con menos cantidad y tonos más cian
-          for (let i = 0; i < 12; i++) { // Menos burbujas para mayor fluidez
-            const size = p.random(100, 220); // Tamaños más grandes
+          for (let i = 0; i < numBubbles; i++) {
+            const size = p.random(100, 220); 
             const speedX = p.random(-1, 1); 
             const speedY = p.random(-1, 1); 
             const color: [number, number, number] = [
-              p.random(80, 150), // Colores más suaves
+              p.random(80, 150),
               p.random(180, 220),
               p.random(220, 255),
             ];
@@ -79,9 +82,9 @@ const BokehBackground: React.FC = () => {
         };
 
         p.draw = () => {
-          p.clear(); // Limpiar el canvas
+          p.clear();
 
-          // Dibujar las burbujas con movimiento y rebote
+          // Dibujar las burbujas
           for (const bubble of bubbles) {
             bubble.move();
             bubble.show();
@@ -101,7 +104,7 @@ const BokehBackground: React.FC = () => {
     }
   }, []);
 
-  return <div ref={sketchRef} className="fixed -z-20 inset-0" />
+  return <div ref={sketchRef} className="fixed -z-20 inset-0" />;
 };
 
 export default BokehBackground;
