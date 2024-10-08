@@ -90,4 +90,24 @@ export const getFavoriteProducts = async () => {
   }
 };
 
+// Eliminar producto de favoritos
+export const removeFavorite = async (productId: string) => {
+  const token = localStorage.getItem('token');
+  
+  if (!token) {
+    throw new Error('No hay token, el usuario no está autenticado');
+  }
+
+  try {
+    await api.delete(`/menus/me/favorites`, {
+      data: { productId },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    throw new Error('Error al eliminar producto de favoritos');
+  }
+};
+
 export default api;

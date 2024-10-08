@@ -2,12 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useDarkMode } from '../context/DarkModeContext';
-import { getFavoriteProducts } from '../services/api'; // Importa la función de la API
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { FaHeart } from 'react-icons/fa';
+import { removeFavorite, getFavoriteProducts } from '../services/api';
 
 interface Product {
-  _id: string;
+  _id?: string;
   name: string;
   description: string;
   price: number;
@@ -15,113 +14,94 @@ interface Product {
   imageUrl?: string;
 }
 
-interface MenuSection {
-  name: string;
-  products: Product[];
-}
-
 const FavoritesPage: React.FC = () => {
-  const [favoriteProducts, setFavoriteProducts] = useState<Product[]>([]); // Estado para los productos favoritos
-  const { backgroundMode } = useDarkMode();
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Estado de carga
+  const [favoriteProducts, setFavoriteProducts] = useState<Product[]>([]); 
 
+  // Cargar los productos favoritos al montar el componente
   useEffect(() => {
-    // Fetch favoritos al cargar la página
     const fetchFavorites = async () => {
       try {
-        const favorites = await getFavoriteProducts();
-        setFavoriteProducts(favorites); // Guardar los productos favoritos obtenidos
-        setIsLoading(false);
+        const favoriteProductsData = await getFavoriteProducts();
+        setFavoriteProducts(favoriteProductsData);
       } catch (error) {
         console.error('Error al obtener productos favoritos:', error);
-        setIsLoading(false);
       }
     };
 
     fetchFavorites();
   }, []);
 
-  const sanitizeTitle = (title: string): string =>
-    title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-
-  const backgroundClass =
-    backgroundMode === 'dark'
-      ? 'bg-[#0a0a0a]'
-      : backgroundMode === 'light'
-      ? ''
-      : 'bg-slate-100';
-
-  const textAndBorderClass =
-    backgroundMode === 'neon' ? 'text-black/80 border-black/30' : 'text-white border-white/20';
-
+  // Función para eliminar un producto de los favoritos
   const toggleFavorite = async (productId: string) => {
     try {
-      // Aquí puedes implementar la funcionalidad de eliminar de favoritos
-      console.log(`Producto con id ${productId} fue clickeado`);
+      await removeFavorite(productId);
+      setFavoriteProducts(favoriteProducts.filter(product => product._id !== productId));
     } catch (error) {
-      console.error('Error al actualizar favoritos:', error);
+      console.error('Error al eliminar producto de favoritos:', error);
     }
   };
 
+  // Animaciones con Framer Motion
   const variants = {
     hidden: { opacity: 0, y: 100 },
     visible: { opacity: 1, y: 0 },
   };
 
-  if (isLoading) {
-    return <p className="text-center">Cargando favoritos...</p>;
-  }
-
   return (
-    <div className="pt-[109px]">
-      <h1 className="text-3xl font-bold text-center mb-6">Tus productos favoritos</h1>
-
-      {favoriteProducts.length === 0 ? (
-        <p className="text-center">No tienes productos favoritos</p>
-      ) : (
-        <motion.div
-          className="mt-4"
-          initial="hidden"
-          animate="visible"
-          transition={{ duration: 0.3 }}
-          variants={variants}
-        >
-          <ul className="text-xs flex flex-col mb-3">
-            {favoriteProducts.map((item) => (
-              <li
-                key={item._id}
-                className={`flex justify-between items-center px-4 py-1 mt-3 gap-8 modal-item cursor-pointer ${textAndBorderClass}`}
-              >
-                <div className="flex items-center">
-                  {item.imageUrl && (
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${item.imageUrl}`}
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded-[10px] mr-4"
-                    />
-                  )}
-                  <div>
-                    <h1 className={`font-semibold ${textAndBorderClass}`}>{item.name}</h1>
-                    <p className={`font-normal opacity-70 ${textAndBorderClass}`}>{item.description}</p>
+    <>
+      <div className="pt-12">
+        {favoriteProducts.length === 0 ? (
+          <p className="text-center text-white">No tienes productos favoritos</p>
+        ) : (
+          <motion.div
+            className="mt-4"
+            initial="hidden"
+            animate="visible"
+            transition={{ duration: 0.3 }}
+            variants={variants}
+          >
+            <h2 className="text-2xl font-semibold text-center ">
+              Tus Productos Favoritos
+            </h2>
+            <ul className="text-xs flex flex-col mb-3">
+              {favoriteProducts.map((product: Product, productIndex: number) => (
+                <li
+                  key={productIndex}
+                  className="flex justify-between items-center px-4 py-1 mt-3 gap-8 modal-item cursor-pointer text-white border-white/20"
+                >
+                  <div className="flex items-center">
+                    {product.imageUrl && (
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}`}
+                        alt={product.name}
+                        className="w-16 h-16 object-cover rounded-[10px] mr-4"
+                      />
+                    )}
+                    <div>
+                      <h1 className="font-semibold">{product.name}</h1>
+                      <p className="font-normal opacity-70">{product.description}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center">
-                  <div className={`min-w-20 border px-2 rounded-[8px] ${textAndBorderClass}`}>
-                    <p className={`w-full text-sm text-center font-medium ${textAndBorderClass}`}>
-                      ${item.price}
-                    </p>
+                  <div className="flex items-center">
+                    <div className="min-w-20 border px-2 rounded-[8px]">
+                      <p className="w-full text-sm text-center font-medium">
+                        ${product.price}
+                      </p>
+                    </div>
+                    <div
+                      onClick={() => toggleFavorite(product._id || '')}
+                      className="ml-4 cursor-pointer"
+                    >
+                      <FaHeart className="text-red-500" />
+                    </div>
                   </div>
-                  {/* Ícono de corazón para favoritos */}
-                  <div onClick={() => toggleFavorite(item._id)} className="ml-4">
-                    <FaHeart className="text-red-500 cursor-pointer" />
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </motion.div>
-      )}
-    </div>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+      </div>
+    </>
   );
 };
 

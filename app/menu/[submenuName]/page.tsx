@@ -7,7 +7,7 @@ import { useDarkMode } from '../../context/DarkModeContext';
 import AssistantDrawer from '../../components/AssistantDrawer'; 
 import Modal from '../../components/modal'; 
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
-import { addFavorite, getFavoriteProducts } from '../../services/api';
+import { addFavorite, removeFavorite, getFavoriteProducts } from '../../services/api'; // Importar removeFavorite
 import axios from 'axios';
 
 interface Product {
@@ -137,6 +137,7 @@ const Page: React.FC = () => {
 
   const textAndBorderClass = backgroundMode === 'neon' ? 'text-black/80 border-black/30' : 'text-white border-white/20';
 
+  // Función para agregar/eliminar favoritos
   const toggleFavorite = async (productId: string) => {
     const isFavorite = favoriteProducts.includes(productId);
 
@@ -147,10 +148,11 @@ const Page: React.FC = () => {
 
     try {
       if (isFavorite) {
-        // Aquí deberías agregar una función para remover de favoritos si lo necesitas
-        await addFavorite(productId);
+        // Si ya está en favoritos, remover
+        await removeFavorite(productId);
         setFavoriteProducts(favoriteProducts.filter((id) => id !== productId));
       } else {
+        // Si no está en favoritos, agregar
         await addFavorite(productId);
         setFavoriteProducts([...favoriteProducts, productId]);
       }
