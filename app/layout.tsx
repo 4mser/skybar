@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import Topbar from "./components/topbar"; 
 import dynamic from "next/dynamic";
