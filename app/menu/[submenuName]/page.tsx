@@ -6,9 +6,11 @@ import { motion } from 'framer-motion';
 import { useDarkMode } from '../../context/DarkModeContext';
 import AssistantDrawer from '../../components/AssistantDrawer'; 
 import Modal from '../../components/modal'; 
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
-import { addFavorite, removeFavorite, getFavoriteProducts } from '../../services/api'; // Importar removeFavorite
+import { FaHeart, FaRegHeart } from 'react-icons/fa'; // Importar los iconos necesarios
+import { addFavorite, removeFavorite, getFavoriteProducts } from '../../services/api'; 
 import axios from 'axios';
+import { RiSearch2Line, RiCloseFill } from "react-icons/ri";
+
 
 interface Product {
   _id?: string;
@@ -42,6 +44,9 @@ const Page: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [favoriteProducts, setFavoriteProducts] = useState<string[]>([]); 
+
+  const [searchInputVisible, setSearchInputVisible] = useState<boolean>(false); // Estado para mostrar/ocultar el input de búsqueda
+  const [searchTerm, setSearchTerm] = useState<string>(''); // Estado para almacenar el término de búsqueda
 
   const openModal = (product: Product) => {
     setSelectedProduct(product);
@@ -148,11 +153,9 @@ const Page: React.FC = () => {
 
     try {
       if (isFavorite) {
-        // Si ya está en favoritos, remover
         await removeFavorite(productId);
         setFavoriteProducts(favoriteProducts.filter((id) => id !== productId));
       } else {
-        // Si no está en favoritos, agregar
         await addFavorite(productId);
         setFavoriteProducts([...favoriteProducts, productId]);
       }
@@ -161,15 +164,42 @@ const Page: React.FC = () => {
     }
   };
 
-  const stopPropagation = (event: React.MouseEvent) => {
-    event.stopPropagation();
-  };
+  // Filtrado de productos basado en el término de búsqueda
+  const filteredSections = sections.map((section: MenuSection) => ({
+    ...section,
+    products: section.products.filter((product: Product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    ),
+  }));
 
   return (
     <>
       <div
-        className={`fixed top-12 border-b backdrop-blur-md left-0 w-full z-10 overflow-x-auto flex py-4 px-4 gap-3 ${backgroundClass} ${textAndBorderClass}`}
+        className={`fixed filtros top-12 border-b backdrop-blur-md left-0 w-full z-10 overflow-x-auto flex py-4 px-4 gap-3 ${backgroundClass} ${textAndBorderClass}`}
       >
+        {/* Icono de búsqueda y input */}
+        <div className="relative flex items-center">
+          <button
+            onClick={() => setSearchInputVisible(!searchInputVisible)}
+            className="mr-4"
+          >
+            {searchInputVisible ? (
+              <RiCloseFill className={`${textAndBorderClass} text-xl`} />
+            ) : (
+              <RiSearch2Line className={`${textAndBorderClass} text-xl`} />
+            )}
+          </button>
+          {searchInputVisible && (
+            <input
+              type="text"
+              className={`border px-2 py-1 rounded-full bg-white/10 ${textAndBorderClass}`}
+              placeholder="Buscar productos"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          )}
+        </div>
+
         {sections.map((section: MenuSection, index: number) => (
           <button
             key={index}
@@ -182,7 +212,7 @@ const Page: React.FC = () => {
       </div>
 
       <div className="pt-[109px]">
-        {sections.map((section: MenuSection, index: number) => (
+        {filteredSections.map((section: MenuSection, index: number) => (
           <motion.div
             key={index}
             id={sanitizeTitle(section.name)}
@@ -202,7 +232,7 @@ const Page: React.FC = () => {
                 <li
                   key={itemIndex}
                   className={`flex justify-between items-center px-4 py-1 mt-3 gap-8 modal-item cursor-pointer ${textAndBorderClass}`}
-                  onClick={() => openModal(item)} // Abrir el modal al hacer clic en el producto
+                  onClick={() => openModal(item)}
                 >
                   <div className="flex items-center">
                     {item.imageUrl && (
@@ -225,7 +255,7 @@ const Page: React.FC = () => {
                     </div>
                     <div
                       onClick={(event) => {
-                        stopPropagation(event); // Prevenir que el clic se propague
+                        event.stopPropagation();
                         toggleFavorite(item._id || '');
                       }}
                       className="ml-4"
@@ -258,7 +288,6 @@ const Page: React.FC = () => {
             <p className="mb-4">{selectedProduct.description}</p>
             <p className="font-semibold">Precio: ${selectedProduct.price}</p>
 
-            {/* Corazón para favoritos dentro del modal */}
             <div
               onClick={() => toggleFavorite(selectedProduct._id || '')}
               className="mt-4"
