@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { gsap } from 'gsap';
+import { FaEdit } from 'react-icons/fa'; // Icono para el botón de editar
 
-// Interfaz para usuarios, bares, secciones de menú y productos
+// Interfaz para usuarios y bares
 interface User {
   _id: string;
   username: string;
@@ -18,11 +18,6 @@ interface Bar {
   _id: string;
   name: string;
   location: string;
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
-  adminIds: string[];
 }
 
 const Dashboard = () => {
@@ -31,6 +26,12 @@ const Dashboard = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [isSuperadmin, setIsSuperadmin] = useState<boolean>(false);
   const [currentView, setCurrentView] = useState<string>('users');
+  const [newBarName, setNewBarName] = useState<string>(''); // Nombre del nuevo bar
+  const [newBarLocation, setNewBarLocation] = useState<string>(''); // Ubicación del nuevo bar
+  const [selectedUser, setSelectedUser] = useState<User | null>(null); // Para el usuario seleccionado
+  const [showModal, setShowModal] = useState<boolean>(false); // Estado para mostrar el modal
+  const [newRole, setNewRole] = useState<string>(''); // Para el nuevo rol
+  const [selectedBar, setSelectedBar] = useState<string | null>(null); // Para el bar seleccionado
   const router = useRouter();
 
   useEffect(() => {
@@ -73,15 +74,80 @@ const Dashboard = () => {
     router.push('/dashboard/menu'); // Redirige a la página de menús
   };
 
-  // Animación con GSAP
-  useEffect(() => {
-    const elements = document.querySelectorAll('.card-item');
-    gsap.fromTo(
-      elements,
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, stagger: 0.2, duration: 0.8, ease: 'power3.out' }
-    );
-  }, [users, bars, currentView]);
+  const openEditModal = (user: User) => {
+    setSelectedUser(user);
+    setNewRole(user.role);
+    setSelectedBar(user.barId || null); // Si ya tiene un bar asignado, lo mostramos
+    setShowModal(true);
+  };
+
+  const handleUpdateUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      // Actualizar rol del usuario
+      await axios.patch(`${process.env.NEXT_PUBLIC_API}/users/${selectedUser._id}/role`, {
+        role: newRole,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Asignar o remover el bar
+      if (selectedBar) {
+        await axios.patch(`${process.env.NEXT_PUBLIC_API}/users/${selectedUser._id}/assign-bar`, {
+          barId: selectedBar,
+        }, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        // Remover el usuario del bar si no se seleccionó ninguno
+        await axios.patch(`${process.env.NEXT_PUBLIC_API}/users/${selectedUser._id}/assign-bar`, {
+          barId: null,
+        }, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+
+      setShowModal(false); // Cerrar el modal
+      setSelectedUser(null); // Limpiar el usuario seleccionado
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
+  };
+
+  const handleCreateBar = async () => {
+    if (!newBarName || !newBarLocation) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      // Crear un nuevo bar
+      await axios.post(`${process.env.NEXT_PUBLIC_API}/bars`, {
+        name: newBarName,
+        location: newBarLocation,
+        lat: 0, // Aquí podrías pedir coordenadas reales si es necesario
+        lng: 0,
+        adminIds: [], // Inicialmente sin administradores
+        workerIds: [],
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setNewBarName(''); // Limpiar campos del formulario
+      setNewBarLocation('');
+      // Recargar la lista de bares
+      const barsResponse = await axios.get(`${process.env.NEXT_PUBLIC_API}/bars`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setBars(barsResponse.data);
+    } catch (error) {
+      console.error('Error creating bar:', error);
+    }
+  };
 
   if (loading) {
     return <p>Cargando...</p>;
@@ -117,60 +183,120 @@ const Dashboard = () => {
         </button>
       </div>
 
-      {/* Renderizar la vista seleccionada */}
+      {/* Vista de Usuarios */}
       {currentView === 'users' && (
         <div>
           <h2 className="text-xl font-semibold text-white mb-4">Usuarios</h2>
-          <ul>
+          <ul className="space-y-4">
             {users.map(user => (
-              <li key={user._id} className="card-item p-4 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-lg rounded-2xl mb-4 shadow-md">
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-3">
-                    {/* Foto del usuario */}
-                    {user.photo && (
-                      <img
-                        src={user.photo}
-                        alt={`${user.username}'s photo`}
-                        className="w-16 h-16 rounded-full mb-4 shadow-lg"
-                      />
-                    )}
-
-                    <div>
-                      <p className="text-white font-semibold">
-                        {user.username} <span className="text-gray-400">({user.email})</span>
-                      </p>
-                      <p className="text-gray-300">Rol actual: {user.role}</p>
-                      <p className="text-gray-300">Bar asignado: {bars.find(b => b._id === user.barId)?.name || 'Sin bar asignado'}</p>
+              <li key={user._id} className="p-4 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-lg rounded-2xl shadow-md flex justify-between items-center">
+                <div className="flex gap-3 items-center">
+                  {/* Foto del usuario */}
+                  {user.photo ? (
+                    <img
+                      src={user.photo}
+                      alt={`${user.username}'s photo`}
+                      className="w-14 h-14 rounded-full shadow-lg"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 bg-gray-300 text-white flex items-center justify-center rounded-full">
+                      {user.username.charAt(0)}
                     </div>
+                  )}
+                  <div className="text-left">
+                    <p className="text-white font-semibold">
+                      {user.username} 
+                    </p>
+                    <p className="text-gray-400 text-wrap text-xs">({user.email})</p>
+                    <p className="text-gray-300 text-sm">Rol actual: {user.role}</p>
+                    <p className="text-gray-300 text-sm">Bar asignado: {bars.find(b => b._id === user.barId)?.name || 'Sin bar asignado'}</p>
                   </div>
-                  <button className="bg-blue-500 text-white px-3 py-1 rounded-2xl hover:bg-blue-600 transition">
-                    Editar
-                  </button>
                 </div>
+                <button onClick={() => openEditModal(user)} className="text-blue-500 text-lg p-2 rounded-full top-2 right-2 absolute hover:bg-white/10">
+                  <FaEdit />
+                </button>
               </li>
             ))}
           </ul>
         </div>
       )}
 
+      {/* Vista de Bares */}
       {currentView === 'bars' && (
         <div>
           <h2 className="text-xl font-semibold text-white mb-4">Bares</h2>
-          <ul>
+          <ul className="space-y-4">
             {bars.map(bar => (
-              <li key={bar._id} className="card-item p-4 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-lg rounded-2xl mb-4 shadow-md text-white">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold text-lg">{bar.name}</p>
-                    <p className="text-sm text-gray-400">Administradores: {bar.adminIds.length > 0 ? bar.adminIds.join(', ') : 'Sin administradores'}</p>
-                  </div>
-                  <button className="bg-blue-500 text-white px-3 py-1 rounded-2xl hover:bg-blue-600 transition">
-                    Editar
-                  </button>
+              <li key={bar._id} className="p-4 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-lg rounded-2xl shadow-md">
+                <div>
+                  <p className="text-white font-semibold text-lg">{bar.name}</p>
+                  <p className="text-gray-300">Ubicación: {bar.location}</p>
                 </div>
               </li>
             ))}
           </ul>
+
+          {/* Formulario para crear un nuevo bar (solo si es superadmin) */}
+          {isSuperadmin && (
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Crear Nuevo Bar</h3>
+              <input
+                type="text"
+                placeholder="Nombre del bar"
+                value={newBarName}
+                onChange={(e) => setNewBarName(e.target.value)}
+                className="w-full p-2 mb-4 border rounded-lg"
+              />
+              <input
+                type="text"
+                placeholder="Ubicación del bar"
+                value={newBarLocation}
+                onChange={(e) => setNewBarLocation(e.target.value)}
+                className="w-full p-2 mb-4 border rounded-lg"
+              />
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                onClick={handleCreateBar}
+              >
+                Crear Bar
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Modal para editar el usuario */}
+      {showModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center">
+          <div className="backdrop-blur-md bg-white/10 p-6 rounded-[15px] shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Editar Usuario: {selectedUser.username}</h2>
+
+            <label className="block mb-2">Rol:</label>
+            <select value={newRole} onChange={(e) => setNewRole(e.target.value)} className="w-full p-2 border rounded-full bg-white/10 ">
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+              <option value="superadmin">Superadmin</option>
+            </select>
+
+            <label className="block mt-4 mb-2">Asignar Bar:</label>
+            <select value={selectedBar || ''} onChange={(e) => setSelectedBar(e.target.value || null)} className="w-full p-2 border rounded-full bg-white/10 ">
+              <option value="">Sin bar asignado</option>
+              {bars.map(bar => (
+                <option key={bar._id} value={bar._id}>
+                  {bar.name}
+                </option>
+              ))}
+            </select>
+
+            <div className="mt-6 flex justify-end space-x-4">
+              <button className="bg-gray-500 text-white px-4 py-2 rounded-[15px]" onClick={() => setShowModal(false)}>
+                Cancelar
+              </button>
+              <button className="bg-blue-500 text-white px-4 py-2 rounded-[15px]" onClick={handleUpdateUser}>
+                Guardar Cambios
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
