@@ -6,11 +6,10 @@ import { motion } from 'framer-motion';
 import { useDarkMode } from '../../context/DarkModeContext';
 import AssistantDrawer from '../../components/AssistantDrawer'; 
 import Modal from '../../components/modal'; 
-import { FaHeart, FaRegHeart } from 'react-icons/fa'; // Importar los iconos necesarios
+import { FaHeart, FaRegHeart } from 'react-icons/fa'; 
 import { addFavorite, removeFavorite, getFavoriteProducts } from '../../services/api'; 
 import axios from 'axios';
 import { RiSearch2Line, RiCloseFill } from "react-icons/ri";
-
 
 interface Product {
   _id?: string;
@@ -45,8 +44,8 @@ const Page: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [favoriteProducts, setFavoriteProducts] = useState<string[]>([]); 
 
-  const [searchInputVisible, setSearchInputVisible] = useState<boolean>(false); // Estado para mostrar/ocultar el input de búsqueda
-  const [searchTerm, setSearchTerm] = useState<string>(''); // Estado para almacenar el término de búsqueda
+  const [searchInputVisible, setSearchInputVisible] = useState<boolean>(false); 
+  const [searchTerm, setSearchTerm] = useState<string>(''); 
 
   const openModal = (product: Product) => {
     setSelectedProduct(product);
@@ -164,13 +163,15 @@ const Page: React.FC = () => {
     }
   };
 
-  // Filtrado de productos basado en el término de búsqueda
-  const filteredSections = sections.map((section: MenuSection) => ({
-    ...section,
-    products: section.products.filter((product: Product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase())
-    ),
-  }));
+  // Filtrado de productos basado en el término de búsqueda y eliminación de secciones vacías
+  const filteredSections = sections
+    .map((section: MenuSection) => ({
+      ...section,
+      products: section.products.filter((product: Product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    }))
+    .filter((section: MenuSection) => section.products.length > 0); 
 
   return (
     <>
