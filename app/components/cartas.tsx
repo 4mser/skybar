@@ -10,6 +10,7 @@ import { motion } from 'framer-motion'; // Importamos framer-motion para las ani
 
 interface SubMenu {
   name: string;
+  imageUrl?: string; // Agregamos el campo opcional imageUrl
 }
 
 interface Menu {
@@ -64,8 +65,8 @@ export default function Cartas() {
 
   const { backgroundMode } = useDarkMode(); // Obtener el modo del tema
 
-  // Arreglo de imágenes para usar
-  const images = ['/images/tragos2.png', '/images/comida.jpg', '/images/room.jpeg'];
+  // Arreglo de imágenes por defecto para usar
+  const defaultImages = ['/images/tragos2.png', '/images/comida.jpg', '/images/room.jpeg'];
 
   // Variantes de animación para framer-motion
   const variants = {
@@ -97,7 +98,8 @@ export default function Cartas() {
                 <Image
                   width={700}
                   height={800}
-                  src={images[index % images.length]}
+                  // Verificamos si el submenú tiene una imagen asignada, si no, usamos una imagen por defecto
+                  src={submenu.imageUrl ? `${process.env.NEXT_PUBLIC_S3_BASE_URL}${submenu.imageUrl}` : defaultImages[index % defaultImages.length]}
                   alt={submenu.name}
                   className="w-full h-48 object-cover rounded-[10px] shadow-lg"
                   priority={index === 0}

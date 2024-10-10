@@ -367,9 +367,57 @@ const MenuPage = () => {
     oldSubmenuName?: string;
   }) => {
     const [submenuName, setSubmenuName] = useState<string>(initialName);
-
+    const [selectedFile, setSelectedFile] = useState<File | null>(null); // Estado para el archivo de imagen
+  
     const isEditing = !!oldSubmenuName;
-
+  
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files ? e.target.files[0] : null;
+      setSelectedFile(file); // Guardar el archivo en el estado
+    };
+  
+    const handleSubmit = async () => {
+      try {
+        const token = localStorage.getItem('token');
+  
+        const formData = new FormData();
+        formData.append('name', submenuName); // Nombre del submenú
+        if (selectedFile) {
+          formData.append('file', selectedFile); // Si hay un archivo, agregarlo
+        }
+  
+        if (isEditing && oldSubmenuName) {
+          const encodedOldSubmenuName = encodeURIComponent(oldSubmenuName);
+          await axios.patch(
+            `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedOldSubmenuName}`,
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data', // Necesario para enviar FormData
+              },
+            }
+          );
+        } else {
+          await axios.patch(
+            `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu`,
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data', // Necesario para enviar FormData
+              },
+            }
+          );
+        }
+  
+        fetchMenus();
+        closeModal();
+      } catch (error) {
+        console.error('Error al agregar o actualizar submenú:', error);
+      }
+    };
+  
     return (
       <div>
         <h2 className="text-xl mb-4">
@@ -382,15 +430,14 @@ const MenuPage = () => {
           placeholder="Nombre del Submenú"
           className="p-2 border border-white/20 rounded mb-4 w-full bg-white/10 text-white placeholder-gray-300"
         />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange} // Manejar el archivo seleccionado
+          className="mb-4"
+        />
         <button
-          onClick={() => {
-            if (isEditing && oldSubmenuName) {
-              handleUpdateSubmenu(menuId, oldSubmenuName, submenuName);
-            } else {
-              handleCreateSubmenu(menuId, submenuName);
-            }
-            closeModal();
-          }}
+          onClick={handleSubmit}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full"
         >
           {isEditing ? 'Guardar Cambios' : 'Agregar Submenú'}
@@ -398,6 +445,7 @@ const MenuPage = () => {
       </div>
     );
   };
+  
 
   const SectionForm = ({
     menuId,
