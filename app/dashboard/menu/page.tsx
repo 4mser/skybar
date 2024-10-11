@@ -1,33 +1,31 @@
-
-
-// page.tsx
-
 'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { FaPlus, FaEdit } from 'react-icons/fa';
+import {
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaChevronDown,
+  FaChevronUp,
+} from 'react-icons/fa';
 import { Bar, Menu, Product } from '@/types/types';
 
-
-
 // Componente Modal personalizado con Glassmorphism
-const Modal = ({
-  isOpen,
-  onClose,
-  children,
-}: {
+interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
-}) => {
+}
+
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
       <div
         className="relative p-6 rounded-[10px] backdrop-blur-md max-w-md w-full
-            bg-gradient-to-br from-white/10 to-transparent
-             border border-white/20 text-white"
+                bg-gradient-to-br from-white/10 to-transparent
+                 border border-white/20 text-white"
       >
         <button
           className="absolute top-3 right-3 text-white text-2xl"
@@ -41,7 +39,7 @@ const Modal = ({
   );
 };
 
-const MenuPage = () => {
+const MenuPage: React.FC = () => {
   const [bars, setBars] = useState<Bar[]>([]);
   const [selectedBar, setSelectedBar] = useState<string | null>(null);
   const [menus, setMenus] = useState<Menu[]>([]);
@@ -52,6 +50,11 @@ const MenuPage = () => {
   const [modalContent, setModalContent] = useState<React.ReactNode>(null);
 
   const router = useRouter();
+
+  // Estado para controlar las secciones abiertas (para acordeón)
+  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>(
+    {}
+  );
 
   // Obtener bares y perfil del usuario
   useEffect(() => {
@@ -141,7 +144,7 @@ const MenuPage = () => {
   };
 
   // Función para crear un nuevo menú
-  const handleCreateMenu = async () => {
+  const handleCreateMenu = async (): Promise<void> => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
@@ -157,26 +160,6 @@ const MenuPage = () => {
       console.error('Error al crear el menú:', error);
     }
   };
-
-  // Función para agregar un nuevo submenú
-  // const handleCreateSubmenu = (menuId: string, submenuName: string) => {
-  //   const addSubmenu = async () => {
-  //     try {
-  //       const token = localStorage.getItem('token');
-  //       await axios.patch(
-  //         `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu`,
-  //         { name: submenuName },
-  //         {
-  //           headers: { Authorization: `Bearer ${token}` },
-  //         }
-  //       );
-  //       fetchMenus();
-  //     } catch (error) {
-  //       console.error('Error al agregar submenú:', error);
-  //     }
-  //   };
-  //   addSubmenu();
-  // };
 
   // Función para agregar una nueva sección a un submenú
   const handleAddSectionToSubmenu = (
@@ -210,20 +193,22 @@ const MenuPage = () => {
     menuId: string,
     submenuName: string,
     sectionName: string,
-    data: Product | FormData  // Puede aceptar tanto FormData como Product
+    data: Product | FormData // Puede aceptar tanto FormData como Product
   ) => {
     try {
       const token = localStorage.getItem('token');
       const encodedSubmenuName = encodeURIComponent(submenuName);
       const encodedSectionName = encodeURIComponent(sectionName);
-  
+
       await axios.patch(
         `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedSubmenuName}/section/${encodedSectionName}/product`,
-        data,  // Aquí pasamos `FormData` o `Product`
+        data, // Aquí pasamos `FormData` o `Product`
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            ...(data instanceof FormData && { 'Content-Type': 'multipart/form-data' })  // Solo si es FormData, establecemos el tipo correcto
+            ...(data instanceof FormData && {
+              'Content-Type': 'multipart/form-data',
+            }), // Solo si es FormData, establecemos el tipo correcto
           },
         }
       );
@@ -232,34 +217,6 @@ const MenuPage = () => {
       console.error('Error al agregar producto:', error);
     }
   };
-  
-
-  // Función para actualizar un submenú
-  // const handleUpdateSubmenu = (
-  //   menuId: string,
-  //   oldSubmenuName: string,
-  //   newSubmenuName: string
-  // ) => {
-  //   const updateSubmenu = async () => {
-  //     try {
-  //       const token = localStorage.getItem('token');
-
-  //       const encodedOldSubmenuName = encodeURIComponent(oldSubmenuName);
-
-  //       await axios.patch(
-  //         `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedOldSubmenuName}`,
-  //         { newName: newSubmenuName },
-  //         {
-  //           headers: { Authorization: `Bearer ${token}` },
-  //         }
-  //       );
-  //       fetchMenus();
-  //     } catch (error) {
-  //       console.error('Error al actualizar submenú:', error);
-  //     }
-  //   };
-  //   updateSubmenu();
-  // };
 
   // Función para actualizar una sección
   const handleUpdateSection = (
@@ -296,20 +253,22 @@ const MenuPage = () => {
     submenuName: string,
     sectionName: string,
     productId: string,
-    updatedData: Product | FormData  // Puede aceptar tanto FormData como Product
+    updatedData: Product | FormData // Puede aceptar tanto FormData como Product
   ) => {
     try {
       const token = localStorage.getItem('token');
       const encodedSubmenuName = encodeURIComponent(submenuName);
       const encodedSectionName = encodeURIComponent(sectionName);
-  
+
       await axios.patch(
         `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedSubmenuName}/section/${encodedSectionName}/product/${productId}`,
-        updatedData,  // Aquí pasamos `FormData` o `Product`
+        updatedData, // Aquí pasamos `FormData` o `Product`
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            ...(updatedData instanceof FormData && { 'Content-Type': 'multipart/form-data' })  // Solo si es FormData, establecemos el tipo correcto
+            ...(updatedData instanceof FormData && {
+              'Content-Type': 'multipart/form-data',
+            }), // Solo si es FormData, establecemos el tipo correcto
           },
         }
       );
@@ -318,7 +277,6 @@ const MenuPage = () => {
       console.error('Error al actualizar producto:', error);
     }
   };
-  
 
   // Función para togglear la disponibilidad de un producto
   const handleToggleAvailability = (
@@ -330,13 +288,13 @@ const MenuPage = () => {
     const updateProduct = async () => {
       try {
         const token = localStorage.getItem('token');
-  
+
         const encodedSubmenuName = encodeURIComponent(submenuName);
         const encodedSectionName = encodeURIComponent(sectionName);
-  
+
         // Actualizamos la disponibilidad
         const updatedProduct = { ...product, available: !product.available };
-  
+
         await axios.patch(
           `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedSubmenuName}/section/${encodedSectionName}/product/${product._id}`,
           updatedProduct,
@@ -354,38 +312,132 @@ const MenuPage = () => {
     };
     updateProduct();
   };
-  
+
+  // Funciones para eliminar elementos
+  // Función para eliminar un submenú
+  const handleDeleteSubmenu = async (
+    menuId: string,
+    submenuName: string
+  ): Promise<void> => {
+    if (
+      !confirm(
+        `¿Estás seguro de que deseas eliminar el submenú "${submenuName}"?`
+      )
+    ) {
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token');
+      const encodedSubmenuName = encodeURIComponent(submenuName);
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedSubmenuName}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      fetchMenus();
+    } catch (error) {
+      console.error('Error al eliminar submenú:', error);
+    }
+  };
+
+  // Función para eliminar una sección
+  const handleDeleteSection = async (
+    menuId: string,
+    submenuName: string,
+    sectionName: string
+  ): Promise<void> => {
+    if (
+      !confirm(
+        `¿Estás seguro de que deseas eliminar la sección "${sectionName}"?`
+      )
+    ) {
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token');
+      const encodedSubmenuName = encodeURIComponent(submenuName);
+      const encodedSectionName = encodeURIComponent(sectionName);
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedSubmenuName}/section/${encodedSectionName}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      fetchMenus();
+    } catch (error) {
+      console.error('Error al eliminar sección:', error);
+    }
+  };
+
+  // Función para eliminar un producto
+  const handleDeleteProduct = async (
+    menuId: string,
+    submenuName: string,
+    sectionName: string,
+    productId: string
+  ): Promise<void> => {
+    if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token');
+      const encodedSubmenuName = encodeURIComponent(submenuName);
+      const encodedSectionName = encodeURIComponent(sectionName);
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedSubmenuName}/section/${encodedSectionName}/product/${productId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      fetchMenus();
+    } catch (error) {
+      console.error('Error al eliminar producto:', error);
+    }
+  };
+
+  // Función para togglear la sección (para acordeón)
+  const toggleSection = (submenuIndex: number, sectionIndex: number): void => {
+    const key = `${submenuIndex}-${sectionIndex}`;
+    setOpenSections((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   // Componentes de formulario para modales
-  const SubmenuForm = ({
-    menuId,
-    initialName = '',
-    oldSubmenuName,
-  }: {
+
+  interface SubmenuFormProps {
     menuId: string;
     initialName?: string;
     oldSubmenuName?: string;
+  }
+
+  const SubmenuForm: React.FC<SubmenuFormProps> = ({
+    menuId,
+    initialName = '',
+    oldSubmenuName,
   }) => {
     const [submenuName, setSubmenuName] = useState<string>(initialName);
     const [selectedFile, setSelectedFile] = useState<File | null>(null); // Estado para el archivo de imagen
-  
+
     const isEditing = !!oldSubmenuName;
-  
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files ? e.target.files[0] : null;
       setSelectedFile(file); // Guardar el archivo en el estado
     };
-  
+
     const handleSubmit = async () => {
       try {
         const token = localStorage.getItem('token');
-  
+
         const formData = new FormData();
         formData.append('name', submenuName); // Nombre del submenú
         if (selectedFile) {
           formData.append('file', selectedFile); // Si hay un archivo, agregarlo
         }
-  
+
         if (isEditing && oldSubmenuName) {
           const encodedOldSubmenuName = encodeURIComponent(oldSubmenuName);
           await axios.patch(
@@ -410,14 +462,14 @@ const MenuPage = () => {
             }
           );
         }
-  
+
         fetchMenus();
         closeModal();
       } catch (error) {
         console.error('Error al agregar o actualizar submenú:', error);
       }
     };
-  
+
     return (
       <div>
         <h2 className="text-xl mb-4">
@@ -445,22 +497,32 @@ const MenuPage = () => {
       </div>
     );
   };
-  
 
-  const SectionForm = ({
-    menuId,
-    submenuName,
-    initialName = '',
-    oldSectionName,
-  }: {
+  interface SectionFormProps {
     menuId: string;
     submenuName: string;
     initialName?: string;
     oldSectionName?: string;
+  }
+
+  const SectionForm: React.FC<SectionFormProps> = ({
+    menuId,
+    submenuName,
+    initialName = '',
+    oldSectionName,
   }) => {
     const [sectionName, setSectionName] = useState<string>(initialName);
 
     const isEditing = !!oldSectionName;
+
+    const handleSubmit = () => {
+      if (isEditing && oldSectionName) {
+        handleUpdateSection(menuId, submenuName, oldSectionName, sectionName);
+      } else {
+        handleAddSectionToSubmenu(menuId, submenuName, sectionName);
+      }
+      closeModal();
+    };
 
     return (
       <div>
@@ -475,19 +537,7 @@ const MenuPage = () => {
           className="p-2 border border-white/20 rounded mb-4 w-full bg-white/10 text-white placeholder-gray-300"
         />
         <button
-          onClick={() => {
-            if (isEditing && oldSectionName) {
-              handleUpdateSection(
-                menuId,
-                submenuName,
-                oldSectionName,
-                sectionName
-              );
-            } else {
-              handleAddSectionToSubmenu(menuId, submenuName, sectionName);
-            }
-            closeModal();
-          }}
+          onClick={handleSubmit}
           className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full"
         >
           {isEditing ? 'Guardar Cambios' : 'Agregar Sección'}
@@ -496,19 +546,19 @@ const MenuPage = () => {
     );
   };
 
-  const ProductForm = ({
-    menuId,
-    submenuName,
-    sectionName,
-    initialProduct,
-  }: {
+  interface ProductFormProps {
     menuId: string;
     submenuName: string;
     sectionName: string;
     initialProduct?: Product;
+  }
+
+  const ProductForm: React.FC<ProductFormProps> = ({
+    menuId,
+    submenuName,
+    sectionName,
+    initialProduct,
   }) => {
-    console.log('Producto recibido para editar:', initialProduct); // Verificar si los datos llegan bien
-  
     const [product, setProduct] = useState<Product>(
       initialProduct || {
         name: '',
@@ -517,12 +567,11 @@ const MenuPage = () => {
         available: true,
       }
     );
-  
-  
+
     const isEditing = !!initialProduct;
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null); // Estado para almacenar el archivo de imagen
-  
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files ? e.target.files[0] : null;
       setSelectedFile(file);
@@ -531,10 +580,12 @@ const MenuPage = () => {
     const handleSubmit = async () => {
       // Verifica si los campos obligatorios están completos
       if (!product.name || !product.description || product.price <= 0) {
-        alert('Todos los campos son obligatorios y el precio debe ser mayor que 0.');
+        alert(
+          'Todos los campos son obligatorios y el precio debe ser mayor que 0.'
+        );
         return;
       }
-    
+
       try {
         // Si hay un archivo seleccionado, usamos FormData
         if (selectedFile) {
@@ -544,67 +595,170 @@ const MenuPage = () => {
           formData.append('price', product.price.toString());
           formData.append('available', product.available.toString());
           formData.append('file', selectedFile); // Solo si hay archivo
-    
+
           if (isEditing && product._id) {
             // Si estamos editando y hay un archivo, usamos FormData
-            await handleUpdateProduct(menuId, submenuName, sectionName, product._id, formData);
+            await handleUpdateProduct(
+              menuId,
+              submenuName,
+              sectionName,
+              product._id,
+              formData
+            );
           } else {
             // Si es un nuevo producto y hay un archivo, usamos FormData
-            await handleAddProductToSection(menuId, submenuName, sectionName, formData);
+            await handleAddProductToSection(
+              menuId,
+              submenuName,
+              sectionName,
+              formData
+            );
           }
         } else {
           // Si no hay archivo, usamos el objeto Product
           if (isEditing && product._id) {
             // Editar producto sin archivo
-            await handleUpdateProduct(menuId, submenuName, sectionName, product._id, product);
+            await handleUpdateProduct(
+              menuId,
+              submenuName,
+              sectionName,
+              product._id,
+              product
+            );
           } else {
             // Agregar nuevo producto sin archivo
-            await handleAddProductToSection(menuId, submenuName, sectionName, product);
+            await handleAddProductToSection(
+              menuId,
+              submenuName,
+              sectionName,
+              product
+            );
           }
         }
-    
+
         closeModal();
       } catch (error) {
         console.error('Error al agregar o actualizar producto:', error);
       }
     };
-    
-    
+
     return (
       <div>
-      <h2 className="text-xl mb-4">{isEditing ? 'Editar Producto' : 'Agregar Nuevo Producto'}</h2>
-      <input
-        type="text"
-        value={product.name}
-        onChange={(e) => setProduct({ ...product, name: e.target.value })}
-        placeholder="Nombre del Producto"
-        className="p-2 border border-white/20 rounded mb-2 w-full bg-white/10 text-white placeholder-gray-300"
-      />
-      <input
-        type="text"
-        value={product.description}
-        onChange={(e) => setProduct({ ...product, description: e.target.value })}
-        placeholder="Descripción del Producto"
-        className="p-2 border border-white/20 rounded mb-2 w-full bg-white/10 text-white placeholder-gray-300"
-      />
-      <input
-        type="number"
-        value={product.price}
-        onChange={(e) => setProduct({ ...product, price: parseFloat(e.target.value) })}
-        placeholder="Precio del Producto"
-        className="p-2 border border-white/20 rounded mb-4 w-full bg-white/10 text-white placeholder-gray-300"
-      />
-      <input type="file" accept="image/*" onChange={handleFileChange} className="mb-4" />
-      <button
+        <h2 className="text-xl mb-4">
+          {isEditing ? 'Editar Producto' : 'Agregar Nuevo Producto'}
+        </h2>
+        <input
+          type="text"
+          value={product.name}
+          onChange={(e) =>
+            setProduct({ ...product, name: e.target.value })
+          }
+          placeholder="Nombre del Producto"
+          className="p-2 border border-white/20 rounded mb-2 w-full bg-white/10 text-white placeholder-gray-300"
+        />
+        <input
+          type="text"
+          value={product.description}
+          onChange={(e) =>
+            setProduct({ ...product, description: e.target.value })
+          }
+          placeholder="Descripción del Producto"
+          className="p-2 border border-white/20 rounded mb-2 w-full bg-white/10 text-white placeholder-gray-300"
+        />
+        <input
+          type="number"
+          value={product.price}
+          onChange={(e) =>
+            setProduct({ ...product, price: parseFloat(e.target.value) })
+          }
+          placeholder="Precio del Producto"
+          className="p-2 border border-white/20 rounded mb-4 w-full bg-white/10 text-white placeholder-gray-300"
+        />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="mb-4"
+        />
+        <button
           onClick={handleSubmit}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full"
         >
           {isEditing ? 'Guardar Cambios' : 'Agregar Producto'}
         </button>
-    </div>
+      </div>
     );
   };
-  
+
+  // Nuevo componente para mostrar detalles del producto en el modal
+  interface ProductModalContentProps {
+    menuId: string;
+    submenuName: string;
+    sectionName: string;
+    product: Product;
+  }
+
+  const ProductModalContent: React.FC<ProductModalContentProps> = ({
+    menuId,
+    submenuName,
+    sectionName,
+    product,
+  }) => {
+    return (
+      <div>
+        {/* Mostrar imagen del producto si existe */}
+        {product.imageUrl && (
+          <img
+            src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}`}
+            alt={product.name}
+            className="w-full h-32 object-cover rounded mb-4"
+          />
+        )}
+        <h2 className="text-xl font-bold mb-2">{product.name}</h2>
+        <p className="mb-2">{product.description}</p>
+        <p className="mb-4 font-bold">${product.price.toLocaleString('es-CL')}</p>
+        <div className="flex justify-around">
+          <button
+            onClick={() => {
+              closeModal();
+              openModal(
+                <ProductForm
+                  menuId={menuId}
+                  submenuName={submenuName}
+                  sectionName={sectionName}
+                  initialProduct={product}
+                />
+              );
+            }}
+            className={editButtonClass}
+          >
+            <FaEdit className="mr-2" /> Editar
+          </button>
+          <button
+            onClick={() => {
+              handleDeleteProduct(
+                menuId,
+                submenuName,
+                sectionName,
+                product._id!
+              );
+              closeModal();
+            }}
+            className={deleteButtonClass}
+          >
+            <FaTrash className="mr-2" /> Eliminar
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Clases para botones
+  const baseButtonClass =
+    'text-white px-3 py-1 rounded flex items-center';
+  const addButtonClass = `${baseButtonClass} bg-green-600 hover:bg-green-700 mr-2`;
+  const editButtonClass = `${baseButtonClass} bg-yellow-500 hover:bg-yellow-600 mr-2`;
+  const deleteButtonClass = `${baseButtonClass} bg-red-600 hover:bg-red-700`;
 
   return (
     <div className="p-6 max-w-5xl mx-auto text-white min-h-screen">
@@ -663,8 +817,8 @@ const MenuPage = () => {
           <div
             key={menu._id}
             className="mb-6 p-6 rounded-[10px]
-                  bg-gradient-to-br from-white/10 to-transparent
-                   border border-white/20"
+                      bg-gradient-to-br from-white/10 to-transparent
+                       border border-white/20"
           >
             <h2 className="text-2xl font-semibold mb-4 text-center">
               Menú del Bar:{' '}
@@ -682,12 +836,12 @@ const MenuPage = () => {
             </div>
 
             {/* Muestra los Submenús dentro del menú */}
-            {menu.subMenus.map((submenu, index) => (
-              <div key={`${submenu.name}-${index}`} className="mb-6">
+            {menu.subMenus.map((submenu, submenuIndex) => (
+              <div key={`${submenu.name}-${submenuIndex}`} className="mb-6">
                 <div
                   className="flex justify-between items-center p-4 rounded
-                        bg-gradient-to-br from-white/10 to-transparent
-                         border border-white/20 flex-wrap"
+                            bg-gradient-to-br from-white/10 to-transparent
+                             border border-white/20 flex-wrap"
                 >
                   <h3 className="font-semibold text-xl">{submenu.name}</h3>
                   <div className="flex mt-2 md:mt-0">
@@ -700,7 +854,7 @@ const MenuPage = () => {
                           />
                         )
                       }
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded mr-2 flex items-center"
+                      className={addButtonClass}
                     >
                       <FaPlus />
                     </button>
@@ -714,123 +868,164 @@ const MenuPage = () => {
                           />
                         )
                       }
-                      className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded flex items-center"
+                      className={editButtonClass}
                     >
                       <FaEdit />
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleDeleteSubmenu(menu._id, submenu.name)
+                      }
+                      className={deleteButtonClass}
+                    >
+                      <FaTrash />
                     </button>
                   </div>
                 </div>
 
                 {/* Muestra las Secciones dentro del submenú */}
-                {submenu.sections.map((section, idx) => (
-                  <div key={`${section.name}-${idx}`} className="ml-4 mt-4">
-                    <div
-                      className="flex justify-between items-center p-3 rounded
-                            bg-gradient-to-br from-white/10 to-transparent
-                             border border-white/20 flex-wrap"
-                    >
-                      <h4 className="font-semibold text-lg">
-                        {section.name}
-                      </h4>
-                      <div className="flex mt-2 md:mt-0">
-                        <button
-                          onClick={() =>
-                            openModal(
-                              <ProductForm
-                                menuId={menu._id}
-                                submenuName={submenu.name}
-                                sectionName={section.name}
-                              />
-                            )
-                          }
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded mr-2 flex items-center"
-                        >
-                          <FaPlus />
-                        </button>
-                        <button
-                          onClick={() =>
-                            openModal(
-                              <SectionForm
-                                menuId={menu._id}
-                                submenuName={submenu.name}
-                                initialName={section.name}
-                                oldSectionName={section.name}
-                              />
-                            )
-                          }
-                          className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded flex items-center"
-                        >
-                          <FaEdit />
-                        </button>
+                {submenu.sections.map((section, sectionIndex) => {
+                  const key = `${submenuIndex}-${sectionIndex}`;
+                  const isOpen = openSections[key];
+
+                  return (
+                    <div key={key} className="ml-4 mt-4">
+                      <div
+                        className="flex justify-between items-center p-3 rounded
+                                    bg-gradient-to-br from-white/10 to-transparent
+                                     border border-white/20 flex-wrap cursor-pointer"
+                        onClick={() =>
+                          toggleSection(submenuIndex, sectionIndex)
+                        }
+                      >
+                        <div className="flex items-center">
+                          <h4 className="font-semibold text-lg mr-2">
+                            {section.name}
+                          </h4>
+                          {isOpen ? (
+                            <FaChevronUp />
+                          ) : (
+                            <FaChevronDown />
+                          )}
+                        </div>
+                        <div className="flex mt-2 md:mt-0">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openModal(
+                                <ProductForm
+                                  menuId={menu._id}
+                                  submenuName={submenu.name}
+                                  sectionName={section.name}
+                                />
+                              );
+                            }}
+                            className={addButtonClass}
+                          >
+                            <FaPlus />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openModal(
+                                <SectionForm
+                                  menuId={menu._id}
+                                  submenuName={submenu.name}
+                                  initialName={section.name}
+                                  oldSectionName={section.name}
+                                />
+                              );
+                            }}
+                            className={editButtonClass}
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteSection(
+                                menu._id,
+                                submenu.name,
+                                section.name
+                              );
+                            }}
+                            className={deleteButtonClass}
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
                       </div>
+
+                      {/* Mostrar u ocultar productos */}
+                      {isOpen && (
+                        <div
+                          className="ml-4 mt-4 grid grid-cols-3 gap-2"
+                        >
+                          {section.products.map((product, i) => (
+                            <div
+                              key={`${product.name}-${i}`}
+                              className="p-2 rounded bg-gradient-to-br from-white/10 to-transparent border border-white/20 flex flex-col"
+                            >
+                              <div
+                                className="cursor-pointer flex-grow"
+                                onClick={() =>
+                                  openModal(
+                                    <ProductModalContent
+                                      menuId={menu._id}
+                                      submenuName={submenu.name}
+                                      sectionName={section.name}
+                                      product={product}
+                                    />
+                                  )
+                                }
+                              >
+                                {/* Mostrar imagen del producto si existe */}
+                                {product.imageUrl && (
+                                  <img
+                                    src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}`}
+                                    alt={product.name}
+                                    className="w-full h-20 object-cover rounded mb-2"
+                                  />
+                                )}
+                                <h5 className="font-semibold mb-2 text-sm">
+                                  {product.name}
+                                </h5>
+                              </div>
+                              {/* Switch de disponibilidad */}
+                              <div className="mt-2 flex items-center justify-center">
+                                <label className="flex items-center cursor-pointer">
+                                  <div className="relative">
+                                    <input
+                                      type="checkbox"
+                                      checked={product.available}
+                                      className="sr-only"
+                                      onChange={() =>
+                                        handleToggleAvailability(
+                                          menu._id,
+                                          submenu.name,
+                                          section.name,
+                                          product
+                                        )
+                                      }
+                                    />
+                                    <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
+                                    <div
+                                      className={`dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition ${
+                                        product.available
+                                          ? 'transform translate-x-full bg-green-500'
+                                          : ''
+                                      }`}
+                                    ></div>
+                                  </div>
+                                </label>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-
-                    {/* Muestra los Productos dentro de la sección */}
-                    {section.products.map((product, i) => (
-  <div
-    key={`${product.name}-${i}`}
-    className="ml-4 mt-3 p-3 rounded flex justify-between items-center
-          bg-gradient-to-br from-white/10 to-transparent
-           border border-white/20 flex-wrap "
-  >
-    <div className="flex items-center">
-      {/* Mostrar la imagen del producto si existe */}
-      {product.imageUrl && (
-        <img
-          src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}`}
-          alt={product.name}
-          className="w-20 h-20 object-cover rounded mr-4"
-        />
-      )}
-      <div>
-        <p className="font-semibold">{product.name}</p>
-        <p className="text-sm text-gray-300">{product.description}</p>
-      </div>
-    </div>
-    <div className="flex items-center space-x-4 mt-2 md:mt-0">
-      <div className="text-right">
-        <p>${product.price.toFixed(2)}</p>
-      </div>
-      {/* Switch de disponibilidad */}
-      <div>
-        <label className="flex items-center cursor-pointer">
-          <div className="relative">
-            <input
-              type="checkbox"
-              checked={product.available}
-              className="sr-only"
-              onChange={() => handleToggleAvailability(menu._id, submenu.name, section.name, product)}
-            />
-            <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
-            <div
-              className={`dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition ${
-                product.available ? 'transform translate-x-full bg-green-500' : ''
-              }`}
-            ></div>
-          </div>
-        </label>
-      </div>
-      <button
-        onClick={() =>
-          openModal(
-            <ProductForm
-              menuId={menu._id}
-              submenuName={submenu.name}
-              sectionName={section.name}
-              initialProduct={product}
-            />
-          )
-        }
-        className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded mt-2 flex items-center justify-end"
-      >
-        <FaEdit />
-      </button>
-    </div>
-  </div>
-))}
-
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ))}
           </div>

@@ -287,7 +287,7 @@ const Page: React.FC = () => {
             )}
             <h2 className="text-xl font-bold mb-2">{selectedProduct.name}</h2>
             <p className="mb-4">{selectedProduct.description}</p>
-            <p className="font-semibold">Precio: ${selectedProduct.price}</p>
+            <p className="font-semibold">Precio: ${selectedProduct.price.toLocaleString('es-CL')}</p>
 
             <div
               onClick={() => toggleFavorite(selectedProduct._id || '')}
