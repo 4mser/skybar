@@ -56,6 +56,11 @@ const MenuPage: React.FC = () => {
     {}
   );
 
+  // Estado para controlar los submenús abiertos (para acordeón)
+  const [openSubmenus, setOpenSubmenus] = useState<{ [key: string]: boolean }>(
+    {}
+  );
+
   // Obtener bares y perfil del usuario
   useEffect(() => {
     const fetchData = async () => {
@@ -400,6 +405,15 @@ const MenuPage: React.FC = () => {
   const toggleSection = (submenuIndex: number, sectionIndex: number): void => {
     const key = `${submenuIndex}-${sectionIndex}`;
     setOpenSections((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
+  // Función para togglear el submenú (para acordeón)
+  const toggleSubmenu = (submenuIndex: number): void => {
+    const key = `${submenuIndex}`;
+    setOpenSubmenus((prev) => ({
       ...prev,
       [key]: !prev[key],
     }));
@@ -755,13 +769,13 @@ const MenuPage: React.FC = () => {
 
   // Clases para botones
   const baseButtonClass =
-    'text-white px-3 py-1 rounded flex items-center';
-  const addButtonClass = `${baseButtonClass} bg-green-600 hover:bg-green-700 mr-2`;
-  const editButtonClass = `${baseButtonClass} bg-yellow-500 hover:bg-yellow-600 mr-2`;
-  const deleteButtonClass = `${baseButtonClass} bg-red-600 hover:bg-red-700`;
+    'text-white px-2 py-1 rounded flex items-center opacity-80 hover:opacity-100';
+  const addButtonClass = `${baseButtonClass}  opacity-80 hover:opacity-100`;
+  const editButtonClass = `${baseButtonClass}  opacity-80 hover:opacity-100`;
+  const deleteButtonClass = `${baseButtonClass}  opacity-80 hover:opacity-100`;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto text-white min-h-screen">
+    <div className="p-6 max-w-5xl mx-auto text-white mt-10">
       <h1 className="text-3xl font-bold mb-6 text-center">Gestión de Menús</h1>
 
       {/* Selección del bar si es superadmin */}
@@ -816,9 +830,7 @@ const MenuPage: React.FC = () => {
         menus.map((menu) => (
           <div
             key={menu._id}
-            className="mb-6 p-6 rounded-[10px]
-                      bg-gradient-to-br from-white/10 to-transparent
-                       border border-white/20"
+            className=" "
           >
             <h2 className="text-2xl font-semibold mb-4 text-center">
               Menú del Bar:{' '}
@@ -836,198 +848,213 @@ const MenuPage: React.FC = () => {
             </div>
 
             {/* Muestra los Submenús dentro del menú */}
-            {menu.subMenus.map((submenu, submenuIndex) => (
-              <div key={`${submenu.name}-${submenuIndex}`} className="mb-6">
-                <div
-                  className="flex justify-between items-center p-4 rounded
-                            bg-gradient-to-br from-white/10 to-transparent
-                             border border-white/20 flex-wrap"
-                >
-                  <h3 className="font-semibold text-xl">{submenu.name}</h3>
-                  <div className="flex mt-2 md:mt-0">
-                    <button
-                      onClick={() =>
-                        openModal(
-                          <SectionForm
-                            menuId={menu._id}
-                            submenuName={submenu.name}
-                          />
-                        )
-                      }
-                      className={addButtonClass}
-                    >
-                      <FaPlus />
-                    </button>
-                    <button
-                      onClick={() =>
-                        openModal(
-                          <SubmenuForm
-                            menuId={menu._id}
-                            initialName={submenu.name}
-                            oldSubmenuName={submenu.name}
-                          />
-                        )
-                      }
-                      className={editButtonClass}
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleDeleteSubmenu(menu._id, submenu.name)
-                      }
-                      className={deleteButtonClass}
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                </div>
+            {menu.subMenus.map((submenu, submenuIndex) => {
+              const key = `${submenuIndex}`;
+              const isSubmenuOpen = openSubmenus[key];
 
-                {/* Muestra las Secciones dentro del submenú */}
-                {submenu.sections.map((section, sectionIndex) => {
-                  const key = `${submenuIndex}-${sectionIndex}`;
-                  const isOpen = openSections[key];
-
-                  return (
-                    <div key={key} className="ml-4 mt-4">
-                      <div
-                        className="flex justify-between items-center p-3 rounded
-                                    bg-gradient-to-br from-white/10 to-transparent
-                                     border border-white/20 flex-wrap cursor-pointer"
-                        onClick={() =>
-                          toggleSection(submenuIndex, sectionIndex)
-                        }
+              return (
+                <div key={`${submenu.name}-${submenuIndex}`} className="mb-6">
+                  <div
+                    className="flex justify-between items-center p-4 rounded
+                              bg-gradient-to-br from-white/10 to-transparent
+                               border border-white/20 flex-wrap cursor-pointer"
+                    onClick={() => toggleSubmenu(submenuIndex)}
+                  >
+                    <div className="flex items-center">
+                      <h3 className="font-semibold text-xl mr-2">
+                        {submenu.name}
+                      </h3>
+                      {isSubmenuOpen ? <FaChevronUp /> : <FaChevronDown />}
+                    </div>
+                    <div className="flex mt-2 md:mt-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openModal(
+                            <SectionForm
+                              menuId={menu._id}
+                              submenuName={submenu.name}
+                            />
+                          );
+                        }}
+                        className={addButtonClass}
                       >
-                        <div className="flex items-center">
-                          <h4 className="font-semibold text-lg mr-2">
-                            {section.name}
-                          </h4>
-                          {isOpen ? (
-                            <FaChevronUp />
-                          ) : (
-                            <FaChevronDown />
-                          )}
-                        </div>
-                        <div className="flex mt-2 md:mt-0">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openModal(
-                                <ProductForm
-                                  menuId={menu._id}
-                                  submenuName={submenu.name}
-                                  sectionName={section.name}
-                                />
-                              );
-                            }}
-                            className={addButtonClass}
-                          >
-                            <FaPlus />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openModal(
-                                <SectionForm
-                                  menuId={menu._id}
-                                  submenuName={submenu.name}
-                                  initialName={section.name}
-                                  oldSectionName={section.name}
-                                />
-                              );
-                            }}
-                            className={editButtonClass}
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteSection(
-                                menu._id,
-                                submenu.name,
-                                section.name
-                              );
-                            }}
-                            className={deleteButtonClass}
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </div>
+                        <FaPlus />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openModal(
+                            <SubmenuForm
+                              menuId={menu._id}
+                              initialName={submenu.name}
+                              oldSubmenuName={submenu.name}
+                            />
+                          );
+                        }}
+                        className={editButtonClass}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteSubmenu(menu._id, submenu.name);
+                        }}
+                        className={deleteButtonClass}
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
 
-                      {/* Mostrar u ocultar productos */}
-                      {isOpen && (
-                        <div
-                          className="ml-4 mt-4 grid grid-cols-3 gap-2"
-                        >
-                          {section.products.map((product, i) => (
-                            <div
-                              key={`${product.name}-${i}`}
-                              className="p-2 rounded bg-gradient-to-br from-white/10 to-transparent border border-white/20 flex flex-col"
-                            >
-                              <div
-                                className="cursor-pointer flex-grow"
-                                onClick={() =>
+                  {/* Muestra las Secciones dentro del submenú */}
+                  {isSubmenuOpen &&
+                    submenu.sections.map((section, sectionIndex) => {
+                      const sectionKey = `${submenuIndex}-${sectionIndex}`;
+                      const isOpen = openSections[sectionKey];
+
+                      return (
+                        <div key={sectionKey} className="ml-4 mt-4">
+                          <div
+                            className="flex justify-between items-center p-3 rounded
+                                        bg-gradient-to-br from-white/10 to-transparent
+                                         border border-white/20 flex-wrap cursor-pointer"
+                            onClick={() =>
+                              toggleSection(submenuIndex, sectionIndex)
+                            }
+                          >
+                            <div className="flex items-center">
+                              <h4 className="font-semibold text-lg mr-2">
+                                {section.name}
+                              </h4>
+                              {isOpen ? (
+                                <FaChevronUp />
+                              ) : (
+                                <FaChevronDown />
+                              )}
+                            </div>
+                            <div className="flex mt-2 md:mt-0">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   openModal(
-                                    <ProductModalContent
+                                    <ProductForm
                                       menuId={menu._id}
                                       submenuName={submenu.name}
                                       sectionName={section.name}
-                                      product={product}
                                     />
-                                  )
-                                }
+                                  );
+                                }}
+                                className={addButtonClass}
                               >
-                                {/* Mostrar imagen del producto si existe */}
-                                {product.imageUrl && (
-                                  <img
-                                    src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}`}
-                                    alt={product.name}
-                                    className="w-full h-20 object-cover rounded mb-2"
-                                  />
-                                )}
-                                <h5 className="font-semibold mb-2 text-sm">
-                                  {product.name}
-                                </h5>
-                              </div>
-                              {/* Switch de disponibilidad */}
-                              <div className="mt-2 flex items-center justify-center">
-                                <label className="flex items-center cursor-pointer">
-                                  <div className="relative">
-                                    <input
-                                      type="checkbox"
-                                      checked={product.available}
-                                      className="sr-only"
-                                      onChange={() =>
-                                        handleToggleAvailability(
-                                          menu._id,
-                                          submenu.name,
-                                          section.name,
-                                          product
-                                        )
-                                      }
+                                <FaPlus />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openModal(
+                                    <SectionForm
+                                      menuId={menu._id}
+                                      submenuName={submenu.name}
+                                      initialName={section.name}
+                                      oldSectionName={section.name}
                                     />
-                                    <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
-                                    <div
-                                      className={`dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition ${
-                                        product.available
-                                          ? 'transform translate-x-full bg-green-500'
-                                          : ''
-                                      }`}
-                                    ></div>
-                                  </div>
-                                </label>
-                              </div>
+                                  );
+                                }}
+                                className={editButtonClass}
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteSection(
+                                    menu._id,
+                                    submenu.name,
+                                    section.name
+                                  );
+                                }}
+                                className={deleteButtonClass}
+                              >
+                                <FaTrash />
+                              </button>
                             </div>
-                          ))}
+                          </div>
+
+                          {/* Mostrar u ocultar productos */}
+                          {isOpen && (
+                            <div
+                              className="mt-4 grid grid-cols-3 md:grid-cols-5 gap-2"
+                            >
+                              {section.products.map((product, i) => (
+                                <div
+                                  key={`${product.name}-${i}`}
+                                  className="p-2 rounded-[10px] bg-gradient-to-br from-white/10 to-transparent border border-white/20 flex flex-col"
+                                >
+                                  <div
+                                    className="cursor-pointer flex-grow"
+                                    onClick={() =>
+                                      openModal(
+                                        <ProductModalContent
+                                          menuId={menu._id}
+                                          submenuName={submenu.name}
+                                          sectionName={section.name}
+                                          product={product}
+                                        />
+                                      )
+                                    }
+                                  >
+                                    {/* Mostrar imagen del producto si existe */}
+                                    {product.imageUrl && (
+                                      <img
+                                        src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}`}
+                                        alt={product.name}
+                                        className="w-full h-20 object-cover rounded mb-2"
+                                      />
+                                    )}
+                                    <h5 className=" mb-2 text-sm">
+                                      {product.name}
+                                    </h5>
+                                  </div>
+                                  {/* Switch de disponibilidad */}
+                                  <div className="mt-2 flex items-center ">
+                                    <label className="flex items-center cursor-pointer">
+                                      <div className="relative">
+                                        <input
+                                          type="checkbox"
+                                          checked={product.available}
+                                          className="sr-only"
+                                          onChange={() =>
+                                            handleToggleAvailability(
+                                              menu._id,
+                                              submenu.name,
+                                              section.name,
+                                              product
+                                            )
+                                          }
+                                        />
+                                        <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
+                                        <div
+                                          className={`dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition ${
+                                            product.available
+                                              ? 'transform translate-x-full bg-green-500'
+                                              : ''
+                                          }`}
+                                        ></div>
+                                      </div>
+                                    </label>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+                      );
+                    })}
+                </div>
+              );
+            })}
           </div>
         ))
       )}
