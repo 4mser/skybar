@@ -235,31 +235,31 @@ const MenuPage = () => {
   
 
   // Función para actualizar un submenú
-  const handleUpdateSubmenu = (
-    menuId: string,
-    oldSubmenuName: string,
-    newSubmenuName: string
-  ) => {
-    const updateSubmenu = async () => {
-      try {
-        const token = localStorage.getItem('token');
+  // const handleUpdateSubmenu = (
+  //   menuId: string,
+  //   oldSubmenuName: string,
+  //   newSubmenuName: string
+  // ) => {
+  //   const updateSubmenu = async () => {
+  //     try {
+  //       const token = localStorage.getItem('token');
 
-        const encodedOldSubmenuName = encodeURIComponent(oldSubmenuName);
+  //       const encodedOldSubmenuName = encodeURIComponent(oldSubmenuName);
 
-        await axios.patch(
-          `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedOldSubmenuName}`,
-          { newName: newSubmenuName },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        fetchMenus();
-      } catch (error) {
-        console.error('Error al actualizar submenú:', error);
-      }
-    };
-    updateSubmenu();
-  };
+  //       await axios.patch(
+  //         `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu/${encodedOldSubmenuName}`,
+  //         { newName: newSubmenuName },
+  //         {
+  //           headers: { Authorization: `Bearer ${token}` },
+  //         }
+  //       );
+  //       fetchMenus();
+  //     } catch (error) {
+  //       console.error('Error al actualizar submenú:', error);
+  //     }
+  //   };
+  //   updateSubmenu();
+  // };
 
   // Función para actualizar una sección
   const handleUpdateSection = (
