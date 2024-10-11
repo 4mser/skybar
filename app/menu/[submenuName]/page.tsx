@@ -262,9 +262,9 @@ const Page: React.FC = () => {
                       className="ml-4"
                     >
                       {favoriteProducts.includes(item._id || '') ? (
-                        <FaHeart className="text-red-500 cursor-pointer" />
+                        <FaHeart className="text-red-500 cursor-pointer text-lg" />
                       ) : (
-                        <FaRegHeart className="text-gray-400 cursor-pointer" />
+                        <FaRegHeart className="text-gray-400 cursor-pointer text-lg" />
                       )}
                     </div>
                   </div>
@@ -294,9 +294,9 @@ const Page: React.FC = () => {
               className="mt-4"
             >
               {favoriteProducts.includes(selectedProduct._id || '') ? (
-                <FaHeart className="text-red-500 cursor-pointer" />
+                <FaHeart className="text-red-500 cursor-pointer text-2xl" />
               ) : (
-                <FaRegHeart className="text-gray-400 cursor-pointer" />
+                <FaRegHeart className="text-gray-400 cursor-pointer text-2xl" />
               )}
             </div>
           </div>
