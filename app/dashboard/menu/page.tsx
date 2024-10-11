@@ -159,24 +159,24 @@ const MenuPage = () => {
   };
 
   // Función para agregar un nuevo submenú
-  const handleCreateSubmenu = (menuId: string, submenuName: string) => {
-    const addSubmenu = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.patch(
-          `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu`,
-          { name: submenuName },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        fetchMenus();
-      } catch (error) {
-        console.error('Error al agregar submenú:', error);
-      }
-    };
-    addSubmenu();
-  };
+  // const handleCreateSubmenu = (menuId: string, submenuName: string) => {
+  //   const addSubmenu = async () => {
+  //     try {
+  //       const token = localStorage.getItem('token');
+  //       await axios.patch(
+  //         `${process.env.NEXT_PUBLIC_API}/menus/${menuId}/submenu`,
+  //         { name: submenuName },
+  //         {
+  //           headers: { Authorization: `Bearer ${token}` },
+  //         }
+  //       );
+  //       fetchMenus();
+  //     } catch (error) {
+  //       console.error('Error al agregar submenú:', error);
+  //     }
+  //   };
+  //   addSubmenu();
+  // };
 
   // Función para agregar una nueva sección a un submenú
   const handleAddSectionToSubmenu = (
