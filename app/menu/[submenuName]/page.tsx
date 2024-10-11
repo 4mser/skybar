@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { useDarkMode } from '../../context/DarkModeContext';
 import AssistantDrawer from '../../components/AssistantDrawer'; 
 import Modal from '../../components/modal'; 
-import { FaHeart, FaRegHeart } from 'react-icons/fa'; 
+import { FaHeart, FaRegHeart, FaChevronDown, FaChevronUp } from 'react-icons/fa'; 
 import { addFavorite, removeFavorite, getFavoriteProducts } from '../../services/api'; 
 import axios from 'axios';
 import { RiSearch2Line, RiCloseFill } from "react-icons/ri";
@@ -47,6 +47,9 @@ const Page: React.FC = () => {
   const [searchInputVisible, setSearchInputVisible] = useState<boolean>(false); 
   const [searchTerm, setSearchTerm] = useState<string>(''); 
 
+  // Estado para controlar las secciones abiertas (para acordeón)
+  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({});
+
   const openModal = (product: Product) => {
     setSelectedProduct(product);
     setIsModalOpen(true);
@@ -82,6 +85,14 @@ const Page: React.FC = () => {
                 const availableProducts = section.products.filter(
                   (product: Product) => product.available
                 );
+
+                // Ordenar productos para que los que tienen imagen aparezcan primero
+                availableProducts.sort((a, b) => {
+                  if (a.imageUrl && !b.imageUrl) return -1;
+                  if (!a.imageUrl && b.imageUrl) return 1;
+                  return 0;
+                });
+
                 return availableProducts.length > 0
                   ? { ...section, products: availableProducts }
                   : null;
@@ -114,6 +125,15 @@ const Page: React.FC = () => {
     fetchFavorites();
   }, [submenuName]);
 
+  // Inicializar las secciones abiertas cuando cambian las secciones
+  useEffect(() => {
+    const initialOpenSections: { [key: string]: boolean } = {};
+    sections.forEach((section) => {
+      initialOpenSections[section.name] = true; // O false, dependiendo si quieres que estén abiertas por defecto
+    });
+    setOpenSections(initialOpenSections);
+  }, [sections]);
+
   const sanitizeTitle = (title: string): string =>
     title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
@@ -126,6 +146,13 @@ const Page: React.FC = () => {
         behavior: 'smooth',
       });
     }
+  };
+
+  const toggleSection = (sectionName: string) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [sectionName]: !prev[sectionName],
+    }));
   };
 
   const variants = {
@@ -163,14 +190,25 @@ const Page: React.FC = () => {
     }
   };
 
-  // Filtrado de productos basado en el término de búsqueda y eliminación de secciones vacías
+  // Filtrado de productos basado en el término de búsqueda y ordenamiento
   const filteredSections = sections
-    .map((section: MenuSection) => ({
-      ...section,
-      products: section.products.filter((product: Product) =>
+    .map((section: MenuSection) => {
+      const filteredProducts = section.products.filter((product: Product) =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase())
-      ),
-    }))
+      );
+
+      // Ordenar productos para que los que tienen imagen aparezcan primero
+      filteredProducts.sort((a, b) => {
+        if (a.imageUrl && !b.imageUrl) return -1;
+        if (!a.imageUrl && b.imageUrl) return 1;
+        return 0;
+      });
+
+      return {
+        ...section,
+        products: filteredProducts,
+      };
+    })
     .filter((section: MenuSection) => section.products.length > 0); 
 
   return (
@@ -223,54 +261,62 @@ const Page: React.FC = () => {
             transition={{ duration: 0.3 }}
             variants={variants}
           >
-            <h2
-              className={`text-lg font-semibold flex items-center px-4 py-3 bg-gradient-to-br ${backgroundMode === 'neon' ? 'from-cyan-500 to-teal-400 text-slate-100' : 'from-cyan-500/80 to-teal-500/10'}`}
+            <div
+              className={`flex justify-between items-center px-4 py-3 bg-gradient-to-br ${backgroundMode === 'neon' ? 'from-cyan-500 to-teal-400 text-slate-100' : 'from-cyan-500/80 to-teal-500/10'} cursor-pointer`}
+              onClick={() => toggleSection(section.name)}
             >
-              {section.name}
-            </h2>
-            <ul className="text-xs flex flex-col mb-3">
-              {section.products.map((item: Product, itemIndex: number) => (
-                <li
-                  key={itemIndex}
-                  className={`flex justify-between items-center px-4 py-1 mt-3 gap-8 modal-item cursor-pointer ${textAndBorderClass}`}
-                  onClick={() => openModal(item)}
-                >
-                  <div className="flex items-center">
-                    {item.imageUrl && (
-                      <img
-                        src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${item.imageUrl}`}
-                        alt={item.name}
-                        className="w-16 h-16 object-cover rounded-[10px] mr-4"
-                      />
-                    )}
-                    <div>
-                      <h1 className={`font-semibold ${textAndBorderClass}`}>{item.name}</h1>
-                      <p className={`font-normal opacity-70 ${textAndBorderClass}`}>{item.description}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <div className={`min-w-20 border px-2 rounded-[8px] ${textAndBorderClass}`}>
-                      <p className={`w-full text-sm text-center font-medium ${textAndBorderClass}`}>
-                        ${item.price}
-                      </p>
-                    </div>
-                    <div
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        toggleFavorite(item._id || '');
-                      }}
-                      className="ml-4"
-                    >
-                      {favoriteProducts.includes(item._id || '') ? (
-                        <FaHeart className="text-red-500 cursor-pointer text-lg" />
-                      ) : (
-                        <FaRegHeart className="text-gray-400 cursor-pointer text-lg" />
+              <h2 className="text-lg font-semibold">{section.name}</h2>
+              {openSections[section.name] ? (
+                <FaChevronUp />
+              ) : (
+                <FaChevronDown />
+              )}
+            </div>
+            {openSections[section.name] && (
+              <ul className="text-xs flex flex-col mb-3">
+                {section.products.map((item: Product, itemIndex: number) => (
+                  <li
+                    key={itemIndex}
+                    className={`flex justify-between items-center px-4 py-1 mt-3 gap-8 modal-item cursor-pointer ${textAndBorderClass}`}
+                    onClick={() => openModal(item)}
+                  >
+                    <div className="flex items-center">
+                      {item.imageUrl && (
+                        <img
+                          src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${item.imageUrl}`}
+                          alt={item.name}
+                          className="w-16 h-16 object-cover rounded-[10px] mr-4"
+                        />
                       )}
+                      <div>
+                        <h1 className={`font-semibold ${textAndBorderClass}`}>{item.name}</h1>
+                        <p className={`font-normal opacity-70 ${textAndBorderClass}`}>{item.description}</p>
+                      </div>
                     </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                    <div className="flex items-center">
+                      <div className={`min-w-20 border px-2 rounded-[8px] ${textAndBorderClass}`}>
+                        <p className={`w-full text-sm text-center font-medium ${textAndBorderClass}`}>
+                          ${item.price}
+                        </p>
+                      </div>
+                      <div
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          toggleFavorite(item._id || '');
+                        }}
+                        className="ml-4"
+                      >
+                        {favoriteProducts.includes(item._id || '') ? (
+                          <FaHeart className="text-red-500 cursor-pointer text-lg" />
+                        ) : (
+                          <FaRegHeart className="text-gray-400 cursor-pointer text-lg" />
+                        )}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </motion.div>
         ))}
       </div>
