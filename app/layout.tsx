@@ -4,6 +4,7 @@ import Topbar from "./components/topbar";
 import dynamic from "next/dynamic";
 import { DarkModeProvider } from './context/DarkModeContext'; // Importamos el proveedor
 import { AuthProvider } from "./context/AuthContext";
+import AssistantDrawer from "./components/AssistantDrawer";
 
 const BokehBackground = dynamic(() => import("./components/blackhole"), {
   ssr: false,
@@ -21,6 +22,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const barId = '66f067f56cc6f1ba2d5aee08'; // Reemplaza con tu barId real
+
   return (
     <html lang="en">
       <head>
@@ -41,6 +45,7 @@ export default function RootLayout({
           <DarkModeProvider>
             <BokehBackground />
             <Topbar />
+            <AssistantDrawer barId={barId} />
             {children}
           </DarkModeProvider>
         </AuthProvider>

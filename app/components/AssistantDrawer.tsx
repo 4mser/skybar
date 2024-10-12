@@ -1,3 +1,5 @@
+// components/AssistantDrawer.tsx
+
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -14,6 +16,7 @@ import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import Lottie from 'lottie-react';
 import aiAnimation from '@/public/animate-icons/AI.json';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 gsap.registerPlugin(ScrollToPlugin);
 
@@ -37,7 +40,6 @@ interface Menu {
   subMenus: SubMenu[];
 }
 
-
 interface Message {
   sender: 'user' | 'assistant';
   text: string;
@@ -46,7 +48,7 @@ interface Message {
 
 interface AssistantDrawerProps {
   barId: string;
-  submenuName: string;
+  submenuName?: string; // Ahora es opcional
 }
 
 const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName }) => {
@@ -55,89 +57,125 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [availableProducts, setAvailableProducts] = useState<Product[]>([]); // Guardar productos disponibles
+  const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
+  const router = useRouter();
 
-  const createMessage = useCallback((sender: 'assistant' | 'user', text: string, imageUrl?: string): Message => ({
-    sender,
-    text,
-    imageUrl,
-  }), []);
+  const createMessage = useCallback(
+    (sender: 'assistant' | 'user', text: string, imageUrl?: string): Message => ({
+      sender,
+      text,
+      imageUrl,
+    }),
+    []
+  );
 
   const isValidMessage = useCallback((msg: unknown): msg is Message => {
     return (
-      (msg as Message).sender === 'assistant' || (msg as Message).sender === 'user' &&
+      ((msg as Message).sender === 'assistant' || (msg as Message).sender === 'user') &&
       typeof (msg as Message).text === 'string'
     );
   }, []);
 
-  // 1. Obtener productos disponibles desde el menú
+  // Obtener productos disponibles
   useEffect(() => {
     const fetchAvailableProducts = async () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API}/menus?barId=${barId}`);
-        const menu: Menu = response.data[0]; // Especificamos el tipo correcto
+        const menu: Menu = response.data[0];
         const products: Product[] = [];
-  
-        menu.subMenus.forEach((submenu: SubMenu) => {
-          submenu.sections.forEach((section: Section) => {
-            section.products.forEach((product: Product) => {
-              if (product.available) {
-                products.push({
-                  name: product.name,
-                  imageUrl: product.imageUrl ? `${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}` : null,
-                  available: product.available
-                });
-              }
+
+        if (submenuName) {
+          // Obtener productos del submenú específico
+          const submenu = menu.subMenus.find(
+            (sub) => sub.name.toLowerCase() === submenuName.toLowerCase()
+          );
+
+          if (submenu) {
+            submenu.sections.forEach((section: Section) => {
+              section.products.forEach((product: Product) => {
+                if (product.available) {
+                  products.push({
+                    name: product.name,
+                    imageUrl: product.imageUrl
+                      ? `${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}`
+                      : null,
+                    available: product.available,
+                  });
+                }
+              });
+            });
+          }
+        } else {
+          // Obtener productos de todo el menú
+          menu.subMenus.forEach((submenu: SubMenu) => {
+            submenu.sections.forEach((section: Section) => {
+              section.products.forEach((product: Product) => {
+                if (product.available) {
+                  products.push({
+                    name: product.name,
+                    imageUrl: product.imageUrl
+                      ? `${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}`
+                      : null,
+                    available: product.available,
+                  });
+                }
+              });
             });
           });
-        });
-  
+        }
+
         setAvailableProducts(products);
       } catch (error) {
         console.error('Error al obtener productos disponibles:', error);
       }
     };
-  
+
     fetchAvailableProducts();
-  }, [barId]);
-  
+  }, [barId, submenuName]);
 
-  // 2. Hacer el match de los productos
-  const typeAssistantMessages = useCallback(async (response: { recommendations: string }) => {
-    const { recommendations } = response;
+  // Manejo de mensajes
+  const typeAssistantMessages = useCallback(
+    async (response: { recommendations: string }) => {
+      const { recommendations } = response;
 
-    return new Promise<void>((resolve) => {
-      const recommendationLines = recommendations.split('\n').filter((rec) => rec.trim() !== '');
-      let index = 0;
-      const sectionDelay = 500;
+      return new Promise<void>((resolve) => {
+        const recommendationLines = recommendations.split('\n').filter((rec) => rec.trim() !== '');
+        let index = 0;
+        const sectionDelay = 500;
 
-      const typeNext = () => {
-        if (index < recommendationLines.length) {
-          const recommendationText = recommendationLines[index];
+        const typeNext = () => {
+          if (index < recommendationLines.length) {
+            const recommendationText = recommendationLines[index];
 
-          // Buscar el producto por nombre
-          const productMatch = availableProducts.find((product) => recommendationText.includes(product.name));
+            // Buscar el producto por nombre
+            const productMatch = availableProducts.find((product) =>
+              recommendationText.includes(product.name)
+            );
 
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            createMessage('assistant', recommendationText, productMatch?.imageUrl || undefined),
-          ]);
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              createMessage('assistant', recommendationText, productMatch?.imageUrl || undefined),
+            ]);
 
-          index++;
-          setTimeout(typeNext, sectionDelay);
-        } else {
-          resolve();
-        }
-      };
+            index++;
+            setTimeout(typeNext, sectionDelay);
+          } else {
+            resolve();
+          }
+        };
 
-      typeNext();
-    });
-  }, [availableProducts, createMessage]);
+        typeNext();
+      });
+    },
+    [availableProducts, createMessage]
+  );
 
-  const initialAssistantMessage = useCallback((): Message => createMessage(
-    'assistant',
-    `¡Hola! Soy tu asistente de IA. Cuéntame tus gustos o lo que te apetece, y te recomendaré opciones disponibles en ${submenuName}.`
-  ), [submenuName, createMessage]);
+  const initialAssistantMessage = useCallback((): Message => {
+    const introText = submenuName
+      ? `¡Hola! Soy tu asistente de IA. Cuéntame tus gustos o lo que te apetece, y te recomendaré opciones disponibles en ${submenuName}.`
+      : `¡Hola! Soy tu asistente de IA. Cuéntame tus gustos o lo que te apetece, y te recomendaré opciones disponibles en nuestro menú.`;
+    return createMessage('assistant', introText);
+  }, [submenuName, createMessage]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);
@@ -188,19 +226,20 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
     const regex = /\*\*(.*?)\*\*/g;
     const parts = text.split(regex);
 
-    return parts.map((part, index) => (
-      index % 2 === 1 ? <strong key={index}>{part}</strong> : part
-    ));
+    return parts.map((part, index) =>
+      index % 2 === 1 ? (
+        <strong key={index}>{part}</strong>
+      ) : (
+        part
+      )
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
 
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      createMessage('user', inputText.trim()),
-    ]);
+    setMessages((prevMessages) => [...prevMessages, createMessage('user', inputText.trim())]);
 
     const preferences = inputText.trim();
     setInputText('');
@@ -220,7 +259,10 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
       console.error('Error al obtener recomendaciones:', error);
       setMessages((prevMessages) => [
         ...prevMessages,
-        createMessage('assistant', 'Lo siento, ha ocurrido un error al obtener las recomendaciones. Por favor, inténtalo de nuevo.'),
+        createMessage(
+          'assistant',
+          'Lo siento, ha ocurrido un error al obtener las recomendaciones. Por favor, inténtalo de nuevo.'
+        ),
       ]);
     } finally {
       setLoading(false);
@@ -233,13 +275,9 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
         <button
           className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full shadow-neon z-0 flex items-center justify-center transition-transform transform hover:scale-105 animate-neon p-[2px]"
         >
-          <div className=" bg-black/50 rounded-full font-bold flex items-center">
-            <Lottie
-              animationData={aiAnimation}
-              loop={true}
-              className="w-12 h-12"
-            />
-            <p className='mr-3 font-medium text-sm'>Asistente IA</p>
+          <div className="bg-black/50 rounded-full font-bold flex items-center">
+            <Lottie animationData={aiAnimation} loop={true} className="w-12 h-12" />
+            <p className="mr-3 font-medium text-sm">Asistente IA</p>
           </div>
         </button>
       </DrawerTrigger>
@@ -248,11 +286,11 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
         <div className="mx-auto mt-2 h-1 w-12 rounded-full bg-white/30"></div>
 
         <DrawerHeader>
-          <p className='text-white font-bold'>Asistente AI</p>
+          <p className="text-white font-bold">Asistente IA</p>
           <div className="absolute right-0 top-10 px-4 py-2 text-right">
             <button
               onClick={clearMessages}
-              className="opacity-70 hover:opacity-100  px-4 text-xs py-2 rounded-full shadow-delete "
+              className="opacity-70 hover:opacity-100 px-4 text-xs py-2 rounded-full shadow-delete"
             >
               <Image width={17} height={17} src="/icons/delete.svg" alt="delete icon" />
             </button>
@@ -266,9 +304,17 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className={`flex ${message.sender === 'assistant' ? 'justify-start' : 'justify-end'}`}
+              className={`flex ${
+                message.sender === 'assistant' ? 'justify-start' : 'justify-end'
+              }`}
             >
-              <div className={`px-6 py-3 mt-3 rounded-3xl max-w-xs ${message.sender === 'assistant' ? 'bg-gradient-to-r from-purple-500/30 to-indigo-500/30 text-white  shadow-assistant' : 'bg-gradient-to-r from-blue-500/30 to-teal-500/30 text-white shadow-user'}`}>
+              <div
+                className={`px-6 py-3 mt-3 rounded-3xl max-w-xs ${
+                  message.sender === 'assistant'
+                    ? 'bg-gradient-to-r from-purple-500/30 to-indigo-500/30 text-white  shadow-assistant'
+                    : 'bg-gradient-to-r from-blue-500/30 to-teal-500/30 text-white shadow-user'
+                }`}
+              >
                 {message.imageUrl && (
                   <Image
                     width={700}
@@ -286,7 +332,11 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
           {loading && (
             <div className="flex justify-start">
               <div className="px-6 py-3 rounded-3xl  text-white flex items-center space-x-2 shadow-assistant bg-gradient-to-r from-purple-500/30 to-indigo-500/30">
-                <motion.div className="flex space-x-2" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 0.6, repeat: Infinity }}>
+                <motion.div
+                  className="flex space-x-2"
+                  animate={{ opacity: [0.3, 1, 0.3] }}
+                  transition={{ duration: 0.6, repeat: Infinity }}
+                >
                   <div className="h-2 w-2 bg-white rounded-full"></div>
                   <div className="h-2 w-2 bg-white rounded-full"></div>
                   <div className="h-2 w-2 bg-white rounded-full"></div>
