@@ -10,6 +10,7 @@ import {
   FaChevronUp,
 } from 'react-icons/fa';
 import { Bar, Menu, Product } from '@/types/types';
+import Image from 'next/image';
 
 // Componente Modal personalizado con Glassmorphism
 interface ModalProps {
@@ -722,10 +723,12 @@ const MenuPage: React.FC = () => {
       <div>
         {/* Mostrar imagen del producto si existe */}
         {product.imageUrl && (
-          <img
+          <Image
+            width={600}
+            height={600}
             src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}`}
             alt={product.name}
-            className="w-full h-32 object-cover rounded mb-4"
+            className="w-full object-cover rounded-[15px] mb-4"
           />
         )}
         <h2 className="text-xl font-bold mb-2">{product.name}</h2>
@@ -1007,10 +1010,12 @@ const MenuPage: React.FC = () => {
                                   >
                                     {/* Mostrar imagen del producto si existe */}
                                     {product.imageUrl && (
-                                      <img
+                                      <Image
+                                      width={500}
+                                      height={500}
                                         src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}`}
                                         alt={product.name}
-                                        className="w-full h-20 object-cover rounded mb-2"
+                                        className="w-full max-h-20 object-cover rounded mb-2"
                                       />
                                     )}
                                     <h5 className=" mb-2 text-sm">

@@ -3,6 +3,7 @@
 import React, { useContext } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthContext } from '../context/AuthContext';
+import Image from 'next/image';
 
 const ProfilePage = () => {
   const { isAuthenticated, user } = useContext(AuthContext);
@@ -46,10 +47,12 @@ const ProfilePage = () => {
     <div className="pt-12 flex flex-col items-center justify-center text-white">
       <div className="p-8 w-full max-w-md text-center">
         {user.photo && (
-          <img
+          <Image
+          width={300}
+          height={300}
             src={user.photo}
             alt="Foto de perfil"
-            className="mx-auto rounded-full w-32 h-32 mb-6 object-cover"
+            className="mx-auto rounded-full w-24 h-24 mb-6 object-cover"
           />
         )}
         <h1 className="text-2xl font-bold mb-2">{user.username}</h1>

@@ -10,6 +10,7 @@ import { FaHeart, FaRegHeart, FaChevronDown, FaChevronUp } from 'react-icons/fa'
 import { addFavorite, removeFavorite, getFavoriteProducts } from '../../services/api'; 
 import axios from 'axios';
 import { RiSearch2Line, RiCloseFill } from "react-icons/ri";
+import Image from 'next/image';
 
 interface Product {
   _id?: string;
@@ -282,10 +283,12 @@ const Page: React.FC = () => {
                   >
                     <div className="flex items-center">
                       {item.imageUrl && (
-                        <img
+                        <Image
+                          width={100}
+                          height={100}
                           src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${item.imageUrl}`}
                           alt={item.name}
-                          className="w-16 h-16 object-cover rounded-[10px] mr-4"
+                          className="min-w-16 w-16 max-w-16 h-16 object-cover rounded-[10px] mr-4"
                         />
                       )}
                       <div>
@@ -296,7 +299,7 @@ const Page: React.FC = () => {
                     <div className="flex items-center">
                       <div className={`min-w-20 border px-2 rounded-[8px] ${textAndBorderClass}`}>
                         <p className={`w-full text-sm text-center font-medium ${textAndBorderClass}`}>
-                          ${item.price}
+                        ${item.price.toLocaleString('es-CL')}
                         </p>
                       </div>
                       <div
@@ -307,9 +310,9 @@ const Page: React.FC = () => {
                         className="ml-4"
                       >
                         {favoriteProducts.includes(item._id || '') ? (
-                          <FaHeart className="text-red-500 cursor-pointer text-lg" />
+                          <FaHeart className="text-red-500 cursor-pointer text-base" />
                         ) : (
-                          <FaRegHeart className="text-gray-400 cursor-pointer text-lg" />
+                          <FaRegHeart className="text-gray-400 cursor-pointer text-base" />
                         )}
                       </div>
                     </div>
@@ -325,10 +328,12 @@ const Page: React.FC = () => {
         <Modal onClose={closeModal}>
           <div className="p-4">
             {selectedProduct.imageUrl && (
-              <img
+              <Image
+                width={400}
+                height={400}
                 src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${selectedProduct.imageUrl}`}
                 alt={selectedProduct.name}
-                className="w-full h-64 object-cover rounded-[10px] mb-4"
+                className="w-full max-h-[50dvh] object-cover rounded-[10px] mb-4"
               />
             )}
             <h2 className="text-xl font-bold mb-2">{selectedProduct.name}</h2>

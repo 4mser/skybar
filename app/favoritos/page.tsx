@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaHeart } from 'react-icons/fa';
 import { removeFavorite, getFavoriteProducts } from '../services/api';
+import Image from 'next/image';
 
 interface Product {
   _id?: string;
@@ -71,10 +72,12 @@ const FavoritesPage: React.FC = () => {
                 >
                   <div className="flex items-center">
                     {product.imageUrl && (
-                      <img
+                      <Image
+                        width={200}
+                        height={200}
                         src={`${process.env.NEXT_PUBLIC_S3_BASE_URL}${product.imageUrl}`}
                         alt={product.name}
-                        className="w-16 h-16 object-cover rounded-[10px] mr-4"
+                        className="min-w-16 max-w-16 shadow h-16 object-cover rounded-[10px] mr-4"
                       />
                     )}
                     <div>
@@ -92,7 +95,7 @@ const FavoritesPage: React.FC = () => {
                       onClick={() => toggleFavorite(product._id || '')}
                       className="ml-4 cursor-pointer"
                     >
-                      <FaHeart className="text-red-500" />
+                      <FaHeart className="text-red-500 text-base" />
                     </div>
                   </div>
                 </li>

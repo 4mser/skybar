@@ -13,6 +13,7 @@ import { gsap } from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import Lottie from 'lottie-react';
 import aiAnimation from '@/public/animate-icons/AI.json';
+import Image from 'next/image';
 
 gsap.registerPlugin(ScrollToPlugin);
 
@@ -253,7 +254,7 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
               onClick={clearMessages}
               className="opacity-70 hover:opacity-100  px-4 text-xs py-2 rounded-full shadow-delete "
             >
-              <img src="/icons/delete.svg" alt="" />
+              <Image width={17} height={17} src="/icons/delete.svg" alt="delete icon" />
             </button>
           </div>
         </DrawerHeader>
@@ -269,7 +270,9 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
             >
               <div className={`px-6 py-3 mt-3 rounded-3xl max-w-xs ${message.sender === 'assistant' ? 'bg-gradient-to-r from-purple-500/30 to-indigo-500/30 text-white  shadow-assistant' : 'bg-gradient-to-r from-blue-500/30 to-teal-500/30 text-white shadow-user'}`}>
                 {message.imageUrl && (
-                  <img
+                  <Image
+                    width={700}
+                    height={700}
                     src={message.imageUrl}
                     alt="Producto recomendado"
                     className="w-full h-32 object-cover rounded-[10px] mb-2"

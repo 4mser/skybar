@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useContext } from 'react';
 import { motion, PanInfo } from 'framer-motion';
 import { gsap } from 'gsap';
 import {
@@ -13,11 +13,11 @@ import {
   FaHeart,
   FaMapMarkedAlt,
   FaUserFriends,
-  FaLayerGroup, 
+  FaLayerGroup,
 } from 'react-icons/fa';
 import { ImSpoonKnife } from 'react-icons/im';
-import axios from 'axios';
 import { useDarkMode } from '../context/DarkModeContext';
+import { AuthContext } from '../context/AuthContext';
 
 interface MenuRadialProps {
   open: boolean;
@@ -33,27 +33,12 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
   const [showInstruction, setShowInstruction] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const [tutorialComplete, setTutorialComplete] = useState(false);
-  const [userRole, setUserRole] = useState<string>(''); 
 
-  const { backgroundMode } = useDarkMode(); 
+  const { backgroundMode } = useDarkMode();
 
-  useEffect(() => {
-    const fetchUserRole = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API}/users/me`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          setUserRole(response.data.role);
-        }
-      } catch (error) {
-        console.error('Error fetching user role:', error);
-      }
-    };
-
-    fetchUserRole();
-  }, []);
+  // Usamos el AuthContext para obtener el rol del usuario
+  const { user } = useContext(AuthContext);
+  const userRole = user?.role || '';
 
   const menuItems = useMemo(() => {
     const baseMenuItems = [
@@ -70,6 +55,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
       { icon: <ImSpoonKnife />, label: 'Menú', link: '/menu/Menú' },
     ];
 
+    // Agregamos el icono de Dashboard si el usuario tiene el rol adecuado
     if (userRole === 'superadmin' || userRole === 'admin') {
       baseMenuItems.push({ icon: <FaLayerGroup />, label: 'Dashboard', link: '/dashboard' });
     }
@@ -79,13 +65,16 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
 
   const totalItems = menuItems.length;
 
-  const calculatePosition = useCallback((index: number) => {
-    let angle = (index / totalItems) * 360 + rotationX + rotationY;
-    angle = (angle + 360) % 360; // Normalizar ángulo
-    const x = Math.cos((angle * Math.PI) / 180) * ((outerRadius + innerRadius + 20) / 2);
-    const y = Math.sin((angle * Math.PI) / 180) * ((outerRadius + innerRadius + 20) / 2);
-    return { x, y, angle };
-  }, [rotationX, rotationY, totalItems]);
+  const calculatePosition = useCallback(
+    (index: number) => {
+      let angle = (index / totalItems) * 360 + rotationX + rotationY;
+      angle = (angle + 360) % 360; // Normalizar ángulo
+      const x = Math.cos((angle * Math.PI) / 180) * ((outerRadius + innerRadius + 20) / 2);
+      const y = Math.sin((angle * Math.PI) / 180) * ((outerRadius + innerRadius + 20) / 2);
+      return { x, y, angle };
+    },
+    [rotationX, rotationY, totalItems]
+  );
 
   const handlePan = (event: MouseEvent | TouchEvent, info: PanInfo) => {
     setRotationX((prev) => prev + info.delta.x * 0.5);
@@ -105,7 +94,7 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
       const { angle } = calculatePosition(index);
       return isInDisplayRange(angle);
     });
-    
+
     if (activeItem?.label !== activeLabel) {
       setActiveLabel(activeItem?.label || null);
     }
@@ -114,12 +103,12 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
   useEffect(() => {
     if (activeLabel && tutorialComplete) {
       gsap.fromTo(
-        ".active-label",
+        '.active-label',
         { y: '100%', opacity: 0 },
         { y: '0%', opacity: 1, duration: 0.4, ease: 'power3.out' }
       );
     } else {
-      gsap.to(".active-label", { y: '0%', opacity: 0, duration: 0.4, ease: 'power3.in' });
+      gsap.to('.active-label', { y: '0%', opacity: 0, duration: 0.4, ease: 'power3.in' });
     }
   }, [activeLabel, tutorialComplete]);
 
@@ -174,14 +163,20 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
   return (
     <>
       <motion.div
-        className={`fixed  select-none z-50 flex items-center justify-center w-full h-full backdrop-blur-lg  top-0 left-0 ${backgroundMode === 'neon' && 'bg-black/40'}`}
+        className={`fixed select-none z-50 flex items-center justify-center w-full h-full backdrop-blur-lg top-0 left-0 ${
+          backgroundMode === 'neon' && 'bg-black/40'
+        }`}
         onClick={() => setOpen(false)}
         onPan={handlePan} // Mover la rueda con el gesto
         initial="closed"
         animate={open ? 'open' : 'closed'}
         variants={{
-          open: { opacity: 1, display: 'block', transition: { duration: 0.4, ease: 'easeInOut' }},
-          closed: { opacity: 0, transitionEnd: { display: 'none' }, transition: { duration: 0.4, ease: 'easeInOut' }},
+          open: { opacity: 1, display: 'block', transition: { duration: 0.4, ease: 'easeInOut' } },
+          closed: {
+            opacity: 0,
+            transitionEnd: { display: 'none' },
+            transition: { duration: 0.4, ease: 'easeInOut' },
+          },
         }}
       >
         <motion.div
@@ -191,20 +186,31 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
           initial="closed"
           animate={open ? 'open' : 'closed'}
           variants={{
-            open: { rotate: [20, 0], y: '20%', x: '-60%', transition: { duration: 0.4, ease: 'easeInOut' }},
-            closed: { rotate: [0, 20], y: '20%', x: '-60%', transition: { duration: 0.4, ease: 'easeInOut' }},
+            open: {
+              rotate: [20, 0],
+              y: '20%',
+              x: '-60%',
+              transition: { duration: 0.4, ease: 'easeInOut' },
+            },
+            closed: {
+              rotate: [0, 20],
+              y: '20%',
+              x: '-60%',
+              transition: { duration: 0.4, ease: 'easeInOut' },
+            },
           }}
         >
           {/* Orbe central destacado con animación */}
           <motion.div
             className="absolute w-32 h-32 z-50 rounded-full bg-gradient-to-r from-transparent via-indigo-500 to-cyan-300 flex items-center justify-center breathing-orb"
-            style={{ 
-              top: '37%', left: '50%', 
+            style={{
+              top: '37%',
+              left: '50%',
             }}
             drag
             dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
             dragElastic={0.2}
-            whileDrag={{ scale: 1.2 }} 
+            whileDrag={{ scale: 1.2 }}
             onDragStart={() => {
               gsap.killTweensOf('.breathing-orb');
               setIsDragging(true);
@@ -243,7 +249,11 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
                   key={index}
                   href={item.link}
                   className={`absolute flex flex-col items-center justify-center text-white ${filterClass}`}
-                  style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)`, transform: 'translate(-50%, -50%)' }}
+                  style={{
+                    left: `calc(50% + ${x}px)`,
+                    top: `calc(50% + ${y}px)`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
                   transition={{ duration: 0.3, ease: 'easeInOut' }}
                 >
                   <div className="text-2xl">{item.icon}</div>
@@ -255,7 +265,9 @@ const MenuRadial: React.FC<MenuRadialProps> = ({ open, setOpen }) => {
 
         {/* Label del icono activo */}
         {tutorialComplete && activeLabel && (
-          <motion.div className={`absolute top-[40%] active-label text-[7vw] font-bold right-10 p-4 text-white ${filterClass}`}>
+          <motion.div
+            className={`absolute top-[40%] active-label text-[7vw] font-bold right-10 p-4 text-white ${filterClass}`}
+          >
             {activeLabel}
           </motion.div>
         )}
