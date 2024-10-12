@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { AuthContext } from '../context/AuthContext';
 
 const ProfilePage = () => {
-  const { isAuthenticated, user, setAuthState } = useContext(AuthContext);
+  const { isAuthenticated, user } = useContext(AuthContext);
   const router = useRouter();
 
   // Si el usuario no está autenticado, redirigir a la página de autenticación
