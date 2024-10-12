@@ -1,12 +1,15 @@
+// auth/success/page.tsx
 'use client';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useContext } from 'react';
+import { AuthContext } from '../../context/AuthContext';
 
 // Fuerza el renderizado dinámico para evitar prerendering
 export const dynamic = 'force-dynamic';
 
 export default function AuthSuccessPage() {
   const router = useRouter();
+  const { setAuthState } = useContext(AuthContext);
 
   useEffect(() => {
     // Ejecutar solo en el cliente
@@ -16,8 +19,8 @@ export default function AuthSuccessPage() {
       const token = params.get('token');
       
       if (token) {
-        // Guardar el token en localStorage
-        localStorage.setItem('token', token);
+        // Actualizar el estado de autenticación
+        setAuthState(token);
         // Redirigir al perfil del usuario
         router.push('/profile');
       } else {
@@ -25,7 +28,7 @@ export default function AuthSuccessPage() {
         router.push('/auth');
       }
     }
-  }, [router]);
+  }, [router, setAuthState]);
 
   return <p>Redirigiendo...</p>;
 }

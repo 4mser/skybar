@@ -1,44 +1,18 @@
+// profile/page.tsx
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
-
-// Interfaz para tipar el usuario
-interface User {
-  username: string;
-  email: string;
-  role: string;
-  photo?: string;  // Añadimos la foto como opcional
-}
+import { AuthContext } from '../context/AuthContext';
 
 const ProfilePage = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const { isAuthenticated, user, setAuthState } = useContext(AuthContext);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/auth');  // Si no hay token, redirigir a la página de autenticación
-        return;
-      }
-
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API;  // Usamos la variable de entorno para la URL
-        const response = await axios.get(`${apiUrl}/users/me`, {  // Usamos la URL base de la variable de entorno
-          headers: {
-            Authorization: `Bearer ${token}`, // Enviamos el token en el header
-          },
-        });
-        setUser(response.data);  // Establecemos los datos del usuario
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        router.push('/auth');  // Si falla la obtención de datos, redirigir a autenticación
-      }
-    };
-
-    fetchUserData();
-  }, [router]);
+  // Si el usuario no está autenticado, redirigir a la página de autenticación
+  if (!isAuthenticated) {
+    router.push('/auth');
+    return <p className="text-center">Redirigiendo a la página de autenticación...</p>;
+  }
 
   if (!user) {
     return <p className="text-center">Cargando perfil...</p>;

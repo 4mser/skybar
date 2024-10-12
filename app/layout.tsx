@@ -3,6 +3,7 @@ import "./globals.css";
 import Topbar from "./components/topbar"; 
 import dynamic from "next/dynamic";
 import { DarkModeProvider } from './context/DarkModeContext'; // Importamos el proveedor
+import { AuthProvider } from "./context/AuthContext";
 
 const BokehBackground = dynamic(() => import("./components/blackhole"), {
   ssr: false,
@@ -36,11 +37,13 @@ export default function RootLayout({
       <body
       >
         {/* Proveedor de DarkMode para toda la app */}
-        <DarkModeProvider>
-          <BokehBackground />
-          <Topbar />
-          {children}
-        </DarkModeProvider>
+        <AuthProvider>
+          <DarkModeProvider>
+            <BokehBackground />
+            <Topbar />
+            {children}
+          </DarkModeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
