@@ -16,7 +16,6 @@ import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import Lottie from 'lottie-react';
 import aiAnimation from '@/public/animate-icons/AI.json';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 
 gsap.registerPlugin(ScrollToPlugin);
 
@@ -58,7 +57,6 @@ const AssistantDrawer: React.FC<AssistantDrawerProps> = ({ barId, submenuName })
   const [open, setOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
-  const router = useRouter();
 
   const createMessage = useCallback(
     (sender: 'assistant' | 'user', text: string, imageUrl?: string): Message => ({
