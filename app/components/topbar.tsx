@@ -5,50 +5,65 @@ import { useRouter } from 'next/navigation';
 import Logo from './logo';
 import MenuRadial from './menuRadial'; 
 import ClientBackground from './background';
-import { useDarkMode } from '../context/DarkModeContext'; // Usamos el contexto
+import { useDarkMode } from '../context/DarkModeContext';
 import axios from 'axios';
 
 const Topbar = () => {
   const [openMenu, setOpenMenu] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userPhoto, setUserPhoto] = useState<string | null>(null); // Para almacenar la foto del usuario
+  const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const router = useRouter();
 
-  const { backgroundMode, toggleBackground } = useDarkMode(); // Usamos el nuevo estado desde el contexto
+  const { backgroundMode, toggleBackground } = useDarkMode();
 
-  // Chequear si el usuario está autenticado
+  // Función para obtener datos del usuario
+  const fetchUserData = async (token: string) => {
+    try {
+      const response = await axios.get('https://aria-backend-production.up.railway.app/users/me', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUserPhoto(response.data.photo);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
+  // Chequear si el usuario está autenticado al montar el componente
   useEffect(() => {
     const token = localStorage.getItem('token'); 
     if (token) {
       setIsAuthenticated(true);
-
-      // Obtener la foto de perfil del usuario autenticado
-      const fetchUserData = async () => {
-        try {
-          const response = await axios.get('https://aria-backend-production.up.railway.app/users/me', {
-            headers: {
-              Authorization: `Bearer ${token}`, // Enviamos el token en el header
-            },
-          });
-          setUserPhoto(response.data.photo); // Guardamos la foto del usuario
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-        }
-      };
-
-      fetchUserData();
+      fetchUserData(token);
     } else {
       setIsAuthenticated(false);
       setUserPhoto(null);
     }
-  }, []);
 
-  // Redirigir para actualizar la página cuando el usuario inicia sesión
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.refresh();  // Forzar actualización de la página
-    }
-  }, [isAuthenticated, router]);
+    // Escuchar eventos personalizados de inicio y cierre de sesión
+    const handleLogin = () => {
+      const newToken = localStorage.getItem('token');
+      if (newToken) {
+        setIsAuthenticated(true);
+        fetchUserData(newToken);
+      }
+    };
+
+    const handleLogout = () => {
+      setIsAuthenticated(false);
+      setUserPhoto(null);
+    };
+
+    window.addEventListener('login', handleLogin);
+    window.addEventListener('logout', handleLogout);
+
+    // Limpieza del evento al desmontar el componente
+    return () => {
+      window.removeEventListener('login', handleLogin);
+      window.removeEventListener('logout', handleLogout);
+    };
+  }, []);
 
   const handleMenu = () => {
     setOpenMenu(!openMenu);
@@ -86,11 +101,11 @@ const Topbar = () => {
         {/* Botón para perfil o autenticación */}
         <button onClick={handleProfileClick} className='backdrop-blur-md p-1 rounded-full'>
           <Image
-            src={userPhoto ? userPhoto : '/icons/profile3.svg'}  // Mostrar la foto del usuario o el icono por defecto
+            src={userPhoto ? userPhoto : '/icons/profile3.svg'}
             alt="profile"
             width={28}
             height={28}
-            className={`rounded-full ${backgroundMode === 'neon' && !userPhoto ? 'invert opacity-80' : ''}`}  // Asegurarnos que la imagen de perfil sea redonda
+            className={`rounded-full ${backgroundMode === 'neon' && !userPhoto ? 'invert opacity-80' : ''}`}
           />
         </button>
       </div>
@@ -100,7 +115,7 @@ const Topbar = () => {
 
       {/* Pasar props a ClientBackground */}
       <ClientBackground
-        backgroundMode={backgroundMode}  // Pasamos el nuevo estado en lugar de isDarkBackground
+        backgroundMode={backgroundMode}
         toggleBackground={toggleBackground}
       />
     </>
