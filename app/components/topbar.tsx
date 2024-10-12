@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';  
+import { useRouter, usePathname } from 'next/navigation';  // Importamos usePathname
 import Logo from './logo';
 import MenuRadial from './menuRadial'; 
 import ClientBackground from './background';
@@ -12,7 +12,9 @@ const Topbar = () => {
   const [openMenu, setOpenMenu] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userPhoto, setUserPhoto] = useState<string | null>(null); // Para almacenar la foto del usuario
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // Para controlar la primera carga
   const router = useRouter();
+  const pathname = usePathname(); // Obtenemos la ruta actual
 
   const { backgroundMode, toggleBackground } = useDarkMode(); // Usamos el nuevo estado desde el contexto
 
@@ -41,14 +43,18 @@ const Topbar = () => {
       setIsAuthenticated(false);
       setUserPhoto(null);
     }
-  }, []);
+    setIsCheckingAuth(false); // Terminamos la verificación de autenticación
+  }, []); // Solo se ejecuta una vez cuando el componente se monta
 
-  // Redirigir para actualizar la página cuando el usuario inicia sesión
+  // Solo redirigir al perfil cuando el usuario inicia sesión manualmente
   useEffect(() => {
-    if (isAuthenticated) {
-      router.refresh();  // Forzar actualización de la página
+    if (isAuthenticated && !isCheckingAuth) {
+      // No redirigir si se está verificando la autenticación al recargar la página
+      if (pathname === '/auth') {
+        router.push('/profile'); // Redirigir al perfil si está autenticado y está en la página de autenticación
+      }
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isCheckingAuth, router, pathname]);
 
   const handleMenu = () => {
     setOpenMenu(!openMenu);
