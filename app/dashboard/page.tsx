@@ -74,6 +74,9 @@ const Dashboard = () => {
     router.push('/dashboard/menu'); // Redirige a la página de menús
   };
 
+  const goToAdsPage = () => {
+    router.push('/dashboard/ads');
+  }
   const openEditModal = (user: User) => {
     setSelectedUser(user);
     setNewRole(user.role);
@@ -180,6 +183,12 @@ const Dashboard = () => {
           onClick={goToMenuPage}
         >
           Menú
+        </button>
+        <button
+          className={`px-4 py-2 rounded-[10px] ${currentView === 'ads' ? 'bg-blue-600' : 'bg-gray-500'} text-white`}
+          onClick={goToAdsPage}
+        >
+          Anuncios
         </button>
       </div>
 

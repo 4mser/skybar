@@ -18,7 +18,6 @@ api.interceptors.request.use(
     }
     return config;
   }
-  // No es necesario el segundo parámetro si no estás usando 'error', así que lo eliminamos
 );
 
 // Registro de usuario
@@ -48,6 +47,57 @@ export const login = async (data: { username: string; password: string }) => {
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || 'Error en el inicio de sesión');
+    } else {
+      throw new Error('Error desconocido');
+    }
+  }
+};
+
+// Crear un anuncio
+export const createAd = async (data: FormData) => {
+  try {
+    const response = await api.post('/ads', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || 'Error al crear el anuncio');
+    } else {
+      throw new Error('Error desconocido');
+    }
+  }
+};
+
+// Obtener anuncios por BarId y opcionalmente por SubMenuId
+export const getAdsByBarAndSubMenu = async (barId: string, subMenuId?: string) => {
+  try {
+    let endpoint = `/ads/bar/${barId}`;
+    if (subMenuId) {
+      endpoint += `/submenu/${subMenuId}`;
+    }
+    const response = await api.get(endpoint);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || 'Error al obtener los anuncios');
+    } else {
+      throw new Error('Error desconocido');
+    }
+  }
+};
+
+
+// Eliminar un anuncio
+export const deleteAd = async (adId: string) => {
+  try {
+    const response = await api.delete(`/ads/${adId}`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || 'Error al eliminar el anuncio');
     } else {
       throw new Error('Error desconocido');
     }

@@ -7,19 +7,19 @@ const Logo = () => {
   const { backgroundMode } = useDarkMode(); // Acceder al backgroundMode desde el contexto
 
   // Seleccionar el logo según el backgroundMode
-  const logoSrc =
-    backgroundMode === 'neon'
-      ? '/images/skybar2.png'
-      : '/images/skybar.png'; 
+  // const logoSrc =
+  //   backgroundMode === 'neon'
+  //     ? '/images/skybar2.png'
+  //     : '/images/skybar.png'; 
 
   return (
     <Link href={'/'}>
       <Image
-        src={logoSrc} // Logo dinámico
+        src='/images/arialogo.png'
         alt="logo"
-        width={160}
+        width={90}
         height={40}
-        className="-translate-y-[2px]"
+        className={`${backgroundMode === 'neon' ? 'filter invert' : ''}`}
       />
     </Link>
   );

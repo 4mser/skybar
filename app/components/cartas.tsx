@@ -101,7 +101,7 @@ export default function Cartas() {
                   // Verificamos si el submenú tiene una imagen asignada, si no, usamos una imagen por defecto
                   src={submenu.imageUrl ? `${process.env.NEXT_PUBLIC_S3_BASE_URL}${submenu.imageUrl}` : defaultImages[index % defaultImages.length]}
                   alt={submenu.name}
-                  className="w-full h-48 object-cover rounded-[10px] shadow-lg"
+                  className="w-full h-48 transition duration-300 hover:scale-105 object-cover rounded-[10px] shadow-lg"
                   priority={index === 0}
                 />
                 <p className='text-xs font-extralight py-2'>{submenu.name}</p>
